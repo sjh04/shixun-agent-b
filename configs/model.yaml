@@ -2,7 +2,6 @@ runtime:
   default_mode: prompt_json
 
 model:
-  # backend: transformers(本地权重直接加载) 或 vllm(走 serve_vllm.sh 的 HTTP 服务)
   backend: transformers
   # 相对 configs/ 解析,默认指向仓库内 models/(已 .gitignore);把权重放到 models/Qwen3.5-4B 即可。
   model_name_or_path: ../models/Qwen3.5-4B
@@ -11,14 +10,6 @@ model:
   trust_remote_code: true
   torch_dtype: bfloat16
   device_map: auto
-
-# 仅当 model.backend == vllm 时生效;先用 serve_vllm.sh 起服务再切换。
-# served_model_name 必须与 serve_vllm.sh 的 --served-model-name 一致。
-vllm:
-  base_url: http://127.0.0.1:8000/v1
-  served_model_name: Qwen3.5-4B
-  api_key: EMPTY
-  timeout_s: 120
 
 generation:
   max_new_tokens: 1024

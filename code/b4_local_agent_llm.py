@@ -298,12 +298,12 @@ def _build_prompt_messages(messages: list[dict], tools_schema: list[dict]) -> li
     return prompt_messages
 
 
-def _transformers_generate(config_path: Path, config: dict, prompt_messages: list[dict]) -> str:
+def _prompt_json_generate(config_path: Path, config: dict, messages: list[dict], tools_schema: list[dict]) -> str:
     try:
         import torch
         from transformers import AutoModelForCausalLM, AutoTokenizer
     except ImportError as exc:
-        raise RuntimeError("transformers backend requires torch and transformers (see requirements.txt)") from exc
+        raise RuntimeError("prompt_json mode requires torch and transformers (see requirements.txt)") from exc
     model_config = config.get("model", {})
     generation_config = config.get("generation", {})
     model_setting = model_config.get("model_name_or_path")
@@ -328,6 +328,7 @@ def _transformers_generate(config_path: Path, config: dict, prompt_messages: lis
         model_config.get("device_map", "auto"),
         model_config.get("max_memory"),
     )
+    prompt_messages = _build_prompt_messages(messages, tools_schema)
     inputs = tokenizer.apply_chat_template(
         prompt_messages,
         tokenize=True,
@@ -347,56 +348,6 @@ def _transformers_generate(config_path: Path, config: dict, prompt_messages: lis
         generated = model.generate(**inputs, **options)
     new_tokens = generated[0][input_length:]
     return tokenizer.decode(new_tokens, skip_special_tokens=True)
-
-
-def _vllm_generate(config: dict, prompt_messages: list[dict]) -> str:
-    """Call a running vLLM OpenAI-compatible server (see serve_vllm.sh)."""
-    try:
-        import requests
-    except ImportError as exc:
-        raise RuntimeError("vllm backend requires the 'requests' package (see requirements.txt)") from exc
-    model_config = config.get("model", {})
-    generation_config = config.get("generation", {})
-    vllm_config = config.get("vllm", {}) or {}
-    base_url = str(vllm_config.get("base_url", "http://127.0.0.1:8000/v1")).rstrip("/")
-    served_model = vllm_config.get("served_model_name") or model_config.get("model_name_or_path")
-    api_key = vllm_config.get("api_key", "EMPTY")
-    timeout_s = float(vllm_config.get("timeout_s", 120))
-    do_sample = bool(generation_config.get("do_sample", False))
-    payload = {
-        "model": served_model,
-        "messages": prompt_messages,
-        "max_tokens": int(generation_config.get("max_new_tokens", 1024)),
-        "temperature": float(generation_config.get("temperature", 0)) if do_sample else 0.0,
-        "top_p": float(generation_config.get("top_p", 1)),
-        "stream": False,
-        # 关闭 Qwen3 思考模式,与 transformers 后端的 enable_thinking=False 对齐
-        "chat_template_kwargs": {"enable_thinking": False},
-    }
-    url = f"{base_url}/chat/completions"
-    headers = {"Authorization": f"Bearer {api_key}", "Content-Type": "application/json"}
-    try:
-        response = requests.post(url, json=payload, headers=headers, timeout=timeout_s)
-    except requests.exceptions.RequestException as exc:
-        raise RuntimeError(f"cannot reach vLLM server at {url}; start serve_vllm.sh first ({exc})") from exc
-    if response.status_code != 200:
-        raise RuntimeError(f"vLLM server returned HTTP {response.status_code}: {response.text[:500]}")
-    data = response.json()
-    try:
-        content = data["choices"][0]["message"]["content"]
-    except (KeyError, IndexError, TypeError) as exc:
-        raise RuntimeError(f"unexpected vLLM response shape: {json.dumps(data, ensure_ascii=False)[:500]}") from exc
-    return content if isinstance(content, str) else ""
-
-
-def _prompt_json_generate(config_path: Path, config: dict, messages: list[dict], tools_schema: list[dict]) -> str:
-    backend = str(config.get("model", {}).get("backend", "transformers"))
-    prompt_messages = _build_prompt_messages(messages, tools_schema)
-    if backend == "transformers":
-        return _transformers_generate(config_path, config, prompt_messages)
-    if backend == "vllm":
-        return _vllm_generate(config, prompt_messages)
-    raise ValueError(f"unsupported backend: {backend} (expected 'transformers' or 'vllm')")
 
 
 def generate_ai_message(

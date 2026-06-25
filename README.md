@@ -17,18 +17,7 @@ B4的mock模式不真实加载、运行模型，作为无 GPU、无模型或模�
 
 ## 1. 环境准备
 
-B4 的 `prompt_json` 模式支持两种推理后端，对应**两套相互独立、不可混装**的环境，按需选用其一即可：
-
-| 后端 | 运行方式 | 依赖文件 | 环境 |
-|---|---|---|---|
-| `transformers`（默认） | 进程内直接加载本地权重 | `requirements.txt` | 主环境（torch cu118） |
-| `vllm`（可选） | 连接 vLLM 的 OpenAI 兼容服务 | `requirements-vllm.txt` | 独立 vLLM 环境（torch cu12x） |
-
-两者不能装进同一环境：vLLM 会自带与之匹配的 torch + CUDA，与主环境固定的 `torch==2.7.1+cu118` 冲突。
-
-### 1.1 主环境（transformers 后端，默认）
-
-B1–B5 默认使用，在该环境内加载本地 Qwen3.5-4B 真实推理。推荐每位同学新建自己的 conda 环境：
+B1–B5 使用本地 Qwen3.5-4B、通过 transformers 直接加载推理。所有模块统一使用项目根目录下的 `requirements.txt`。推荐每位同学新建自己的 conda 环境：
 
 ```bash
 conda create -n your_env python=3.10 -y
@@ -39,31 +28,6 @@ pip install -r requirements.txt
 其中"export PYTHONNOUSERSITE=1"的作用是：让Python启动时禁止加载用户级site-packages目录，保证只用当前环境自己的包
 
 模型使用 Qwen3.5-4B。统一配置文件为 `configs/model.yaml`，其中 `model_name_or_path` / `tokenizer_name_or_path` 默认是相对路径 `../models/Qwen3.5-4B`（相对 `configs/` 解析，即仓库内的 `models/` 目录，已 `.gitignore`）。把权重放到 `models/Qwen3.5-4B/` 下即可（下载到此处，或 `ln -s 你的模型目录 models/Qwen3.5-4B` 建软链）；也可改成模型所在的绝对路径。
-
-### 1.2 vLLM 服务环境（vllm 后端，可选）
-
-若改用 vLLM 提供推理服务，请**另建一个**环境安装,切勿复用上面的主环境：
-
-```bash
-conda create -n vllm python=3.10 -y
-conda activate vllm
-pip install -r requirements-vllm.txt   # 需支持 qwen3_5 架构的较新 vllm
-```
-
-启动脚本 `serve_vllm.sh` 位于工程根目录（`agent/`），会拉起 OpenAI 兼容服务，关键参数可用环境变量覆盖：
-
-```bash
-bash serve_vllm.sh                            # 默认 GPU0 / 32K 上下文 / 8000 端口
-# GPUS=1 PORT=8001 bash serve_vllm.sh         # 换卡换端口
-# GPUS=0,1 TP=2 MAX_LEN=65536 bash serve_vllm.sh   # 双卡张量并行
-```
-
-### 1.3 切换后端
-
-在 `configs/model.yaml` 中通过 `model.backend` 切换，命令行无需改动：
-
-- `backend: transformers`：在主环境内本地加载权重（默认）。
-- `backend: vllm`：调用上面启动的 vLLM 服务。需保证 `configs/model.yaml` 里 `vllm.served_model_name` 与 `serve_vllm.sh` 的 `--served-model-name` 一致（默认都是 `Qwen3.5-4B`），并按需修改 `vllm.base_url`。切到此后端后，运行 B1/B4/run_full_demo 的进程只依赖 `requests`，不再需要 torch/transformers/vllm。
 
 演示命令均从 `agent/code` 目录执行：
 
@@ -280,7 +244,7 @@ B4 只生成 AIMessage，不执行工具。
 
 | 输入文件 | 说明 |
 |---|---|
-| `configs/model.yaml` | 统一真实模型配置：本地 Qwen3.5-4B、bf16、`prompt_json`；含 `model.backend`（`transformers`/`vllm`）及 `vllm` 服务连接段（详见 1.3）。 |
+| `configs/model.yaml` | 统一真实模型配置：本地 Qwen3.5-4B、Transformers、bf16、`prompt_json`。 |
 | `data/messages/messages_no_tool.json` | 第一阶段独立运行输入，只含 system/user，真实模型应生成 tool call。 |
 | `data/messages/messages_with_tool.json` | 第二阶段独立运行输入，已含 ToolMessage，真实模型应生成最终回答。 |
 | `data/messages/messages_with_error_tool.json` | 已含失败 ToolMessage，验证模型直接说明失败并保持 `tool_calls=[]`。 |
