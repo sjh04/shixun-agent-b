@@ -1,0 +1,37 @@
+runtime:
+  default_mode: prompt_json
+
+model:
+  # backend: transformers(本地权重直接加载) 或 vllm(走 serve_vllm.sh 的 HTTP 服务)
+  backend: transformers
+  model_name_or_path: /mnt/aisdata/sjh04/实训2/Qwen3.5-4B
+  tokenizer_name_or_path: /mnt/aisdata/sjh04/实训2/Qwen3.5-4B
+  local_files_only: true
+  trust_remote_code: true
+  torch_dtype: bfloat16
+  device_map: auto
+
+# 仅当 model.backend == vllm 时生效;先用 serve_vllm.sh 起服务再切换。
+# served_model_name 必须与 serve_vllm.sh 的 --served-model-name 一致。
+vllm:
+  base_url: http://127.0.0.1:8000/v1
+  served_model_name: Qwen3.5-4B
+  api_key: EMPTY
+  timeout_s: 120
+
+generation:
+  max_new_tokens: 1024
+  do_sample: false
+  temperature: 0
+  top_p: 1
+
+context:
+  max_input_tokens: 4096
+
+tool_calling:
+  mode: prompt_json
+
+outputs:
+  save_raw_output: true
+  save_ai_message: true
+  save_prompt_text: true
