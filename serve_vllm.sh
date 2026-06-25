@@ -16,8 +16,11 @@
 # =============================================================================
 set -euo pipefail
 
+# 脚本所在目录(无论从哪执行都能定位仓库内的 models/)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
 # ---------------------- 可调参数 (环境变量可覆盖) ----------------------
-MODEL_PATH="${MODEL_PATH:-/mnt/aisdata/sjh04/实训2/Qwen3.5-4B}"
+MODEL_PATH="${MODEL_PATH:-${SCRIPT_DIR}/models/Qwen3.5-4B}"
 SERVED_NAME="${SERVED_NAME:-Qwen3.5-4B}"   # 客户端 model 字段用这个名字
 GPUS="${GPUS:-0}"                          # 用哪几张卡: "0" / "0,1" / "2,3"
 TP="${TP:-1}"                              # tensor-parallel-size,必须 == GPU 数

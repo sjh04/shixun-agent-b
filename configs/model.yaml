@@ -4,8 +4,9 @@ runtime:
 model:
   # backend: transformers(本地权重直接加载) 或 vllm(走 serve_vllm.sh 的 HTTP 服务)
   backend: transformers
-  model_name_or_path: /mnt/aisdata/sjh04/实训2/Qwen3.5-4B
-  tokenizer_name_or_path: /mnt/aisdata/sjh04/实训2/Qwen3.5-4B
+  # 相对 configs/ 解析,默认指向仓库内 models/(已 .gitignore);把权重放到 models/Qwen3.5-4B 即可。
+  model_name_or_path: ../models/Qwen3.5-4B
+  tokenizer_name_or_path: ../models/Qwen3.5-4B
   local_files_only: true
   trust_remote_code: true
   torch_dtype: bfloat16

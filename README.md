@@ -38,7 +38,7 @@ pip install -r requirements.txt
 ```
 其中"export PYTHONNOUSERSITE=1"的作用是：让Python启动时禁止加载用户级site-packages目录，保证只用当前环境自己的包
 
-模型使用 Qwen3.5-4B。统一配置文件为 `configs/model.yaml`，实际使用时需要把 `model_name_or_path` 和 `tokenizer_name_or_path` 改为模型所在的文件路径。
+模型使用 Qwen3.5-4B。统一配置文件为 `configs/model.yaml`，其中 `model_name_or_path` / `tokenizer_name_or_path` 默认是相对路径 `../models/Qwen3.5-4B`（相对 `configs/` 解析，即仓库内的 `models/` 目录，已 `.gitignore`）。把权重放到 `models/Qwen3.5-4B/` 下即可（下载到此处，或 `ln -s 你的模型目录 models/Qwen3.5-4B` 建软链）；也可改成模型所在的绝对路径。
 
 ### 1.2 vLLM 服务环境（vllm 后端，可选）
 
