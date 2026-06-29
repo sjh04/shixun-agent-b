@@ -4,3 +4,6 @@ outputs/_test_*/
 outputs/tmp*/
 models/*
 !models/.gitkeep
+data/docs/20235919任宇轩proposal.md
+data/docs/开发计划.md
+CLAUDE.md
