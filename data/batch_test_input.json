@@ -1,0 +1,33 @@
+{
+  "batch_conversation_id": "batch_test_001",
+  "global_config": {
+    "system_prompt_path": "../prompts/local_tool_agent.txt",
+    "toolset": "basic_tools",
+    "max_turns": 3,
+    "use_global_memory": true,
+    "selected_memory_ids": ["mem_conversation_conv_000"],
+    "save_memory": "none"
+  },
+  "tasks": [
+    {
+      "task_id": "task_01_file_reader",
+      "user_input": "帮我读取 docs/agent_intro.txt 文件，用中文总结三条关键信息。"
+    },
+    {
+      "task_id": "task_02_calculator",
+      "user_input": "请用计算器帮我算一下 (123 * 456) + 789 的结果。"
+    },
+    {
+      "task_id": "task_03_file_search",
+      "user_input": "在 docs 目录下搜索包含'工具'关键词的文档，告诉我有哪些。"
+    },
+    {
+      "task_id": "task_04_table_analyzer",
+      "user_input": "帮我分析 tables/results.csv 表格，告诉我有哪些列和基本统计信息。"
+    },
+    {
+      "task_id": "task_05_format_converter",
+      "user_input": "把下面这句话转成 JSON 格式：'本项目是一个本地 Agent 框架，支持工具调用和记忆管理。'"
+    }
+  ]
+}
