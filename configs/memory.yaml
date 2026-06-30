@@ -19,6 +19,8 @@ memory:
     use_rerank: true
     vector_backend: qwen_or_hashing
     hashing_dim: 768
+    cache_embeddings: true
+    vector_cache_path: memory_vector_cache.json
 
   compression:
     enabled: true

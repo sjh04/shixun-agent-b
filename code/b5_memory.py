@@ -33,6 +33,8 @@ DEFAULTS = {
         "use_rerank": True,
         "hashing_dim": 768,
         "vector_backend": "qwen_or_hashing",
+        "cache_embeddings": True,
+        "vector_cache_path": "memory_vector_cache.json",
     },
     "compression": {
         "enabled": True,
@@ -108,6 +110,7 @@ def _memory_paths(config_path: str | Path) -> dict[str, Any]:
         "global": root / memory["global_memory_dir"],
         "conversations": root / memory["conversation_memory_dir"],
         "index": root / memory["index_path"],
+        "vector_cache": root / memory.get("retrieval", {}).get("vector_cache_path", "memory_vector_cache.json"),
         "max_chars": memory["max_memory_chars"],
     }
 
@@ -119,6 +122,20 @@ def _read_index(index_path: Path) -> dict:
     if not isinstance(index, dict):
         raise ValueError("memory_index.json must be an object")
     return index
+
+
+def _read_vector_cache(cache_path: Path) -> dict:
+    if not cache_path.exists():
+        return {"version": 1, "vectors": {}}
+    cache = read_json(cache_path)
+    if not isinstance(cache, dict) or not isinstance(cache.get("vectors"), dict):
+        return {"version": 1, "vectors": {}}
+    cache.setdefault("version", 1)
+    return cache
+
+
+def _write_vector_cache(cache: dict, cache_path: Path) -> None:
+    write_json(cache, cache_path)
 
 
 def _safe_conversation_id(conversation_id: str) -> str:
@@ -450,6 +467,95 @@ def _vectorize(config_path: Path, memory_config: dict, text: str) -> tuple[dict[
     return _hash_vector(_tokenize(text), int(retrieval.get("hashing_dim", 768))), "hashing"
 
 
+def _content_hash(text: str) -> str:
+    return hashlib.blake2b(text.encode("utf-8"), digest_size=16).hexdigest()
+
+
+def _preferred_vector_backend(memory_config: dict) -> str:
+    retrieval = memory_config.get("retrieval", {})
+    backend = str(retrieval.get("vector_backend", "qwen_or_hashing"))
+    if backend == "qwen_or_hashing":
+        return "qwen" if memory_config.get("llm", {}).get("enabled", False) else "hashing"
+    return backend
+
+
+def _serialize_vector(vector: dict[int, float]) -> list[list[float]]:
+    return [[int(index), float(value)] for index, value in sorted(vector.items())]
+
+
+def _deserialize_vector(raw: Any) -> dict[int, float]:
+    if not isinstance(raw, list):
+        return {}
+    vector = {}
+    for item in raw:
+        if not isinstance(item, list) or len(item) != 2:
+            continue
+        try:
+            index = int(item[0])
+            value = float(item[1])
+        except (TypeError, ValueError):
+            continue
+        vector[index] = value
+    return vector
+
+
+def _chunk_cache_key(chunk: dict, backend: str, source_hash: str) -> str:
+    return f"{chunk['memory_id']}:{chunk['chunk_index']}:{backend}:{source_hash}"
+
+
+def _cached_chunk_vectorize(
+    paths: dict,
+    cache: dict,
+    chunk: dict,
+    diagnostics: dict,
+    backend_override: str | None = None,
+) -> tuple[dict[int, float], str]:
+    config = paths["config"]
+    retrieval = config.get("retrieval", {})
+    if not retrieval.get("cache_embeddings", True):
+        vector, backend = _vectorize_with_backend(paths["config_path"], config, chunk["content"], backend_override)
+        diagnostics["embedding_cache_disabled"] = diagnostics.get("embedding_cache_disabled", 0) + 1
+        return vector, backend
+
+    source_hash = _content_hash(chunk["content"])
+    preferred_backend = backend_override or _preferred_vector_backend(config)
+    vectors = cache.setdefault("vectors", {})
+    preferred_key = _chunk_cache_key(chunk, preferred_backend, source_hash)
+    cached = vectors.get(preferred_key)
+    if isinstance(cached, dict):
+        vector = _deserialize_vector(cached.get("vector"))
+        if vector:
+            diagnostics["embedding_cache_hits"] = diagnostics.get("embedding_cache_hits", 0) + 1
+            return vector, str(cached.get("backend", preferred_backend))
+
+    vector, backend = _vectorize_with_backend(paths["config_path"], config, chunk["content"], backend_override)
+    key = _chunk_cache_key(chunk, backend, source_hash)
+    vectors[key] = {
+        "memory_id": chunk["memory_id"],
+        "chunk_index": chunk["chunk_index"],
+        "backend": backend,
+        "source_hash": source_hash,
+        "path": chunk["path"],
+        "vector": _serialize_vector(vector),
+    }
+    diagnostics["embedding_cache_misses"] = diagnostics.get("embedding_cache_misses", 0) + 1
+    return vector, backend
+
+
+def _vectorize_with_backend(
+    config_path: Path,
+    memory_config: dict,
+    text: str,
+    backend_override: str | None,
+) -> tuple[dict[int, float], str]:
+    if backend_override == "hashing":
+        dim = int(memory_config.get("retrieval", {}).get("hashing_dim", 768))
+        return _hash_vector(_tokenize(text), dim), "hashing"
+    if backend_override == "qwen":
+        return _qwen_embedding(config_path, memory_config, text), "qwen"
+    return _vectorize(config_path, memory_config, text)
+
+
 def _hyde_query(config_path: Path, memory_config: dict, query: str) -> tuple[str, str]:
     retrieval = memory_config.get("retrieval", {})
     if not retrieval.get("use_hyde", False):
@@ -610,14 +716,28 @@ def _rank_memory_docs(paths: dict, docs: list[dict], query: str | None) -> tuple
     bm25 = _bm25_scores(hyde_query if mode in {"keyword", "hybrid"} else query, chunks) if mode in {"keyword", "hybrid"} else {}
     vector_scores: dict[int, float] = {}
     vector_backend = None
+    cache = _read_vector_cache(paths["vector_cache"])
+    cache_diagnostics = {
+        "embedding_cache_hits": 0,
+        "embedding_cache_misses": 0,
+        "embedding_cache_disabled": 0,
+    }
     if mode in {"vector", "hybrid"}:
         query_vector, vector_backend = _vectorize(paths["config_path"], config, hyde_query)
         for index, chunk in enumerate(chunks):
-            chunk_vector, used_backend = _vectorize(paths["config_path"], config, chunk["content"])
+            chunk_vector, used_backend = _cached_chunk_vectorize(
+                paths,
+                cache,
+                chunk,
+                cache_diagnostics,
+                vector_backend,
+            )
             vector_backend = vector_backend or used_backend
             score = _cosine_dict(query_vector, chunk_vector)
             if score:
                 vector_scores[index] = score
+        if config.get("retrieval", {}).get("cache_embeddings", True) and cache_diagnostics["embedding_cache_misses"]:
+            _write_vector_cache(cache, paths["vector_cache"])
     rankings = []
     if bm25:
         rankings.append(_rank_from_scores(bm25))
@@ -682,6 +802,13 @@ def _rank_memory_docs(paths: dict, docs: list[dict], query: str | None) -> tuple
         "rerank": rerank_mode,
         "vector_backend": vector_backend,
         "chunk_count": len(chunks),
+        "embedding_cache": {
+            "path": str(paths["vector_cache"]),
+            "size": len(cache.get("vectors", {})),
+            "hits": cache_diagnostics["embedding_cache_hits"],
+            "misses": cache_diagnostics["embedding_cache_misses"],
+            "disabled": cache_diagnostics["embedding_cache_disabled"],
+        },
         "latency_ms": round((perf_counter() - started) * 1000, 3),
     }
     return ranked_docs, diagnostics

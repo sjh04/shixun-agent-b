@@ -2,5 +2,6 @@ __pycache__/
 *.py[cod]
 outputs/_test_*/
 outputs/tmp*/
+memory/memory_vector_cache.json
 models/*
 !models/.gitkeep

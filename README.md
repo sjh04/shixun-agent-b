@@ -238,7 +238,7 @@ B5 保存命令会更新项目正式记忆目录：生成或覆盖 `memory/conve
 
 当前 B5 在保持 `load_memory` / `save_memory` 函数签名兼容的基础上，新增了主动记忆管理能力，均由 `configs/memory.yaml` 控制：
 
-- 检索层：`none|keyword|vector|hybrid`，支持 chunk、BM25、hashing/Qwen 向量、RRF、三因子重排、HyDE 与 rerank 兜底。
+- 检索层：`none|keyword|vector|hybrid`，支持 chunk、BM25、hashing/Qwen 向量、RRF、三因子重排、HyDE 与 rerank 兜底；chunk embedding 会按内容 hash 缓存在 `memory_vector_cache.json`。
 - 压缩层：超预算记忆优先摘要压缩，模型不可用时退化为抽取式摘要。
 - 整合层：重复 / 补充 / 冲突更新生成 `change_report`，保存时输出 `importance` 与 `poison_gate` 状态。
 - 生命周期层：维护 `last_accessed_at` / `access_count`，支持容量淘汰与周期性 reflection 全局记忆。
