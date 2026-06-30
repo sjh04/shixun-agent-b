@@ -234,6 +234,22 @@ B5 保存命令会更新项目正式记忆目录：生成或覆盖 `memory/conve
 
 `selected_memory.json` 和 `saved_memory.json` 会覆盖；`memory_log.jsonl` 追加；索引和 Markdown 记忆文档会新增或更新。
 
+### 5.4 B5 主动记忆增强与评测
+
+当前 B5 在保持 `load_memory` / `save_memory` 函数签名兼容的基础上，新增了主动记忆管理能力，均由 `configs/memory.yaml` 控制：
+
+- 检索层：`none|keyword|vector|hybrid`，支持 chunk、BM25、hashing/Qwen 向量、RRF、三因子重排、HyDE 与 rerank 兜底。
+- 压缩层：超预算记忆优先摘要压缩，模型不可用时退化为抽取式摘要。
+- 整合层：重复 / 补充 / 冲突更新生成 `change_report`，保存时输出 `importance` 与 `poison_gate` 状态。
+- 生命周期层：维护 `last_accessed_at` / `access_count`，支持容量淘汰与周期性 reflection 全局记忆。
+- 评测层：`code/evaluate_b5_memory.py` 可对标注 query 计算 Hit@k 和 MRR。
+
+检索评测示例：
+
+```bash
+python evaluate_b5_memory.py --config ../configs/memory.yaml --queries ../data/memory_eval/b5_eval_queries.json --outdir ../outputs/B5_eval
+```
+
 ## 6. B4：真实调用模型 / Mock 调试决策
 
 入口：`code/b4_local_agent_llm.py`

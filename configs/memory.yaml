@@ -4,3 +4,49 @@ memory:
   conversation_memory_dir: conversations
   index_path: memory_index.json
   max_memory_chars: 2000
+
+  retrieval:
+    mode: hybrid          # none | keyword | vector | hybrid
+    top_k: 5
+    candidate_limit: 30
+    chunk_chars: 700
+    chunk_overlap: 120
+    rrf_k: 60
+    recency_half_life_days: 30
+    include_all_conversations: true
+    include_global_when_query: true
+    use_hyde: true
+    use_rerank: true
+    vector_backend: qwen_or_hashing
+    hashing_dim: 768
+
+  compression:
+    enabled: true
+    summary_chars: 700
+    summary_sentences: 5
+    min_chars_for_summary: 480
+
+  integration:
+    enabled: true
+    duplicate_similarity: 0.92
+    conflict_similarity: 0.28
+
+  poison_gate:
+    enabled: true
+    action: flag          # flag | block
+    trusted_memory_types: [global]
+    conflict_threshold: 0.32
+
+  lifecycle:
+    max_memories: 200
+    protect_global: true
+    importance_default: 5
+    reflect_enabled: true
+    reflect_every_n: 10
+    reflect_min_cluster_size: 3
+
+  llm:
+    enabled: false        # true enables local Qwen for HyDE, rerank, summaries, importance, embeddings
+    model_config: ../configs/model.yaml
+    mode: prompt_json
+    max_new_tokens: 512
