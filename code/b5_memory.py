@@ -346,6 +346,19 @@ def _qwen_paths(config_path: Path, memory_config: dict) -> tuple[Path | None, Pa
     return resolve_from_file(model_setting, model_config_path), resolve_from_file(tokenizer_setting, model_config_path)
 
 
+def _torch_dtype(torch_module: Any, configured: Any) -> Any:
+    if configured in {None, "auto"}:
+        return "auto"
+    mapping = {
+        "bfloat16": torch_module.bfloat16,
+        "float16": torch_module.float16,
+        "float32": torch_module.float32,
+    }
+    if configured not in mapping:
+        raise ValueError(f"unsupported torch_dtype: {configured}")
+    return mapping[configured]
+
+
 def _load_qwen(config_path: Path, memory_config: dict) -> tuple[Any, Any, Any]:
     llm = memory_config.get("llm", {})
     model_config_path = resolve_from_file(llm.get("model_config", "../configs/model.yaml"), config_path)
@@ -362,17 +375,22 @@ def _load_qwen(config_path: Path, memory_config: dict) -> tuple[Any, Any, Any]:
     model = model_config.get("model", {}) if isinstance(model_config, dict) else {}
     model_path = resolve_from_file(model.get("model_name_or_path"), model_config_path)
     tokenizer_path = resolve_from_file(model.get("tokenizer_name_or_path", model.get("model_name_or_path")), model_config_path)
+    local_only = bool(model.get("local_files_only", True))
+    trust_remote_code = bool(model.get("trust_remote_code", True))
     tokenizer = AutoTokenizer.from_pretrained(
         str(tokenizer_path),
-        local_files_only=bool(model.get("local_files_only", True)),
-        trust_remote_code=bool(model.get("trust_remote_code", True)),
+        local_files_only=local_only,
+        trust_remote_code=trust_remote_code,
     )
     loaded = AutoModelForCausalLM.from_pretrained(
         str(model_path),
-        local_files_only=bool(model.get("local_files_only", True)),
-        trust_remote_code=bool(model.get("trust_remote_code", True)),
+        local_files_only=local_only,
+        trust_remote_code=trust_remote_code,
+        dtype=_torch_dtype(torch, model.get("torch_dtype", "auto")),
         device_map=model.get("device_map", "auto"),
+        max_memory=model.get("max_memory"),
     )
+    loaded.eval()
     bundle = (torch, tokenizer, loaded)
     _QWEN_CACHE[cache_key] = bundle
     return bundle
@@ -639,8 +657,9 @@ def _rank_memory_docs(paths: dict, docs: list[dict], query: str | None) -> tuple
     ranked_chunks = sorted(best_by_memory.values(), key=lambda item: (-item["score"], item["memory_id"]))
     ranked_chunks = ranked_chunks[: int(retrieval.get("candidate_limit", 30))]
 
+    rerank_mode = "disabled"
     if retrieval.get("use_rerank", False):
-        ranked_chunks = _rerank_with_qwen(paths["config_path"], config, query, ranked_chunks)
+        ranked_chunks, rerank_mode = _rerank_with_qwen(paths["config_path"], config, query, ranked_chunks)
 
     doc_by_id = {doc["memory_id"]: doc for doc in docs}
     ranked_docs = []
@@ -660,6 +679,7 @@ def _rank_memory_docs(paths: dict, docs: list[dict], query: str | None) -> tuple
     diagnostics = {
         "mode": mode,
         "hyde": hyde_mode,
+        "rerank": rerank_mode,
         "vector_backend": vector_backend,
         "chunk_count": len(chunks),
         "latency_ms": round((perf_counter() - started) * 1000, 3),
@@ -667,16 +687,17 @@ def _rank_memory_docs(paths: dict, docs: list[dict], query: str | None) -> tuple
     return ranked_docs, diagnostics
 
 
-def _rerank_with_qwen(config_path: Path, config: dict, query: str, ranked_chunks: list[dict]) -> list[dict]:
+def _rerank_with_qwen(config_path: Path, config: dict, query: str, ranked_chunks: list[dict]) -> tuple[list[dict], str]:
     if not ranked_chunks:
-        return ranked_chunks
+        return ranked_chunks, "empty"
     try:
         candidates = [
             {"memory_id": item["memory_id"], "chunk_index": item["chunk_index"], "content": item["content"][:700]}
             for item in ranked_chunks[:10]
         ]
         prompt = (
-            "Rerank the memory candidates for the query. Return JSON array of memory_id strings only.\n\n"
+            "Rerank the memory candidates for the query. Return exactly one valid JSON array of memory_id strings. "
+            "Do not output markdown, comments, or extra text.\n\n"
             f"Query: {query}\n"
             f"Candidates:\n{json.dumps(candidates, ensure_ascii=False)}"
         )
@@ -684,10 +705,10 @@ def _rerank_with_qwen(config_path: Path, config: dict, query: str, ranked_chunks
         order = json.loads(generated)
         if isinstance(order, list):
             position = {str(memory_id): index for index, memory_id in enumerate(order)}
-            return sorted(ranked_chunks, key=lambda item: (position.get(item["memory_id"], 999), -item["score"]))
+            return sorted(ranked_chunks, key=lambda item: (position.get(item["memory_id"], 999), -item["score"])), "qwen"
     except Exception:
         pass
-    return ranked_chunks
+    return ranked_chunks, "fallback"
 
 
 def _format_memory_content(paths: dict, doc: dict, query: str | None, remaining: int) -> tuple[str, bool, str]:
