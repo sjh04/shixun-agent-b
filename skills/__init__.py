@@ -1,7 +1,13 @@
+"""B2 Skill 工具函数包。
+
+提供 Skill 函数共用的基础设施：
+  - DEFAULT_DATA_ROOT : 默认数据根目录（B2/data/）
+  - resolve_data_path : 安全路径解析（防越权）
+"""
+
 from __future__ import annotations
 
 from pathlib import Path
-
 
 DEFAULT_DATA_ROOT = Path(__file__).resolve().parents[1] / "data"
 

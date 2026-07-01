@@ -3,6 +3,13 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from skills.error_codes import (
+    ERR_FORMAT_INVALID,
+    ERR_PARAM_MISSING,
+    ERR_PARAM_UNSUPPORTED,
+    SkillError,
+)
+
 
 DEFAULT_OUTPUT_DIR = Path(__file__).resolve().parents[1] / "outputs" / "format_converter_files"
 DEFAULT_FILENAMES = {"markdown": "converted.md", "json": "converted.json"}
@@ -15,13 +22,13 @@ def _parse_key_value_lines(text: str) -> dict[str, str]:
         if not line:
             continue
         if ":" not in line:
-            raise ValueError(f"expected 'key: value' line: {line}")
+            raise SkillError(ERR_FORMAT_INVALID, f"expected 'key: value' line: {line}", {"line": line})
         key, value = (part.strip() for part in line.split(":", 1))
         if not key or key in result:
-            raise ValueError(f"invalid or duplicate key: {key}")
+            raise SkillError(ERR_FORMAT_INVALID, f"invalid or duplicate key: {key}", {"key": key})
         result[key] = value
     if not result:
-        raise ValueError("text contains no convertible content")
+        raise SkillError(ERR_PARAM_MISSING, "text contains no convertible content")
     return result
 
 
@@ -54,7 +61,7 @@ def format_converter(
     output_dir: str | None = None,
 ) -> dict:
     if not isinstance(text, str) or not text.strip():
-        raise ValueError("text must be a non-empty string")
+        raise SkillError(ERR_PARAM_MISSING, "text must be a non-empty string", {"param": "text"})
     target = target_format.strip().lower() if isinstance(target_format, str) else ""
     if target == "markdown":
         lines = [line.strip() for line in text.splitlines() if line.strip()]
@@ -66,6 +73,6 @@ def format_converter(
             parsed = _parse_key_value_lines(text)
         formatted_text = json.dumps(parsed, ensure_ascii=False, indent=2)
     else:
-        raise ValueError("target_format must be markdown or json")
+        raise SkillError(ERR_PARAM_UNSUPPORTED, "target_format must be markdown or json", {"target_format": target_format})
     generated_path = _write_output_file(formatted_text, output_dir, output_filename, target)
     return {"formatted_text": formatted_text, "generated_file_path": str(generated_path)}
