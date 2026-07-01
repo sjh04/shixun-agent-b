@@ -52,6 +52,18 @@ def _validate_runtime_input(payload: dict) -> dict:
         payload.setdefault("use_global_memory", False)
         if not isinstance(payload["use_global_memory"], bool):
             raise ValueError("use_global_memory must be boolean")
+    # --- multi_turn validation ---
+    multi_turn = payload.setdefault("multi_turn", {})
+    if not isinstance(multi_turn, dict):
+        raise ValueError("multi_turn must be an object")
+    if multi_turn.get("enabled"):
+        max_rounds = multi_turn.get("max_rounds", 1)
+        if not isinstance(max_rounds, int) or max_rounds < 1:
+            raise ValueError("multi_turn.max_rounds must be a positive integer")
+        if not multi_turn.get("interactive") and not isinstance(multi_turn.get("follow_up_queries"), list):
+            raise ValueError("multi_turn requires interactive=true or follow_up_queries list")
+        if multi_turn.get("interactive") and execution_mode == "fixture":
+            raise ValueError("multi_turn interactive mode is not supported in fixture mode")
     return payload
 
 
@@ -116,63 +128,43 @@ def _fixture_tool_messages(tool_calls: list[dict], preset_messages: dict) -> lis
     return results
 
 
-def run_agent(
-    input_path: str,
-    tools_config: str | None,
-    memory_config: str | None,
-    model_config: str | None,
-    outdir: str,
-    llm_mode: str | None = None,
+def _agent_loop(
+    messages: list[dict],
+    tools_schema: list[dict],
+    runtime: dict,
+    execution_mode: str,
+    fixture_data: dict | None,
+    tools_file: Path | None,
+    model_file: Path | None,
+    output_dir: Path,
+    mode: str,
+    selected_memory: dict,
+    llm_call_start: int,
+    execute_tool_calls: "callable | None" = None,
 ) -> dict:
-    started = perf_counter()
-    input_file = Path(input_path).resolve()
-    output_dir = Path(outdir).resolve()
-    output_dir.mkdir(parents=True, exist_ok=True)
-    runtime = _validate_runtime_input(read_json(input_file))
-    print(f"user_input: {runtime['user_input']}")
-    execution_mode = runtime["execution_mode"]
-    prompt_path = resolve_from_file(runtime["system_prompt_path"], input_file)
-    system_prompt = read_text(prompt_path).strip()
-    fixture_data = None
-    tools_file = memory_file = model_file = None
-    if execution_mode == "fixture":
-        fixture_data = _load_fixture_inputs(input_file, runtime)
-        selected_memory = fixture_data["selected_memory"]
-        tools_schema = fixture_data["tools_schema"]
-        mode = "fixture"
-    else:
-        if not tools_config or not memory_config or not model_config:
-            raise ValueError("integrated mode requires tools_config, memory_config, and model_config")
-        from b3_tool_layer import execute_tool_calls, get_tools_schema
-        from b5_memory import load_memory
+    """Execute one complete Agent tool-calling loop for the current user message.
 
-        tools_file = Path(tools_config).resolve()
-        memory_file = Path(memory_config).resolve()
-        model_file = Path(model_config).resolve()
-        selected_memory = load_memory(
-            str(memory_file),
-            runtime["selected_memory_ids"],
-            runtime["use_global_memory"],
-            runtime["user_input"],
-            str(output_dir),
-        )
-        tools_schema = get_tools_schema(str(tools_file), runtime["toolset"], str(output_dir))
-        mode = llm_mode or _default_llm_mode(model_file)
-    memory_context = _memory_context(selected_memory)
-    if memory_context:
-        system_prompt = f"{system_prompt}\n\n{memory_context}"
-    messages = [
-        {"role": "system", "content": system_prompt},
-        {"role": "user", "content": runtime["user_input"]},
-    ]
+    Parameters
+    ----------
+    messages : list[dict]
+        Message history mutated in-place — assistant and tool messages are appended.
+    llm_call_start : int
+        Starting index for LLM call artifact naming (avoids cross-round overwrites).
+
+    Returns
+    -------
+    dict
+        ``status``, ``final_answer``, ``tool_rounds``, ``llm_calls``,
+        ``turns``, ``all_tool_messages``, ``terminal_error``, ``warnings``.
+    """
     tool_rounds = 0
     llm_calls = 0
-    turns = []
-    all_tool_messages = []
+    turns: list[dict] = []
+    all_tool_messages: list[dict] = []
     final_answer = ""
     status = "success"
     terminal_error = None
-    warnings = []
+    warnings: list[str] = []
     if selected_memory.get("status") in {"partial", "error"}:
         warnings.append("memory selection completed with errors")
 
@@ -192,7 +184,7 @@ def run_agent(
                 tools_schema,
                 mode,
                 str(output_dir / "llm_calls"),
-                f"llm_call_{llm_calls:03d}",
+                f"llm_call_{llm_call_start + llm_calls:03d}",
             )
             if not isinstance(llm_result, dict) or not isinstance(llm_result.get("ai_message"), dict):
                 raise ValueError("B4 result must contain an ai_message object")
@@ -201,7 +193,7 @@ def run_agent(
             llm_error = llm_result.get("error")
         messages.append(ai_message)
         turn = {
-            "turn_index": llm_calls,
+            "turn_index": llm_call_start + llm_calls,
             "ai_message": ai_message,
             "llm_status": llm_status,
             "llm_error": llm_error,
@@ -213,7 +205,7 @@ def run_agent(
             terminal_error = {
                 "type": "LLMParseError",
                 "message": "B4 failed to parse the model output as a valid AIMessage JSON object.",
-                "llm_call_index": llm_calls,
+                "llm_call_index": llm_call_start + llm_calls,
                 "cause": llm_error,
             }
             turn["latency_ms"] = round((perf_counter() - turn_start) * 1000, 3)
@@ -260,27 +252,182 @@ def run_agent(
         turn["latency_ms"] = round((perf_counter() - turn_start) * 1000, 3)
         turns.append(turn)
 
+    return {
+        "status": status,
+        "final_answer": final_answer,
+        "tool_rounds": tool_rounds,
+        "llm_calls": llm_calls,
+        "turns": turns,
+        "all_tool_messages": all_tool_messages,
+        "terminal_error": terminal_error,
+        "warnings": warnings,
+    }
+
+
+def _resolve_multi_turn_user_input(
+    runtime: dict,
+    round_idx: int,
+) -> str | None:
+    """Return the user input for round *round_idx* of a multi-turn conversation.
+
+    Returns ``None`` when the conversation should end (EOF or exhausted queries).
+    """
+    multi_turn = runtime.get("multi_turn", {})
+    if round_idx == 0:
+        return runtime["user_input"]
+    if multi_turn.get("interactive"):
+        user_msg = input(f"[Round {round_idx + 1}] 请输入: ").strip()
+        return user_msg if user_msg else None
+    queries = multi_turn.get("follow_up_queries", [])
+    if round_idx - 1 < len(queries):
+        return queries[round_idx - 1]
+    return None
+
+
+def run_agent(
+    input_path: str,
+    tools_config: str | None,
+    memory_config: str | None,
+    model_config: str | None,
+    outdir: str,
+    llm_mode: str | None = None,
+) -> dict:
+    started = perf_counter()
+    input_file = Path(input_path).resolve()
+    output_dir = Path(outdir).resolve()
+    output_dir.mkdir(parents=True, exist_ok=True)
+    runtime = _validate_runtime_input(read_json(input_file))
+    print(f"user_input: {runtime['user_input']}")
+    execution_mode = runtime["execution_mode"]
+    prompt_path = resolve_from_file(runtime["system_prompt_path"], input_file)
+    system_prompt = read_text(prompt_path).strip()
+    fixture_data = None
+    tools_file = memory_file = model_file = None
+    execute_tool_calls_fn = None  # only assigned in integrated mode
+    if execution_mode == "fixture":
+        fixture_data = _load_fixture_inputs(input_file, runtime)
+        selected_memory = fixture_data["selected_memory"]
+        tools_schema = fixture_data["tools_schema"]
+        mode = "fixture"
+    else:
+        if not tools_config or not memory_config or not model_config:
+            raise ValueError("integrated mode requires tools_config, memory_config, and model_config")
+        from b3_tool_layer import execute_tool_calls, get_tools_schema
+        from b5_memory import load_memory
+
+        execute_tool_calls_fn = execute_tool_calls
+        tools_file = Path(tools_config).resolve()
+        memory_file = Path(memory_config).resolve()
+        model_file = Path(model_config).resolve()
+        selected_memory = load_memory(
+            str(memory_file),
+            runtime["selected_memory_ids"],
+            runtime["use_global_memory"],
+            runtime["user_input"],
+            str(output_dir),
+        )
+        tools_schema = get_tools_schema(str(tools_file), runtime["toolset"], str(output_dir))
+        mode = llm_mode or _default_llm_mode(model_file)
+    memory_context = _memory_context(selected_memory)
+    if memory_context:
+        system_prompt = f"{system_prompt}\n\n{memory_context}"
+
+    # ---- determine conversation rounds ----
+    multi_turn = runtime.get("multi_turn", {})
+    max_rounds = multi_turn.get("max_rounds", 1) if multi_turn.get("enabled") else 1
+
+    # ---- shared state across rounds ----
+    messages: list[dict] = [{"role": "system", "content": system_prompt}]
+    all_turns: list[dict] = []
+    all_tool_messages: list[dict] = []
+    round_summaries: list[dict] = []
+    total_llm_calls = 0
+    total_tool_rounds = 0
+    final_answer = ""
+    overall_status = "success"
+    overall_terminal_error = None
+    all_warnings: list[str] = []
+    if selected_memory.get("status") in {"partial", "error"}:
+        all_warnings.append("memory selection completed with errors")
+
+    for round_idx in range(max_rounds):
+        user_msg = _resolve_multi_turn_user_input(runtime, round_idx)
+        if user_msg is None:
+            break  # EOF or exhausted follow_up_queries
+
+        messages.append({"role": "user", "content": user_msg})
+        print(f"[Round {round_idx + 1}/{max_rounds}] user_input: {user_msg[:80]}...")
+
+        loop_result = _agent_loop(
+            messages=messages,
+            tools_schema=tools_schema,
+            runtime=runtime,
+            execution_mode=execution_mode,
+            fixture_data=fixture_data,
+            tools_file=tools_file,
+            model_file=model_file,
+            output_dir=output_dir,
+            mode=mode,
+            selected_memory=selected_memory,
+            llm_call_start=total_llm_calls,
+            execute_tool_calls=execute_tool_calls_fn,
+        )
+
+        all_turns.extend(loop_result["turns"])
+        all_tool_messages.extend(loop_result["all_tool_messages"])
+        total_llm_calls += loop_result["llm_calls"]
+        total_tool_rounds += loop_result["tool_rounds"]
+        all_warnings.extend(loop_result["warnings"])
+        round_summaries.append({
+            "round_idx": round_idx,
+            "user_input": user_msg,
+            "status": loop_result["status"],
+            "final_answer": loop_result["final_answer"],
+            "llm_calls": loop_result["llm_calls"],
+            "tool_rounds": loop_result["tool_rounds"],
+        })
+
+        if loop_result["status"] != "success":
+            final_answer = loop_result["final_answer"]
+            overall_status = loop_result["status"]
+            overall_terminal_error = loop_result["terminal_error"]
+            break
+
+        final_answer = loop_result["final_answer"]
+
+    # ---- output artifacts (compatible with single-round format) ----
     write_json(messages, output_dir / "messages.json")
     if execution_mode == "integrated":
         write_json(all_tool_messages, output_dir / "tool_messages.json")
     write_text(final_answer.strip() + "\n", output_dir / "final_answer.md")
+
+    # Build memory_save decision
     memory_save = {"requested": runtime["save_memory"], "status": "not_requested"}
-    if status != "success" and runtime["save_memory"] != "none":
-        memory_save = {"requested": runtime["save_memory"], "status": "skipped", "reason": status}
+    if overall_status != "success" and runtime["save_memory"] != "none":
+        memory_save = {"requested": runtime["save_memory"], "status": "skipped", "reason": overall_status}
+
+    # Build trace (add rounds info when multi-turn is active)
     trace = {
         "conversation_id": runtime["conversation_id"],
         "execution_mode": execution_mode,
-        "status": status,
+        "status": overall_status,
         "toolset": runtime["toolset"],
         "max_turns": runtime["max_turns"],
-        "tool_rounds_used": tool_rounds,
-        "llm_call_count": llm_calls,
-        "turns": turns,
+        "tool_rounds_used": total_tool_rounds,
+        "llm_call_count": total_llm_calls,
+        "turns": all_turns,
         "final_answer_path": "final_answer.md",
         "memory_save": memory_save,
-        "warnings": warnings,
-        "error": terminal_error,
+        "warnings": all_warnings,
+        "error": overall_terminal_error,
     }
+    if multi_turn.get("enabled"):
+        trace["multi_turn"] = {
+            "enabled": True,
+            "max_rounds": max_rounds,
+            "completed_rounds": len(round_summaries),
+            "rounds": round_summaries,
+        }
     write_json(trace, output_dir / "trace.json")
 
     saved_memory = None
@@ -329,8 +476,8 @@ def run_agent(
                 "execution_mode": execution_mode,
                 "status": trace["status"],
                 "llm_mode": mode,
-                "tool_rounds_used": tool_rounds,
-                "llm_call_count": llm_calls,
+                "tool_rounds_used": total_tool_rounds,
+                "llm_call_count": total_llm_calls,
                 "elapsed_ms": result["elapsed_ms"],
             },
             output_dir / "runtime_log.jsonl",
