@@ -64,6 +64,20 @@ def _validate_runtime_input(payload: dict) -> dict:
             raise ValueError("multi_turn requires interactive=true or follow_up_queries list")
         if multi_turn.get("interactive") and execution_mode == "fixture":
             raise ValueError("multi_turn interactive mode is not supported in fixture mode")
+    # --- prompt_templates validation ---
+    prompt_templates = payload.setdefault("prompt_templates", {})
+    if not isinstance(prompt_templates, dict):
+        raise ValueError("prompt_templates must be an object")
+    switches = prompt_templates.get("switches", [])
+    if not isinstance(switches, list):
+        raise ValueError("prompt_templates.switches must be a list")
+    for i, rule in enumerate(switches):
+        if not isinstance(rule, dict):
+            raise ValueError(f"prompt_templates.switches[{i}] must be an object")
+        if "template_path" not in rule:
+            raise ValueError(f"prompt_templates.switches[{i}] missing template_path")
+        if "action" in rule and rule["action"] not in ("replace", "append"):
+            raise ValueError(f"prompt_templates.switches[{i}].action must be replace or append")
     return payload
 
 
@@ -284,6 +298,52 @@ def _resolve_multi_turn_user_input(
     return None
 
 
+def _check_prompt_switch(
+    messages: list[dict],
+    round_idx: int,
+    switch_config: list[dict],
+    prompt_dir: Path,
+) -> tuple[str | None, str | None]:
+    """Check whether a prompt template switch should fire for *round_idx*.
+
+    Returns ``(new_prompt_text, action)`` when a rule triggers,
+    or ``(None, None)`` otherwise.  The first matching rule wins.
+    """
+    for rule in switch_config:
+        triggered = False
+        if "after_round" in rule and round_idx >= rule["after_round"]:
+            triggered = True
+        if "on_keyword" in rule:
+            keyword = rule["on_keyword"]
+            for msg in reversed(messages):
+                if msg["role"] == "user" and keyword in msg.get("content", ""):
+                    triggered = True
+                    break
+        if triggered:
+            template_path = prompt_dir / rule["template_path"]
+            if template_path.exists():
+                return read_text(template_path).strip(), rule.get("action", "append")
+    return None, None
+
+
+def _apply_prompt_switch(
+    messages: list[dict],
+    new_prompt: str,
+    action: str,
+) -> None:
+    """Apply a prompt template switch, mutating *messages* in place.
+
+    *action* must be ``"replace"`` (swap the first system message) or
+    ``"append"`` (insert a new system message at the front).
+    """
+    system_indices = [i for i, m in enumerate(messages) if m["role"] == "system"]
+    if action == "replace":
+        if system_indices:
+            messages[system_indices[0]]["content"] = new_prompt
+    elif action == "append":
+        messages.insert(0, {"role": "system", "content": new_prompt})
+
+
 def run_agent(
     input_path: str,
     tools_config: str | None,
@@ -354,6 +414,18 @@ def run_agent(
         user_msg = _resolve_multi_turn_user_input(runtime, round_idx)
         if user_msg is None:
             break  # EOF or exhausted follow_up_queries
+
+        # ---- prompt template switch (before appending user message) ----
+        prompt_config = runtime.get("prompt_templates", {})
+        if prompt_config.get("switches"):
+            new_prompt, action = _check_prompt_switch(
+                messages, round_idx,
+                prompt_config["switches"],
+                input_file.parent,
+            )
+            if new_prompt:
+                _apply_prompt_switch(messages, new_prompt, action)
+                print(f"[PromptSwitch] round={round_idx}, action={action}")
 
         messages.append({"role": "user", "content": user_msg})
         print(f"[Round {round_idx + 1}/{max_rounds}] user_input: {user_msg[:80]}...")
