@@ -1,0 +1,36 @@
+{
+  "conversation_id": "blackbox_001",
+  "user_input": "帮我读取 docs/agent_intro.txt，总结三条要点。",
+  "system_prompt_path": "../prompts/local_tool_agent.txt",
+  "toolset": "basic_tools",
+  "max_turns": 3,
+  "use_global_memory": true,
+  "selected_memory_ids": ["mem_conversation_conv_000"],
+  "save_memory": "none",
+  "multi_turn": {
+    "enabled": true,
+    "max_rounds": 3,
+    "interactive": false,
+    "follow_up_queries": [
+      "详细展开第一条要点。",
+      "用一句话总结所有内容。"
+    ]
+  },
+  "prompt_templates": {
+    "switches": [
+      {
+        "after_round": 2,
+        "action": "append",
+        "template_path": "../prompts/summarize_mode.txt"
+      }
+    ]
+  },
+  "history_compression": {
+    "enabled": true,
+    "max_tokens": 600,
+    "keep_recent_rounds": 1
+  },
+  "checkpoint": {
+    "enabled": true
+  }
+}

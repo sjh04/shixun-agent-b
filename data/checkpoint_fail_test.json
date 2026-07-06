@@ -1,0 +1,13 @@
+{
+  "conversation_id": "ckpt_fail_001",
+  "user_input": "帮我读取 docs/agent_intro.txt 并递归处理。",
+  "system_prompt_path": "../prompts/local_tool_agent.txt",
+  "toolset": "basic_tools",
+  "max_turns": 1,
+  "use_global_memory": true,
+  "selected_memory_ids": ["mem_conversation_conv_000"],
+  "save_memory": "none",
+  "checkpoint": {
+    "enabled": true
+  }
+}
