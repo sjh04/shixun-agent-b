@@ -1,0 +1,26 @@
+{
+  "batch_conversation_id": "batch_test_isolation",
+  "global_config": {
+    "system_prompt_path": "../prompts/local_tool_agent.txt",
+    "toolset": "basic_tools",
+    "max_turns": 3,
+    "use_global_memory": true,
+    "selected_memory_ids": ["mem_conversation_conv_000"],
+    "save_memory": "none"
+  },
+  "tasks": [
+    {
+      "task_id": "task_good_first",
+      "user_input": "帮我读取 docs/agent_intro.txt"
+    },
+    {
+      "task_id": "task_bad_toolset",
+      "user_input": "这个任务会失败",
+      "toolset": "nonexistent_toolset"
+    },
+    {
+      "task_id": "task_good_last",
+      "user_input": "计算 1 + 1"
+    }
+  ]
+}
