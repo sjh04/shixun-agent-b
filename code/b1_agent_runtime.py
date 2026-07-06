@@ -78,6 +78,21 @@ def _validate_runtime_input(payload: dict) -> dict:
             raise ValueError(f"prompt_templates.switches[{i}] missing template_path")
         if "action" in rule and rule["action"] not in ("replace", "append"):
             raise ValueError(f"prompt_templates.switches[{i}].action must be replace or append")
+    # --- history_compression validation ---
+    hc = payload.setdefault("history_compression", {})
+    if not isinstance(hc, dict):
+        raise ValueError("history_compression must be an object")
+    if hc.get("enabled"):
+        if not isinstance(hc.get("max_tokens", 3500), int) or hc["max_tokens"] < 100:
+            raise ValueError("history_compression.max_tokens must be an integer >= 100")
+        if not isinstance(hc.get("keep_recent_rounds", 3), int) or hc["keep_recent_rounds"] < 1:
+            raise ValueError("history_compression.keep_recent_rounds must be a positive integer")
+    # --- checkpoint validation ---
+    ckpt = payload.setdefault("checkpoint", {})
+    if not isinstance(ckpt, dict):
+        raise ValueError("checkpoint must be an object")
+    if ckpt.get("enabled") and not isinstance(ckpt.get("enabled"), bool):
+        raise ValueError("checkpoint.enabled must be boolean")
     return payload
 
 
@@ -155,21 +170,15 @@ def _agent_loop(
     selected_memory: dict,
     llm_call_start: int,
     execute_tool_calls: "callable | None" = None,
+    resume_stage: str | None = None,
+    pending_tool_calls: list[dict] | None = None,
 ) -> dict:
     """Execute one complete Agent tool-calling loop for the current user message.
 
-    Parameters
-    ----------
-    messages : list[dict]
-        Message history mutated in-place — assistant and tool messages are appended.
-    llm_call_start : int
-        Starting index for LLM call artifact naming (avoids cross-round overwrites).
-
-    Returns
-    -------
-    dict
-        ``status``, ``final_answer``, ``tool_rounds``, ``llm_calls``,
-        ``turns``, ``all_tool_messages``, ``terminal_error``, ``warnings``.
+    checkpoint-enabled: when ``runtime`` contains ``checkpoint.enabled: true``,
+    snapshots are persisted at ``after_llm`` and ``after_tool_{i}`` stages.
+    On resume the caller passes *resume_stage* and *pending_tool_calls* to
+    skip already-completed work.
     """
     tool_rounds = 0
     llm_calls = 0
@@ -179,33 +188,43 @@ def _agent_loop(
     status = "success"
     terminal_error = None
     warnings: list[str] = []
+    ckpt_enabled = runtime.get("checkpoint", {}).get("enabled", False)
     if selected_memory.get("status") in {"partial", "error"}:
         warnings.append("memory selection completed with errors")
 
     while True:
-        llm_calls += 1
+        # ── checkpoint: skip LLM call if resuming from after_llm ──
         turn_start = perf_counter()
-        if execution_mode == "fixture":
-            if llm_calls > len(fixture_data["ai_messages"]):
-                raise ValueError("fixture AIMessage sequence ended before a final answer")
-            ai_message = deepcopy(fixture_data["ai_messages"][llm_calls - 1])
+        if resume_stage == "after_llm" and pending_tool_calls:
+            ai_message = {"role": "assistant", "content": None, "tool_calls": pending_tool_calls}
             llm_status = "success"
             llm_error = None
+            resume_stage = None  # consume the resume stage
+            llm_calls += 1  # count the resumed LLM call
         else:
-            llm_result = generate_ai_message(
-                str(model_file),
-                messages,
-                tools_schema,
-                mode,
-                str(output_dir / "llm_calls"),
-                f"llm_call_{llm_call_start + llm_calls:03d}",
-            )
-            if not isinstance(llm_result, dict) or not isinstance(llm_result.get("ai_message"), dict):
-                raise ValueError("B4 result must contain an ai_message object")
-            ai_message = llm_result["ai_message"]
-            llm_status = llm_result.get("status")
-            llm_error = llm_result.get("error")
-        messages.append(ai_message)
+            llm_calls += 1
+            if execution_mode == "fixture":
+                if llm_calls > len(fixture_data["ai_messages"]):
+                    raise ValueError("fixture AIMessage sequence ended before a final answer")
+                ai_message = deepcopy(fixture_data["ai_messages"][llm_calls - 1])
+                llm_status = "success"
+                llm_error = None
+            else:
+                llm_result = generate_ai_message(
+                    str(model_file),
+                    messages,
+                    tools_schema,
+                    mode,
+                    str(output_dir / "llm_calls"),
+                    f"llm_call_{llm_call_start + llm_calls:03d}",
+                )
+                if not isinstance(llm_result, dict) or not isinstance(llm_result.get("ai_message"), dict):
+                    raise ValueError("B4 result must contain an ai_message object")
+                ai_message = llm_result["ai_message"]
+                llm_status = llm_result.get("status")
+                llm_error = llm_result.get("error")
+            messages.append(ai_message)
+
         turn = {
             "turn_index": llm_call_start + llm_calls,
             "ai_message": ai_message,
@@ -225,6 +244,7 @@ def _agent_loop(
             turn["latency_ms"] = round((perf_counter() - turn_start) * 1000, 3)
             turns.append(turn)
             break
+
         tool_calls = ai_message.get("tool_calls", [])
         if not tool_calls:
             final_answer = ai_message["content"]
@@ -232,6 +252,20 @@ def _agent_loop(
             turn["latency_ms"] = round((perf_counter() - turn_start) * 1000, 3)
             turns.append(turn)
             break
+
+        # ── checkpoint: after_llm ──
+        if ckpt_enabled and execution_mode == "integrated":
+            _save_checkpoint(output_dir, {
+                "checkpoint_version": 1,
+                "conversation_id": runtime["conversation_id"],
+                "stage": "after_llm",
+                "messages": list(messages),
+                "tool_rounds": tool_rounds,
+                "llm_calls": llm_call_start + llm_calls,
+                "pending_tool_calls": tool_calls,
+                "output_dir": str(output_dir),
+            })
+
         if tool_rounds >= runtime["max_turns"]:
             requested = ", ".join(call.get("name", "unknown") for call in tool_calls)
             final_answer = (
@@ -247,24 +281,44 @@ def _agent_loop(
             turn["latency_ms"] = round((perf_counter() - turn_start) * 1000, 3)
             turns.append(turn)
             break
+
         if execution_mode == "fixture":
             tool_messages = _fixture_tool_messages(
                 tool_calls,
                 fixture_data["tool_messages"],
             )
         else:
-            tool_messages = execute_tool_calls(
-                tool_calls,
-                str(tools_file),
-                runtime["toolset"],
-                str(output_dir),
-            )
-        tool_rounds += 1
-        messages.extend(tool_messages)
-        all_tool_messages.extend(tool_messages)
-        turn["tool_messages"] = tool_messages
-        turn["latency_ms"] = round((perf_counter() - turn_start) * 1000, 3)
-        turns.append(turn)
+            for i, call in enumerate(tool_calls):
+                tool_messages = execute_tool_calls(
+                    [call],
+                    str(tools_file),
+                    runtime["toolset"],
+                    str(output_dir),
+                )
+                tool_rounds += 1
+                messages.extend(tool_messages)
+                all_tool_messages.extend(tool_messages)
+                turn["tool_messages"].extend(tool_messages)
+                # ── checkpoint: after_tool_{i} ──
+                if ckpt_enabled:
+                    _save_checkpoint(output_dir, {
+                        "checkpoint_version": 1,
+                        "conversation_id": runtime["conversation_id"],
+                        "stage": f"after_tool_{i}",
+                        "messages": list(messages),
+                        "tool_rounds": tool_rounds,
+                        "llm_calls": llm_call_start + llm_calls,
+                        "pending_tool_calls": tool_calls[i + 1:] if i + 1 < len(tool_calls) else [],
+                        "output_dir": str(output_dir),
+                    })
+            # In the fixture path or if tool_messages was set elsewhere
+            if execution_mode == "fixture":
+                tool_rounds += 1
+                messages.extend(tool_messages)
+                all_tool_messages.extend(tool_messages)
+                turn["tool_messages"] = tool_messages
+            turn["latency_ms"] = round((perf_counter() - turn_start) * 1000, 3)
+            turns.append(turn)
 
     return {
         "status": status,
@@ -344,6 +398,153 @@ def _apply_prompt_switch(
         messages.insert(0, {"role": "system", "content": new_prompt})
 
 
+# ---------------------------------------------------------------------------
+# Extension ④: history compression
+# ---------------------------------------------------------------------------
+
+
+def _estimate_tokens(messages: list[dict]) -> int:
+    """Rough token estimate for a message array.
+
+    Chinese ≈1.5 chars/token, English ≈4 chars/token.
+    We use //3 as a conservative midpoint so the threshold is reached
+    *before* the actual context window fills up.
+    """
+    text = __import__("json").dumps(messages, ensure_ascii=False)
+    return len(text) // 3
+
+
+def _rule_based_summary(messages: list[dict]) -> str:
+    """Mock-mode summary: extract user questions and assistant answers.
+
+    Skips synthetic summary messages (``[历史对话摘要]``) to avoid
+    recursive nesting across multiple compression rounds.
+    """
+    parts = []
+    for msg in messages:
+        content = msg.get("content", "")
+        if msg["role"] == "user":
+            if content.startswith("[历史对话摘要]"):
+                parts.append(f"此前摘要: {content[:150]}")
+            else:
+                parts.append(f"用户提问: {content[:100]}")
+        elif msg["role"] == "assistant" and content and not msg.get("tool_calls"):
+            parts.append(f"回答要点: {content[:200]}")
+    return "；".join(parts) if parts else "（无关键对话内容）"
+
+
+def _summarize_messages(
+    older_messages: list[dict],
+    model_file: str,
+    mode: str,
+    output_dir: str,
+) -> str:
+    """Compress *older_messages* into a short summary string.
+
+    In ``mock`` mode a rule-based extraction is used.  In ``prompt_json``
+    mode B4 is asked to summarise the history.
+    """
+    if mode in ("mock", "fixture"):
+        return _rule_based_summary(older_messages)
+
+    from b4_local_agent_llm import generate_ai_message as b4_generate
+
+    summary_prompt = (
+        "请将以下对话历史压缩为一段简洁的摘要（中文，200字以内），"
+        "保留关键任务、工具调用和结论：\n\n"
+        + __import__("json").dumps(older_messages, ensure_ascii=False, indent=2)
+    )
+    result = b4_generate(
+        model_file,
+        [{"role": "user", "content": summary_prompt}],
+        [],  # no tools needed for summarisation
+        mode,
+        output_dir,
+        "compress_summary",
+    )
+    if result.get("status") == "success":
+        return result["ai_message"]["content"]
+    return "[对话历史摘要生成失败]"
+
+
+def _compress_history_if_needed(
+    messages: list[dict],
+    config: dict,
+    model_file: str,
+    mode: str,
+    output_dir: str,
+) -> bool:
+    """Compress older messages in-place when the token budget is exceeded.
+
+    Strategy: keep all system messages + the most recent *keep_recent_rounds*
+    worth of non-system messages; compress the middle portion into a summary.
+    """
+    compress_config = config.get("history_compression", {})
+    if not compress_config.get("enabled"):
+        return False
+
+    max_tokens = compress_config.get("max_tokens", 3500)
+    keep_recent = compress_config.get("keep_recent_rounds", 3)
+
+    if _estimate_tokens(messages) <= max_tokens:
+        return False
+
+    # Locate the boundary between system messages and conversation body
+    system_indices = [i for i, m in enumerate(messages) if m["role"] == "system"]
+    last_system_idx = system_indices[-1] if system_indices else -1
+
+    # Each round typically contributes ~3 messages (user, assistant, tool)
+    recent_count = keep_recent * 3
+    keep_from = max(last_system_idx + 1, len(messages) - recent_count)
+
+    # Older messages: everything between the last system message and keep_from
+    older = messages[last_system_idx + 1 : keep_from]
+    older = [m for m in older if m["role"] != "system"]
+    if not older:
+        return False
+
+    summary = _summarize_messages(older, model_file, mode, output_dir)
+
+    # Rebuild: system messages + summary + recent messages
+    rebuilt = messages[: last_system_idx + 1]
+    rebuilt.append({
+        "role": "user",
+        "content": f"[历史对话摘要] {summary}",
+    })
+    rebuilt.extend(messages[keep_from:])
+
+    old_count = len(messages) - len(rebuilt) + 1  # +1 for the summary message
+    messages.clear()
+    messages.extend(rebuilt)
+
+    print(f"[Compress] → {len(messages)} messages "
+          f"(condensed ~{old_count} older messages into summary)")
+    return True
+
+
+# ---------------------------------------------------------------------------
+# Extension ②: checkpoint / resume
+# ---------------------------------------------------------------------------
+
+CHECKPOINT_FILE = "checkpoint.json"
+
+
+def _save_checkpoint(outdir: Path, state: dict) -> None:
+    """Persist a lightweight run-state snapshot."""
+    state["timestamp"] = __import__("common.logging_utils", fromlist=["now_iso"]).now_iso()
+    __import__("common.io_utils", fromlist=["write_json"]).write_json(
+        state, outdir / CHECKPOINT_FILE,
+    )
+
+
+def _load_checkpoint(outdir: Path) -> dict | None:
+    """Return the checkpoint dict if one exists, otherwise ``None``."""
+    path = outdir / CHECKPOINT_FILE
+    if path.exists():
+        return __import__("common.io_utils", fromlist=["read_json"]).read_json(path)
+    return None
+
+
 def run_agent(
     input_path: str,
     tools_config: str | None,
@@ -351,6 +552,7 @@ def run_agent(
     model_config: str | None,
     outdir: str,
     llm_mode: str | None = None,
+    resume: bool = False,
 ) -> dict:
     started = perf_counter()
     input_file = Path(input_path).resolve()
@@ -410,7 +612,28 @@ def run_agent(
     if selected_memory.get("status") in {"partial", "error"}:
         all_warnings.append("memory selection completed with errors")
 
-    for round_idx in range(max_rounds):
+    # ---- checkpoint resume (before multi-turn loop) ----
+    resume_stage: str | None = None
+    pending_tool_calls: list[dict] | None = None
+    start_round = 0
+    if resume:
+        ckpt = _load_checkpoint(output_dir)
+        if ckpt is None:
+            raise ValueError(f"--resume requested but no {CHECKPOINT_FILE} found in {output_dir}")
+        messages[:] = ckpt["messages"]
+        total_llm_calls = ckpt.get("llm_calls", 0)
+        total_tool_rounds = ckpt.get("tool_rounds", 0)
+        resume_stage = ckpt["stage"]
+        pending_tool_calls = ckpt.get("pending_tool_calls", [])
+        print(f"[Checkpoint] resumed stage={resume_stage}, "
+              f"llm_calls={total_llm_calls}, tool_rounds={total_tool_rounds}")
+        # Determine which round we are on by counting user messages
+        start_round = sum(1 for m in messages if m["role"] == "user")
+        # If resume_stage is "after_llm" or starts with "after_tool", we're mid-round
+        if resume_stage == "after_llm" or resume_stage.startswith("after_tool"):
+            pass  # _agent_loop will handle the resume
+
+    for round_idx in range(start_round, max_rounds):
         user_msg = _resolve_multi_turn_user_input(runtime, round_idx)
         if user_msg is None:
             break  # EOF or exhausted follow_up_queries
@@ -443,7 +666,12 @@ def run_agent(
             selected_memory=selected_memory,
             llm_call_start=total_llm_calls,
             execute_tool_calls=execute_tool_calls_fn,
+            resume_stage=resume_stage,
+            pending_tool_calls=pending_tool_calls,
         )
+        # Consume resume state so subsequent rounds start fresh
+        resume_stage = None
+        pending_tool_calls = None
 
         all_turns.extend(loop_result["turns"])
         all_tool_messages.extend(loop_result["all_tool_messages"])
@@ -466,6 +694,14 @@ def run_agent(
             break
 
         final_answer = loop_result["final_answer"]
+
+        # ---- history compression (after successful round) ----
+        _compress_history_if_needed(
+            messages, runtime,
+            str(model_file) if model_file else "",
+            mode,
+            str(output_dir),
+        )
 
     # ---- output artifacts (compatible with single-round format) ----
     write_json(messages, output_dir / "messages.json")
@@ -528,6 +764,12 @@ def run_agent(
                 trace["status"] = "partial"
         write_json(trace, output_dir / "trace.json")
 
+    # ---- checkpoint cleanup on success ----
+    if trace["status"] == "success":
+        checkpoint_path = output_dir / CHECKPOINT_FILE
+        if checkpoint_path.exists():
+            checkpoint_path.unlink()
+
     result = {
         "conversation_id": runtime["conversation_id"],
         "execution_mode": execution_mode,
@@ -565,6 +807,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--model_config")
     parser.add_argument("--llm_mode", choices=["mock", "prompt_json"], default=None)
     parser.add_argument("--outdir", required=True)
+    parser.add_argument("--resume", action="store_true", default=False,
+                        help="resume from checkpoint.json if present")
     return parser
 
 
@@ -578,6 +822,7 @@ def main(argv: list[str] | None = None) -> int:
             str(resolve_cli_path(args.model_config)) if args.model_config else None,
             str(resolve_cli_path(args.outdir)),
             args.llm_mode,
+            resume=args.resume,
         )
         print(result["final_answer_path"])
         return 0
