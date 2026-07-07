@@ -12,6 +12,16 @@ from common.path_utils import resolve_cli_path, resolve_from_file
 from common.schemas import validate_ai_message
 
 
+# Tools that are always safe to execute without user confirmation
+SAFE_TOOLS: set[str] = {
+    "file_reader",
+    "calculator",
+    "local_file_search",
+    "table_analyzer",
+    "format_converter",
+}
+
+
 def _validate_runtime_input(payload: dict) -> dict:
     if not isinstance(payload, dict):
         raise ValueError("runtime_input.json must contain an object")
@@ -93,6 +103,17 @@ def _validate_runtime_input(payload: dict) -> dict:
         raise ValueError("checkpoint must be an object")
     if ckpt.get("enabled") and not isinstance(ckpt.get("enabled"), bool):
         raise ValueError("checkpoint.enabled must be boolean")
+    # --- confirm_mode validation ---
+    payload.setdefault("confirm_mode", False)
+    if not isinstance(payload.get("confirm_mode"), bool):
+        raise ValueError("confirm_mode must be boolean")
+    safe_tools = payload.setdefault("safe_tools", list(SAFE_TOOLS))
+    if not isinstance(safe_tools, list) or not all(isinstance(t, str) for t in safe_tools):
+        raise ValueError("safe_tools must be a list of strings")
+    # --- plan_mode validation ---
+    payload.setdefault("plan_mode", False)
+    if not isinstance(payload.get("plan_mode"), bool):
+        raise ValueError("plan_mode must be boolean")
     return payload
 
 
@@ -196,12 +217,15 @@ def _agent_loop(
         # ── checkpoint: skip LLM call if resuming from after_llm ──
         turn_start = perf_counter()
         if resume_stage == "after_llm" and pending_tool_calls:
-            ai_message = {"role": "assistant", "content": None, "tool_calls": pending_tool_calls}
+            # The checkpoint already contains this assistant message — don't re-append
+            ai_message = {"role": "assistant", "content": "", "tool_calls": pending_tool_calls}
             llm_status = "success"
             llm_error = None
             resume_stage = None  # consume the resume stage
             llm_calls += 1  # count the resumed LLM call
+            is_resume_message = True
         else:
+            is_resume_message = False
             llm_calls += 1
             if execution_mode == "fixture":
                 if llm_calls > len(fixture_data["ai_messages"]):
@@ -282,6 +306,30 @@ def _agent_loop(
             turns.append(turn)
             break
 
+        # ── Confirm mode: ask before executing dangerous tool calls ──
+        if runtime.get("confirm_mode") and tool_calls:
+            safe_tools = set(runtime.get("safe_tools", SAFE_TOOLS))
+            dangerous = [c for c in tool_calls if c.get("name") not in safe_tools]
+            if dangerous:
+                plan_lines = [
+                    f"  {j+1}. {c['name']}({__import__('json').dumps(c.get('args', {}), ensure_ascii=False)})"
+                    for j, c in enumerate(tool_calls)
+                ]
+                flagged = ", ".join(c["name"] for c in dangerous)
+                print(f"[Confirm] dangerous tool(s) detected: {flagged}")
+                print(f"[Confirm] proposed calls:\n" + "\n".join(plan_lines))
+                multi_cfg = runtime.get("multi_turn", {})
+                if multi_cfg.get("interactive"):
+                    confirm = input("[Confirm] execute? [Y/n]: ").strip().lower()
+                    if confirm and confirm != "y":
+                        final_answer = "用户取消了工具执行。"
+                        status = "success"
+                        turn["latency_ms"] = round((perf_counter() - turn_start) * 1000, 3)
+                        turns.append(turn)
+                        break
+            else:
+                print(f"[Confirm] all tools safe, auto-approved")
+
         if execution_mode == "fixture":
             tool_messages = _fixture_tool_messages(
                 tool_calls,
@@ -295,6 +343,21 @@ def _agent_loop(
                     runtime["toolset"],
                     str(output_dir),
                 )
+                # ── Innovation ⑤: auto-retry on recoverable errors ──
+                if len(tool_messages) == 1:
+                    err = _extract_tool_error(tool_messages[0])
+                    if err:
+                        fixed_args = _auto_fix_file_path(call.get("args", {}), err)
+                        if fixed_args:
+                            print(f"[AutoFix] {call['name']}: "
+                                  f"{call.get('args', {}).get('file_path', '')} "
+                                  f"→ {fixed_args.get('file_path', '')}")
+                            tool_messages = execute_tool_calls(
+                                [{**call, "args": fixed_args}],
+                                str(tools_file),
+                                runtime["toolset"],
+                                str(output_dir),
+                            )
                 tool_rounds += 1
                 messages.extend(tool_messages)
                 all_tool_messages.extend(tool_messages)
@@ -545,6 +608,49 @@ def _load_checkpoint(outdir: Path) -> dict | None:
     return None
 
 
+# ---------------------------------------------------------------------------
+# Innovation ⑤: tool result validation & auto-retry
+# ---------------------------------------------------------------------------
+
+def _auto_fix_file_path(args: dict, error_msg: str) -> dict | None:
+    """Attempt common file-path corrections when a tool reports FileNotFoundError.
+
+    Returns corrected *args* dict or ``None`` if the error is not automatically
+    fixable.
+    """
+    if not isinstance(args, dict) or "file_path" not in args:
+        return None
+    if "FileNotFoundError" not in error_msg and "No such file" not in error_msg:
+        return None
+
+    file_path: str = args["file_path"]
+
+    # Fix 1: strip accidental leading / trailing whitespace
+    stripped = file_path.strip()
+    if stripped != file_path:
+        return {**args, "file_path": stripped}
+
+    # Fix 2: try adding "docs/" prefix when the user omitted it
+    if "/" not in file_path and not file_path.startswith("docs/"):
+        return {**args, "file_path": f"docs/{file_path}"}
+
+    return None
+
+
+def _extract_tool_error(tool_message: dict) -> str | None:
+    """Return the error string from a ToolMessage if its SkillResult has status=error."""
+    try:
+        content = tool_message.get("content", "")
+        if isinstance(content, str):
+            import json as _json
+            result = _json.loads(content)
+            if isinstance(result, dict) and result.get("status") == "error":
+                return str(result.get("error", ""))
+    except Exception:
+        pass
+    return None
+
+
 def run_agent(
     input_path: str,
     tools_config: str | None,
@@ -628,7 +734,16 @@ def run_agent(
         print(f"[Checkpoint] resumed stage={resume_stage}, "
               f"llm_calls={total_llm_calls}, tool_rounds={total_tool_rounds}")
         # Determine which round we are on by counting user messages
-        start_round = sum(1 for m in messages if m["role"] == "user")
+        # Only count real user inputs, not plan-mode intermediate messages
+        start_round = sum(
+            1 for m in messages
+            if m["role"] == "user"
+            and "Plan" not in m.get("content", "")[:50]
+        )
+        # If we crashed mid-round (resume_stage is set), include the current
+        # unfinished round so _agent_loop can pick up from the snapshot point
+        if resume_stage:
+            start_round = max(0, start_round - 1)
         # If resume_stage is "after_llm" or starts with "after_tool", we're mid-round
         if resume_stage == "after_llm" or resume_stage.startswith("after_tool"):
             pass  # _agent_loop will handle the resume
@@ -650,25 +765,125 @@ def run_agent(
                 _apply_prompt_switch(messages, new_prompt, action)
                 print(f"[PromptSwitch] round={round_idx}, action={action}")
 
-        messages.append({"role": "user", "content": user_msg})
+        # On resume, the checkpoint already contains the user message for this round
+        if not resume_stage:
+            messages.append({"role": "user", "content": user_msg})
         print(f"[Round {round_idx + 1}/{max_rounds}] user_input: {user_msg[:80]}...")
 
-        loop_result = _agent_loop(
-            messages=messages,
-            tools_schema=tools_schema,
-            runtime=runtime,
-            execution_mode=execution_mode,
-            fixture_data=fixture_data,
-            tools_file=tools_file,
-            model_file=model_file,
-            output_dir=output_dir,
-            mode=mode,
-            selected_memory=selected_memory,
-            llm_call_start=total_llm_calls,
-            execute_tool_calls=execute_tool_calls_fn,
-            resume_stage=resume_stage,
-            pending_tool_calls=pending_tool_calls,
+        # ── Plan mode: two-phase (plan → approve → execute) ──
+        # Skip plan phase on resume if plan was already approved before crash
+        plan_already_approved = any(
+            "Plan approved" in m.get("content", "") or "Plan auto-approved" in m.get("content", "")
+            for m in messages if m["role"] == "user"
         )
+        if runtime.get("plan_mode") and execution_mode != "fixture" and not plan_already_approved:
+            plan_prompt = (
+                "[PLAN MODE] Do NOT call any tools yet. "
+                "First think through the request and describe your approach "
+                "in natural language. What steps will you take? What tools "
+                "might you need? Output as plain text, no JSON."
+            )
+            # Disable checkpoint during plan phase to avoid saving incomplete state
+            plan_runtime = {**runtime, "checkpoint": {"enabled": False}}
+            messages.append({"role": "user", "content": plan_prompt})
+            plan_result = _agent_loop(
+                messages=messages, tools_schema=[],  # no tools during plan phase
+                runtime=plan_runtime, execution_mode=execution_mode,
+                fixture_data=fixture_data, tools_file=tools_file,
+                model_file=model_file, output_dir=output_dir,
+                mode=mode, selected_memory=selected_memory,
+                llm_call_start=total_llm_calls,
+                execute_tool_calls=execute_tool_calls_fn,
+            )
+            total_llm_calls += plan_result["llm_calls"]
+            # Remove the plan-mode instruction from messages
+            messages.pop()  # pop the plan_prompt user message
+            if plan_result.get("final_answer"):
+                messages.pop()  # pop the assistant's plan response too
+
+            plan_text = plan_result.get("final_answer", "（无法生成计划）")
+            print(f"[Plan] LLM plan:\n{plan_text}")
+
+            multi_cfg = runtime.get("multi_turn", {})
+            plan_rejected = False
+            if multi_cfg.get("interactive"):
+                while True:
+                    print(f"[Plan]\n{plan_text}")
+                    action = input("[Plan] [A]pprove / [R]eject / [M]odify: ").strip().lower()
+                    if action == "r":
+                        final_answer = plan_text
+                        overall_status = "success"
+                        plan_rejected = True
+                        round_summaries.append({
+                            "round_idx": round_idx, "user_input": user_msg,
+                            "status": "success", "final_answer": final_answer,
+                            "llm_calls": plan_result["llm_calls"], "tool_rounds": 0,
+                        })
+                        break
+                    elif action == "m":
+                        feedback = input("[Plan] modification: ").strip()
+                        messages.append({"role": "user",
+                                         "content": (
+                                             f"The plan was: {plan_text}\n\n"
+                                             f"User feedback: {feedback}\n\n"
+                                             "Please revise the plan accordingly. "
+                                             "Output the revised plan as plain text. Do NOT call tools."
+                                         )})
+                        revise_result = _agent_loop(
+                            messages=messages, tools_schema=[],
+                            runtime=plan_runtime, execution_mode=execution_mode,
+                            fixture_data=fixture_data, tools_file=tools_file,
+                            model_file=model_file, output_dir=output_dir,
+                            mode=mode, selected_memory=selected_memory,
+                            llm_call_start=total_llm_calls,
+                            execute_tool_calls=execute_tool_calls_fn,
+                        )
+                        total_llm_calls += revise_result["llm_calls"]
+                        # Remove the revision request and assistant response
+                        messages.pop()  # pop the feedback user message
+                        if revise_result.get("final_answer"):
+                            messages.pop()  # pop assistant's revised plan
+                        plan_text = revise_result.get("final_answer", plan_text)
+                        print(f"[Plan] LLM revised plan:\n{plan_text}")
+                        # loop again to show revised plan and re-ask
+                    else:  # 'a' or empty
+                        messages.append({"role": "user",
+                                         "content": f"Plan approved: {plan_text}\nNow execute using available tools."})
+                        break
+            else:
+                # Non-interactive: auto-approve
+                messages.append({"role": "user",
+                                 "content": f"Plan auto-approved: {plan_text}\nNow execute using available tools."})
+            if plan_rejected:
+                break
+
+            # Phase 2: execute (with tools enabled)
+            loop_result = _agent_loop(
+                messages=messages, tools_schema=tools_schema,
+                runtime=runtime, execution_mode=execution_mode,
+                fixture_data=fixture_data, tools_file=tools_file,
+                model_file=model_file, output_dir=output_dir,
+                mode=mode, selected_memory=selected_memory,
+                llm_call_start=total_llm_calls,
+                execute_tool_calls=execute_tool_calls_fn,
+            )
+        else:
+            loop_result = _agent_loop(
+                messages=messages,
+                tools_schema=tools_schema,
+                runtime=runtime,
+                execution_mode=execution_mode,
+                fixture_data=fixture_data,
+                tools_file=tools_file,
+                model_file=model_file,
+                output_dir=output_dir,
+                mode=mode,
+                selected_memory=selected_memory,
+                llm_call_start=total_llm_calls,
+                execute_tool_calls=execute_tool_calls_fn,
+                resume_stage=resume_stage,
+                pending_tool_calls=pending_tool_calls,
+            )
         # Consume resume state so subsequent rounds start fresh
         resume_stage = None
         pending_tool_calls = None

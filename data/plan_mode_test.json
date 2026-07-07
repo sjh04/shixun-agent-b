@@ -1,0 +1,20 @@
+{
+  "conversation_id": "planmode_test_001",
+  "user_input": "帮我读取 docs/agent_intro.txt 并总结三条要点。",
+  "system_prompt_path": "../prompts/local_tool_agent.txt",
+  "toolset": "basic_tools",
+  "max_turns": 3,
+  "use_global_memory": true,
+  "selected_memory_ids": ["mem_conversation_conv_000"],
+  "save_memory": "none",
+  "multi_turn": {
+    "enabled": true,
+    "max_rounds": 3,
+    "interactive": true,
+    "follow_up_queries": [
+      "详细展开第一条要点。",
+      "用一句话总结所有内容。"
+    ]
+  },
+  "plan_mode": true
+}
