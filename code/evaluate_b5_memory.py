@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import math
 import sys
 from pathlib import Path
 
@@ -22,7 +23,8 @@ def _validate_queries(payload: object) -> list[dict]:
             raise ValueError(f"query item {index} missing query")
         if not isinstance(relevant_ids, list) or not all(isinstance(value, str) for value in relevant_ids):
             raise ValueError(f"query item {index} relevant_ids must be a list of strings")
-        queries.append({"query": query, "relevant_ids": relevant_ids})
+        probe = item.get("probe")
+        queries.append({"query": query, "relevant_ids": relevant_ids, "probe": probe if isinstance(probe, str) else None})
     return queries
 
 
@@ -31,6 +33,16 @@ def _first_relevant_rank(ranked_ids: list[str], relevant: set[str]) -> int | Non
         if memory_id in relevant:
             return rank
     return None
+
+
+def _ndcg_at_k(ranked_ids: list[str], relevant: set[str], k: int = 5) -> float:
+    dcg = sum(
+        1.0 / math.log2(rank + 1)
+        for rank, memory_id in enumerate(ranked_ids[:k], 1)
+        if memory_id in relevant
+    )
+    ideal = sum(1.0 / math.log2(rank + 1) for rank in range(1, min(len(relevant), k) + 1))
+    return dcg / ideal if ideal else 0.0
 
 
 def evaluate(config_path: str, queries_path: str, outdir: str) -> dict:
@@ -52,6 +64,7 @@ def evaluate(config_path: str, queries_path: str, outdir: str) -> dict:
         records.append(
             {
                 "query": item["query"],
+                "probe": item.get("probe"),
                 "relevant_ids": item["relevant_ids"],
                 "ranked_ids": ranked_ids,
                 "first_relevant_rank": first_rank,
@@ -59,17 +72,25 @@ def evaluate(config_path: str, queries_path: str, outdir: str) -> dict:
                 "hit@3": bool(first_rank and first_rank <= 3),
                 "hit@5": bool(first_rank and first_rank <= 5),
                 "reciprocal_rank": 0.0 if first_rank is None else 1.0 / first_rank,
+                "ndcg@5": _ndcg_at_k(ranked_ids, relevant),
                 "retrieval": result.get("retrieval"),
                 "errors": result.get("errors", []),
             }
         )
     total = max(1, len(records))
+    latencies = [
+        record["retrieval"]["latency_ms"]
+        for record in records
+        if isinstance(record.get("retrieval"), dict) and isinstance(record["retrieval"].get("latency_ms"), (int, float))
+    ]
     metrics = {
         "query_count": len(records),
         "hit@1": sum(record["hit@1"] for record in records) / total,
         "hit@3": sum(record["hit@3"] for record in records) / total,
         "hit@5": sum(record["hit@5"] for record in records) / total,
         "mrr": sum(record["reciprocal_rank"] for record in records) / total,
+        "ndcg@5": sum(record["ndcg@5"] for record in records) / total,
+        "mean_latency_ms": sum(latencies) / len(latencies) if latencies else None,
     }
     report = {"status": "success", "metrics": metrics, "records": records}
     write_json(report, output_dir / "b5_retrieval_eval.json")

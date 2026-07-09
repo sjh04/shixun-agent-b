@@ -7,7 +7,9 @@
     "path": "global/mem_course_001.md",
     "conversation_id": null,
     "created_at": "2026-06-20T00:00:00+08:00",
-    "updated_at": "2026-06-20T00:00:00+08:00"
+    "updated_at": "2026-06-20T00:00:00+08:00",
+    "last_accessed_at": "2026-07-09T02:57:22+02:00",
+    "access_count": 22
   },
   "mem_conversation_conv_000": {
     "memory_id": "mem_conversation_conv_000",
@@ -17,6 +19,44 @@
     "path": "conversations/conv_000.md",
     "conversation_id": "conv_000",
     "created_at": "2026-06-22T14:07:46+00:00",
-    "updated_at": "2026-06-22T14:07:46+00:00"
+    "updated_at": "2026-06-22T14:07:46+00:00",
+    "last_accessed_at": "2026-07-09T02:57:22+02:00",
+    "access_count": 20
+  },
+  "mem_conversation_conv_sample_001": {
+    "memory_id": "mem_conversation_conv_sample_001",
+    "memory_type": "conversation",
+    "title": "Conversation conv_sample_001",
+    "summary": "Agent 会结合模型、工具和记忆完成任务。",
+    "summary_method": "none",
+    "path": "conversations/conv_sample_001.md",
+    "conversation_id": "conv_sample_001",
+    "importance": 5,
+    "importance_method": "heuristic",
+    "flagged": false,
+    "poison_gate": {
+      "flagged": false,
+      "action": "allow",
+      "reason": "no_conflict",
+      "method": "rule",
+      "matches": []
+    },
+    "change_report": {
+      "change_type": "duplicate",
+      "duplicate": true,
+      "conflict": false,
+      "conflict_reason": "no_rule_conflict",
+      "similarity": 1.0,
+      "method": "rule",
+      "rule_change_type": "duplicate",
+      "judge_reason": null,
+      "notes": [
+        "duplicate content discarded"
+      ]
+    },
+    "created_at": "2026-07-02T03:20:46+02:00",
+    "updated_at": "2026-07-02T03:37:57+02:00",
+    "last_accessed_at": "2026-07-09T02:57:22+02:00",
+    "access_count": 1
   }
 }

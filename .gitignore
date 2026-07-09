@@ -5,3 +5,4 @@ outputs/tmp*/
 memory/memory_vector_cache.json
 models/*
 !models/.gitkeep
+data/memory_eval/corpus/memory_vector_cache.json

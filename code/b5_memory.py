@@ -29,6 +29,14 @@ DEFAULTS = {
         "recency_half_life_days": 30,
         "include_all_conversations": True,
         "include_global_when_query": True,
+        "use_chunk": True,
+        "use_three_factor": True,
+        # 归一化加权和融合（而非朴素乘法）：RRF 相关度取值范围窄（约 1/(k+rank)），
+        # 直接乘 recency/importance 会让相关度被完全淹没，检索退化为"按重要性排序"。
+        # three_factor_top_m：时近性/重要性只在相关度前 M 的候选内参与重排，
+        # 防止低相关但"新且重要"的记忆从深位跃升。
+        "three_factor_weights": {"relevance": 0.8, "recency": 0.1, "importance": 0.1},
+        "three_factor_top_m": 10,
         "use_hyde": True,
         "use_rerank": True,
         "hashing_dim": 768,
@@ -46,26 +54,41 @@ DEFAULTS = {
         "enabled": True,
         "duplicate_similarity": 0.92,
         "conflict_similarity": 0.28,
+        "use_llm_judge": True,  # llm.enabled 时用 Qwen judge 做三分类，失败回退规则
     },
     "poison_gate": {
         "enabled": True,
         "action": "flag",
         "trusted_memory_types": ["global"],
         "conflict_threshold": 0.32,
+        "use_llm_judge": True,  # llm.enabled 时用 Qwen 做 NLI 式核验，失败回退规则
     },
     "lifecycle": {
         "max_memories": 200,
         "protect_global": True,
         "importance_default": 5,
+        "update_access_on_load": True,
         "reflect_enabled": True,
         "reflect_every_n": 10,
         "reflect_min_cluster_size": 3,
+        "reflect_similarity_threshold": 0.35,
     },
     "llm": {
         "enabled": False,
         "model_config": "../configs/model.yaml",
         "mode": "prompt_json",
         "max_new_tokens": 512,
+        # 按用途拆分生成预算。检索热路径上的 HyDE/rerank 是自回归解码的主要延迟来源，
+        # 给"一句话假想段落"配 512 token 纯属浪费（实测 HyDE ~4s/查询）。
+        # 未列出的用途回退到 max_new_tokens；greedy 解码遇 EOS 会提前停，上限只防跑飞。
+        "token_budgets": {
+            "hyde": 48,       # 检索热路径：一句假想段落足够
+            "rerank": 160,    # 检索热路径：只需吐 <=10 个 memory_id 的 JSON 数组
+            "importance": 8,  # 只需一个 1-10 整数
+            "judge": 96,      # 短 JSON 判定（duplicate/supplement/conflict、NLI）
+            "compress": 512,  # 摘要/压缩，保质量
+            "reflect": 512,   # 跨会话反思综合，保质量
+        },
     },
 }
 
@@ -348,6 +371,15 @@ def _rank_from_scores(scores: dict[int, float]) -> dict[int, int]:
     return {item: rank for rank, (item, _) in enumerate(sorted(scores.items(), key=lambda pair: (-pair[1], pair[0])), 1)}
 
 
+def _minmax_scores(scores: dict[int, float]) -> dict[int, float]:
+    if not scores:
+        return {}
+    low = min(scores.values())
+    high = max(scores.values())
+    span = high - low
+    return {key: (value - low) / span if span > 0 else 1.0 for key, value in scores.items()}
+
+
 def _qwen_paths(config_path: Path, memory_config: dict) -> tuple[Path | None, Path | None]:
     llm = memory_config.get("llm", {})
     setting = llm.get("model_config")
@@ -413,7 +445,18 @@ def _load_qwen(config_path: Path, memory_config: dict) -> tuple[Any, Any, Any]:
     return bundle
 
 
-def _qwen_generate(config_path: Path, memory_config: dict, prompt: str) -> str:
+def _token_budget(memory_config: dict, purpose: str) -> int:
+    llm = memory_config.get("llm", {})
+    default = int(llm.get("max_new_tokens", 512))
+    budgets = llm.get("token_budgets") or {}
+    value = budgets.get(purpose, default)
+    try:
+        return max(1, int(value))
+    except (TypeError, ValueError):
+        return default
+
+
+def _qwen_generate(config_path: Path, memory_config: dict, prompt: str, max_new_tokens: int | None = None) -> str:
     if not memory_config.get("llm", {}).get("enabled", False):
         raise RuntimeError("Qwen generation is disabled")
     torch, tokenizer, model = _load_qwen(config_path, memory_config)
@@ -429,10 +472,11 @@ def _qwen_generate(config_path: Path, memory_config: dict, prompt: str) -> str:
     device = next(model.parameters()).device
     inputs = inputs.to(device)
     input_length = inputs["input_ids"].shape[-1]
+    limit = int(max_new_tokens) if max_new_tokens is not None else int(memory_config.get("llm", {}).get("max_new_tokens", 512))
     with torch.no_grad():
         generated = model.generate(
             **inputs,
-            max_new_tokens=int(memory_config.get("llm", {}).get("max_new_tokens", 512)),
+            max_new_tokens=max(1, limit),
             do_sample=False,
         )
     return tokenizer.decode(generated[0][input_length:], skip_special_tokens=True).strip()
@@ -566,7 +610,7 @@ def _hyde_query(config_path: Path, memory_config: dict, query: str) -> tuple[str
             "Return only the passage.\n\n"
             f"Query: {query}"
         )
-        generated = _qwen_generate(config_path, memory_config, prompt)
+        generated = _qwen_generate(config_path, memory_config, prompt, _token_budget(memory_config, "hyde"))
         if generated:
             return f"{query}\n{generated}", "qwen"
     except Exception:
@@ -604,13 +648,15 @@ def _compress_text(config_path: Path, memory_config: dict, text: str, budget: in
         return text[:budget], "none" if len(text) <= budget else "hard_truncate"
     try:
         prompt = (
-            "Summarize the memory below for future retrieval. Preserve concrete facts, tool results, "
-            "conflicts, and user preferences. Return plain text only.\n\n"
+            "Summarize the memory below for future retrieval. Preserve concrete facts, decisions, "
+            "tool results, conflicts, and user preferences; copy identifiers, numbers, file names, "
+            "parameters, and error codes verbatim. Write in the same language as the memory. "
+            "Stay within the character budget. Return plain text only.\n\n"
             f"Budget characters: {budget}\n"
             f"Query focus: {query or ''}\n\n"
             f"Memory:\n{text[:6000]}"
         )
-        generated = _qwen_generate(config_path, memory_config, prompt)
+        generated = _qwen_generate(config_path, memory_config, prompt, _token_budget(memory_config, "compress"))
         if generated:
             return generated[:budget].rstrip(), "qwen"
     except Exception:
@@ -638,7 +684,7 @@ def _estimate_importance(config_path: Path, memory_config: dict, answer: str, tr
             "Return only an integer.\n\n"
             f"Final answer:\n{answer[:3000]}"
         )
-        generated = _qwen_generate(config_path, memory_config, prompt)
+        generated = _qwen_generate(config_path, memory_config, prompt, _token_budget(memory_config, "importance"))
         match = re.search(r"\b([1-9]|10)\b", generated)
         if match:
             return int(match.group(1)), "qwen"
@@ -656,6 +702,18 @@ def _estimate_importance(config_path: Path, memory_config: dict, answer: str, tr
 
 def _build_chunks(paths: dict, docs: list[dict]) -> list[dict]:
     retrieval = paths["config"].get("retrieval", {})
+    if not retrieval.get("use_chunk", True):
+        return [
+            {
+                "memory_id": doc["memory_id"],
+                "metadata": doc["metadata"],
+                "path": doc["path"],
+                "chunk_index": 0,
+                "content": doc.get("search_content") or doc["content"],
+                "full_content": doc["content"],
+            }
+            for doc in docs
+        ]
     chunks = []
     for doc in docs:
         for chunk in _chunk_text(
@@ -754,18 +812,43 @@ def _rank_memory_docs(paths: dict, docs: list[dict], query: str | None) -> tuple
     now = datetime.now(timezone.utc)
     half_life = float(retrieval.get("recency_half_life_days", 30))
     importance_default = int(config.get("lifecycle", {}).get("importance_default", 5))
+    use_three_factor = bool(retrieval.get("use_three_factor", True))
+    weights = retrieval.get("three_factor_weights") or {}
+    w_rel = float(weights.get("relevance", 0.8))
+    w_rec = float(weights.get("recency", 0.1))
+    w_imp = float(weights.get("importance", 0.1))
+    top_m = int(retrieval.get("three_factor_top_m", 10))
+    # 三因子的相关度分量用各路原始分数的 min-max 归一化（保留绝对差距），
+    # 不用 RRF 融合分：rank 倒数曲线过平，会让任何 recency/importance 权重都能翻转 top-1。
+    bm25_norm = _minmax_scores(bm25)
+    vector_norm = _minmax_scores(vector_scores)
+    fused_norm = _minmax_scores(dict(fused))
+    rescoring_pool = {
+        chunk_index
+        for chunk_index, _ in sorted(fused.items(), key=lambda pair: -pair[1])[: max(0, top_m)]
+    }
     best_by_memory: dict[str, dict] = {}
     for chunk_index, relevance in fused.items():
         chunk = chunks[chunk_index]
         metadata = chunk["metadata"]
+        if bm25_norm or vector_norm:
+            relevance_norm = max(bm25_norm.get(chunk_index, 0.0), vector_norm.get(chunk_index, 0.0))
+        else:
+            relevance_norm = fused_norm.get(chunk_index, 0.0)
         recency = _recency_factor(metadata, now, half_life)
         importance = _importance_factor(metadata, importance_default)
-        score = relevance * recency * importance
+        if use_three_factor and chunk_index in rescoring_pool:
+            score = w_rel * relevance_norm + w_rec * recency + w_imp * importance
+        elif use_three_factor:
+            score = w_rel * relevance_norm
+        else:
+            score = fused_norm.get(chunk_index, 0.0)
         record = {
             **chunk,
             "score": score,
             "factors": {
                 "relevance": relevance,
+                "relevance_norm": relevance_norm,
                 "recency": recency,
                 "importance": importance,
             },
@@ -801,6 +884,8 @@ def _rank_memory_docs(paths: dict, docs: list[dict], query: str | None) -> tuple
         "hyde": hyde_mode,
         "rerank": rerank_mode,
         "vector_backend": vector_backend,
+        "use_chunk": bool(retrieval.get("use_chunk", True)),
+        "use_three_factor": use_three_factor,
         "chunk_count": len(chunks),
         "embedding_cache": {
             "path": str(paths["vector_cache"]),
@@ -828,7 +913,7 @@ def _rerank_with_qwen(config_path: Path, config: dict, query: str, ranked_chunks
             f"Query: {query}\n"
             f"Candidates:\n{json.dumps(candidates, ensure_ascii=False)}"
         )
-        generated = _qwen_generate(config_path, config, prompt)
+        generated = _qwen_generate(config_path, config, prompt, _token_budget(config, "rerank"))
         order = json.loads(generated)
         if isinstance(order, list):
             position = {str(memory_id): index for index, memory_id in enumerate(order)}
@@ -851,6 +936,31 @@ def _format_memory_content(paths: dict, doc: dict, query: str | None, remaining:
         return source, False, "none"
     compressed, method = _compress_text(paths["config_path"], config, source, budget, query)
     return compressed, True, method
+
+
+def _runtime_versions() -> dict:
+    import platform
+    from importlib import metadata
+
+    versions: dict[str, str | None] = {"python": platform.python_version()}
+    for package in ("numpy", "torch", "transformers", "PyYAML"):
+        try:
+            versions[package] = metadata.version(package)
+        except Exception:
+            versions[package] = None
+    return versions
+
+
+def _config_snapshot(config: dict) -> dict:
+    return {
+        "max_memory_chars": config.get("max_memory_chars"),
+        "retrieval": config.get("retrieval"),
+        "compression": config.get("compression"),
+        "integration": config.get("integration"),
+        "poison_gate": config.get("poison_gate"),
+        "lifecycle": config.get("lifecycle"),
+        "llm_enabled": bool(config.get("llm", {}).get("enabled", False)),
+    }
 
 
 def _update_access_metadata(index: dict, docs: list[dict], timestamp: str) -> None:
@@ -935,7 +1045,7 @@ def load_memory(
         "errors": errors,
     }
     timestamp = now_iso()
-    if selected:
+    if selected and config.get("lifecycle", {}).get("update_access_on_load", True):
         _update_access_metadata(index, selected, timestamp)
         write_json(index, paths["index"])
     if outdir:
@@ -950,10 +1060,55 @@ def load_memory(
                 "retrieval": diagnostics,
                 "selected_ids": [item["memory_id"] for item in selected],
                 "errors": errors,
+                "config_snapshot": _config_snapshot(config),
+                "versions": _runtime_versions(),
             },
             output_dir / "memory_log.jsonl",
         )
     return result
+
+def _extract_json_object(text: str) -> dict | None:
+    match = re.search(r"\{.*\}", text, re.DOTALL)
+    if not match:
+        return None
+    try:
+        parsed = json.loads(match.group(0))
+    except json.JSONDecodeError:
+        return None
+    return parsed if isinstance(parsed, dict) else None
+
+
+def _llm_change_judge(config_path: Path, config: dict, previous_answer: str, answer: str) -> dict | None:
+    prompt = (
+        "You are auditing an agent memory update. Compare the OLD memory content with the NEW content "
+        "and classify their relation as exactly one of: "
+        "duplicate (same facts restated, nothing new), "
+        "supplement (adds new compatible information), "
+        "conflict (a key fact in NEW contradicts OLD). "
+        'Return only JSON: {"change_type": "duplicate|supplement|conflict", "reason": "short reason"}\n\n'
+        f"OLD:\n{previous_answer[:2000]}\n\nNEW:\n{answer[:2000]}"
+    )
+    generated = _qwen_generate(config_path, config, prompt, _token_budget(config, "judge"))
+    verdict = _extract_json_object(generated)
+    if not verdict or verdict.get("change_type") not in {"duplicate", "supplement", "conflict"}:
+        return None
+    return verdict
+
+
+def _llm_nli_conflict(config_path: Path, config: dict, trusted_text: str, answer: str) -> dict | None:
+    prompt = (
+        "You are a consistency checker for an agent memory system. "
+        "Decide whether the NEW memory contradicts the TRUSTED memory on any key fact. "
+        "Extra information that does not contradict is NOT a conflict. "
+        'Return only JSON: {"conflict": true or false, "reason": "short reason"}\n\n'
+        f"TRUSTED:\n{trusted_text[:1500]}\n\nNEW:\n{answer[:1500]}"
+    )
+    generated = _qwen_generate(config_path, config, prompt, _token_budget(config, "judge"))
+    verdict = _extract_json_object(generated)
+    if not verdict or not isinstance(verdict.get("conflict"), bool):
+        return None
+    return verdict
+
 
 def _detect_conflict(left: str, right: str, threshold: float) -> tuple[bool, str]:
     similarity = _text_similarity(left, right)
@@ -974,31 +1129,43 @@ def _poison_gate(paths: dict, index: dict, save_type: str, answer: str) -> dict:
     config = paths["config"]
     gate = config.get("poison_gate", {})
     if not gate.get("enabled", False):
-        return {"flagged": False, "action": "allow", "reason": "disabled", "matches": []}
+        return {"flagged": False, "action": "allow", "reason": "disabled", "method": "disabled", "matches": []}
     trusted_types = set(gate.get("trusted_memory_types", ["global"]))
     trusted_ids = [memory_id for memory_id, item in index.items() if item.get("memory_type") in trusted_types]
     trusted_docs, _ = _load_memory_docs(paths, index, trusted_ids)
     matches = []
     threshold = float(gate.get("conflict_threshold", 0.32))
+    use_judge = bool(gate.get("use_llm_judge", True))
+    method = "rule"
     for doc in trusted_docs:
         conflict, reason = _detect_conflict(doc["content"], answer, threshold)
+        if use_judge:
+            try:
+                verdict = _llm_nli_conflict(paths["config_path"], config, doc["search_content"], answer)
+            except Exception:
+                verdict = None
+            if verdict is not None:
+                conflict = verdict["conflict"]
+                reason = f"qwen_nli: {str(verdict.get('reason') or '')[:200]}"
+                method = "qwen_nli"
         if conflict:
             matches.append({"memory_id": doc["memory_id"], "reason": reason})
     if not matches:
-        return {"flagged": False, "action": "allow", "reason": "no_conflict", "matches": []}
+        return {"flagged": False, "action": "allow", "reason": "no_conflict", "method": method, "matches": []}
     action = gate.get("action", "flag")
     if save_type == "global":
         action = "flag"
-    return {"flagged": True, "action": action, "reason": "trusted_memory_conflict", "matches": matches}
+    return {"flagged": True, "action": action, "reason": "trusted_memory_conflict", "method": method, "matches": matches}
 
 
-def _change_report(existing_markdown: str | None, answer: str, config: dict) -> dict:
+def _change_report(config_path: Path, existing_markdown: str | None, answer: str, config: dict) -> dict:
     if not existing_markdown:
-        return {"change_type": "new", "duplicate": False, "conflict": False, "similarity": None, "notes": []}
+        return {"change_type": "new", "duplicate": False, "conflict": False, "similarity": None, "method": "rule", "notes": []}
     previous_answer = _section(existing_markdown, "Final Answer") or existing_markdown[:2000]
     similarity = _text_similarity(previous_answer, answer)
-    duplicate_threshold = float(config.get("integration", {}).get("duplicate_similarity", 0.92))
-    conflict_threshold = float(config.get("integration", {}).get("conflict_similarity", 0.28))
+    integration = config.get("integration", {})
+    duplicate_threshold = float(integration.get("duplicate_similarity", 0.92))
+    conflict_threshold = float(integration.get("conflict_similarity", 0.28))
     conflict, reason = _detect_conflict(previous_answer, answer, conflict_threshold)
     if similarity >= duplicate_threshold:
         change_type = "duplicate"
@@ -1006,12 +1173,28 @@ def _change_report(existing_markdown: str | None, answer: str, config: dict) -> 
         change_type = "conflict"
     else:
         change_type = "supplement"
+    method = "rule"
+    judge_reason = None
+    rule_change_type = change_type
+    if integration.get("use_llm_judge", True):
+        try:
+            verdict = _llm_change_judge(config_path, config, previous_answer, answer)
+        except Exception:
+            verdict = None
+        if verdict:
+            change_type = verdict["change_type"]
+            conflict = change_type == "conflict"
+            method = "qwen_judge"
+            judge_reason = str(verdict.get("reason") or "")[:300]
     return {
         "change_type": change_type,
         "duplicate": change_type == "duplicate",
         "conflict": conflict,
         "conflict_reason": reason,
         "similarity": round(similarity, 6),
+        "method": method,
+        "rule_change_type": rule_change_type,
+        "judge_reason": judge_reason,
         "notes": [
             "duplicate content discarded" if change_type == "duplicate" else "new content merged into memory document",
         ],
@@ -1084,6 +1267,124 @@ def _evict_if_needed(paths: dict, index: dict) -> list[dict]:
     return evicted
 
 
+def _reflection_text(item: dict) -> str:
+    return "\n".join(
+        str(value)
+        for value in (item.get("title"), item.get("summary"))
+        if isinstance(value, str) and value.strip()
+    ).strip()
+
+
+def _cluster_reflection_sources(paths: dict, candidates: list[dict], min_size: int) -> tuple[list[dict], dict]:
+    lifecycle = paths["config"].get("lifecycle", {})
+    threshold = float(lifecycle.get("reflect_similarity_threshold", 0.35))
+    vectors = []
+    backend = None
+    for item in candidates:
+        text = _reflection_text(item)
+        if not text:
+            continue
+        try:
+            vector, used_backend = _vectorize(paths["config_path"], paths["config"], text)
+        except Exception:
+            vector, used_backend = _hash_vector(_tokenize(text), int(paths["config"].get("retrieval", {}).get("hashing_dim", 768))), "hashing"
+        backend = backend or used_backend
+        vectors.append({"item": item, "text": text, "vector": vector})
+    if len(vectors) < min_size:
+        return [], {
+            "method": "embedding_greedy",
+            "backend": backend,
+            "candidate_count": len(vectors),
+            "cluster_size": 0,
+            "threshold": threshold,
+            "reason": "not_enough_vectorized_candidates",
+        }
+
+    clusters = []
+    assigned: set[int] = set()
+    for seed_index, seed in enumerate(vectors):
+        if seed_index in assigned:
+            continue
+        cluster_indices = [seed_index]
+        assigned.add(seed_index)
+        centroid = dict(seed["vector"])
+        for index, candidate in enumerate(vectors):
+            if index in assigned:
+                continue
+            if _cosine_dict(centroid, candidate["vector"]) >= threshold:
+                cluster_indices.append(index)
+                assigned.add(index)
+                centroid = _mean_vectors([vectors[item]["vector"] for item in cluster_indices])
+        clusters.append(cluster_indices)
+
+    importance_default = int(lifecycle.get("importance_default", 5))
+    now = datetime.now(timezone.utc)
+
+    def cluster_score(indices: list[int]) -> tuple[int, float, float]:
+        items = [vectors[index]["item"] for index in indices]
+        avg_importance = sum(_importance_factor(item, importance_default) for item in items) / len(items)
+        avg_recency = sum(_recency_factor(item, now, 30) for item in items) / len(items)
+        return len(indices), avg_importance, avg_recency
+
+    best = max(clusters, key=cluster_score)
+    selected = [vectors[index]["item"] for index in best]
+    diagnostics = {
+        "method": "embedding_greedy",
+        "backend": backend,
+        "candidate_count": len(vectors),
+        "cluster_count": len(clusters),
+        "cluster_size": len(selected),
+        "threshold": threshold,
+        "source_memory_ids": [item["memory_id"] for item in selected],
+    }
+    if len(selected) < min_size:
+        diagnostics["reason"] = "largest_cluster_below_min_size"
+        return [], diagnostics
+    return selected, diagnostics
+
+
+def _generate_reflection_insight(paths: dict, summaries: list[str], budget: int) -> tuple[str, str]:
+    joined = "\n".join(f"- {summary}" for summary in summaries if summary.strip())
+    try:
+        prompt = (
+            "Synthesize the following related conversation memories into one higher-level long-term memory insight. "
+            "Preserve concrete reusable facts and avoid listing every source verbatim. Return plain text only.\n\n"
+            f"Budget characters: {budget}\n\n"
+            f"Related memories:\n{joined[:6000]}"
+        )
+        generated = _qwen_generate(paths["config_path"], paths["config"], prompt, _token_budget(paths["config"], "reflect"))
+        if generated:
+            return generated[:budget].rstrip(), "qwen_reflection"
+    except Exception:
+        pass
+    if len(joined) <= budget:
+        return joined, "cluster_join"
+    return (
+        _extractive_summary(
+            joined,
+            budget,
+            "cross conversation reflection",
+            int(paths["config"].get("compression", {}).get("summary_sentences", 5)),
+        ),
+        "extractive_reflection",
+    )
+
+
+def _mean_vectors(vectors: list[dict[int, float]]) -> dict[int, float]:
+    merged: dict[int, float] = defaultdict(float)
+    for vector in vectors:
+        for index, value in vector.items():
+            merged[index] += value
+    count = max(1, len(vectors))
+    for index in list(merged):
+        merged[index] /= count
+    norm = math.sqrt(sum(value * value for value in merged.values()))
+    if norm:
+        for index in list(merged):
+            merged[index] /= norm
+    return dict(merged)
+
+
 def _reflect_if_needed(paths: dict, index: dict, timestamp: str) -> dict | None:
     lifecycle = paths["config"].get("lifecycle", {})
     if not lifecycle.get("reflect_enabled", False):
@@ -1093,15 +1394,15 @@ def _reflect_if_needed(paths: dict, index: dict, timestamp: str) -> dict | None:
     if every_n <= 0 or len(conversation_items) < every_n or len(conversation_items) % every_n != 0:
         return None
     recent = sorted(conversation_items, key=lambda item: item.get("updated_at", ""))[-every_n:]
-    summaries = [item.get("summary", "") for item in recent if item.get("summary")]
-    if len(summaries) < int(lifecycle.get("reflect_min_cluster_size", 3)):
+    min_cluster_size = int(lifecycle.get("reflect_min_cluster_size", 3))
+    clustered, cluster_diagnostics = _cluster_reflection_sources(paths, recent, min_cluster_size)
+    if len(clustered) < min_cluster_size:
         return None
-    insight_text, method = _compress_text(
-        paths["config_path"],
-        paths["config"],
-        "\n".join(f"- {summary}" for summary in summaries),
+    summaries = [_reflection_text(item) for item in clustered if _reflection_text(item)]
+    insight_text, method = _generate_reflection_insight(
+        paths,
+        summaries,
         int(paths["config"].get("compression", {}).get("summary_chars", 700)),
-        "cross conversation reflection",
     )
     digest = hashlib.blake2b(insight_text.encode("utf-8"), digest_size=6).hexdigest()
     memory_id = f"mem_global_reflect_{digest}"
@@ -1112,8 +1413,10 @@ def _reflect_if_needed(paths: dict, index: dict, timestamp: str) -> dict | None:
         f"# {title}\n\n"
         f"- memory_id: `{memory_id}`\n"
         f"- created_or_updated_at: `{timestamp}`\n"
-        f"- source_count: `{len(recent)}`\n"
+        f"- source_count: `{len(clustered)}`\n"
         f"- compression_method: `{method}`\n\n"
+        "## Cluster\n\n```json\n"
+        f"{json.dumps(cluster_diagnostics, ensure_ascii=False, indent=2)}\n```\n\n"
         "## Insight\n\n"
         f"{insight_text}\n"
     )
@@ -1128,9 +1431,10 @@ def _reflect_if_needed(paths: dict, index: dict, timestamp: str) -> dict | None:
         "importance": 7,
         "created_at": timestamp,
         "updated_at": timestamp,
-        "source_memory_ids": [item["memory_id"] for item in recent],
+        "source_memory_ids": [item["memory_id"] for item in clustered],
+        "reflection_cluster": cluster_diagnostics,
     }
-    return {"memory_id": memory_id, "path": relative, "method": method}
+    return {"memory_id": memory_id, "path": relative, "method": method, "cluster": cluster_diagnostics}
 
 
 def save_memory(
@@ -1165,7 +1469,7 @@ def save_memory(
     existing = index.get(memory_id, {})
     existing_markdown = read_text(target_path) if target_path.exists() else None
     previous_answer = _section(existing_markdown, "Final Answer") if existing_markdown else None
-    change_report = _change_report(existing_markdown, answer, config)
+    change_report = _change_report(paths["config_path"], existing_markdown, answer, config)
     poison = _poison_gate(paths, index, save_type, answer)
     if poison.get("action") == "block":
         result = {
@@ -1261,6 +1565,8 @@ def save_memory(
                 "flagged": poison.get("flagged", False),
                 "reflection": reflection,
                 "evicted": evicted,
+                "config_snapshot": _config_snapshot(config),
+                "versions": _runtime_versions(),
             },
             output_dir / "memory_log.jsonl",
         )

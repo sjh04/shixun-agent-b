@@ -238,17 +238,71 @@ B5 保存命令会更新项目正式记忆目录：生成或覆盖 `memory/conve
 
 当前 B5 在保持 `load_memory` / `save_memory` 函数签名兼容的基础上，新增了主动记忆管理能力，均由 `configs/memory.yaml` 控制：
 
-- 检索层：`none|keyword|vector|hybrid`，支持 chunk、BM25、hashing/Qwen 向量、RRF、三因子重排、HyDE 与 rerank 兜底；chunk embedding 会按内容 hash 缓存在 `memory_vector_cache.json`。
+- 检索层：`none|keyword|vector|hybrid`，支持 chunk（`use_chunk`）、BM25、hashing/Qwen 向量、RRF、三因子重排（`use_three_factor` + `three_factor_weights` + `three_factor_top_m`）、HyDE 与 rerank 兜底；chunk embedding 会按内容 hash 缓存在 `memory_vector_cache.json`。三因子采用归一化加权和（相关度分量用各路检索原始分数的 min-max 归一化），时近性/重要性只在相关度前 `three_factor_top_m` 名候选内参与重排。
 - 压缩层：超预算记忆优先摘要压缩，模型不可用时退化为抽取式摘要。
 - 整合层：重复 / 补充 / 冲突更新生成 `change_report`，保存时输出 `importance` 与 `poison_gate` 状态。
-- 生命周期层：维护 `last_accessed_at` / `access_count`，支持容量淘汰与周期性 reflection 全局记忆。
-- 评测层：`code/evaluate_b5_memory.py` 可对标注 query 计算 Hit@k 和 MRR。
+- 生命周期层：维护 `last_accessed_at` / `access_count`（评测时可用 `lifecycle.update_access_on_load: false` 关闭回写，保证对照可复现），支持容量淘汰，并按 embedding 聚类触发周期性 reflection 全局记忆。
+- 评测层：`code/evaluate_b5_memory.py` 对标注 query 计算 Hit@1/3/5、MRR、nDCG@5 与平均检索延迟。
+- 可复现：每次 `load/save` 都会把全部配置开关与依赖版本快照追加到 `memory_log.jsonl`。
 
 检索评测示例：
 
 ```bash
 python evaluate_b5_memory.py --config ../configs/memory.yaml --queries ../data/memory_eval/b5_eval_queries.json --outdir ../outputs/B5_eval
 ```
+
+### 5.5 B5 检索消融实验（RQ1）
+
+标注语料由 `code/build_b5_eval_corpus.py` 生成：24 条多主题记忆（含 2 篇埋点长文档、1 组新旧结论冲突对）+ 20 条带 `relevant_ids` 与 `probe` 设计意图标注的查询，落盘在 `data/memory_eval/corpus/` 与 `data/memory_eval/corpus_queries.json`。
+
+`code/run_b5_ablation.py` 按 proposal 的消融矩阵逐行运行（B0 → KW → VEC → RRF → RRF_CHUNK → HYDE → THREE_F → FULL，每行只增一个组件）：
+
+```bash
+python build_b5_eval_corpus.py
+python run_b5_ablation.py --llm off --outdir ../outputs/B5_ablation_hashing   # 无 GPU 兜底路径
+python run_b5_ablation.py --llm on  --outdir ../outputs/B5_ablation_qwen      # Qwen embedding + HyDE + rerank
+```
+
+每行实际生效的配置写入 `<outdir>/configs/`，逐 query 结果在 `<outdir>/<row>/`，汇总表（总表 + 分探针类型表）在 `<outdir>/ablation_summary.{json,md}`。注意 `--llm off` 时 HYDE 行与 FULL 行会自动回退（与前一行结果相同），Qwen 独有增益要看 `--llm on` 的结果。`--summarize_only` 可在不重跑检索的情况下由已有逐行结果重新生成汇总表。
+
+### 5.6 B5 整合层与 Poison Gate 评测（RQ3 / RQ4）
+
+整合层的重复/补充/冲突判定与 Poison Gate 核验均为**双路架构**：文档级规则（相似度阈值 + 否定词启发）作离线兜底，`llm.enabled` 时叠加 Qwen judge / NLI（失败自动回退规则）。标注样例在 `data/memory_eval/integration_cases.json`（三分类 18 条）与 `data/memory_eval/poison_cases.json`（投毒/正常各 10 条）：
+
+```bash
+python run_b5_integration_eval.py --judge off --outdir ../outputs/B5_integration_rule   # 纯规则基线
+python run_b5_integration_eval.py --judge on  --outdir ../outputs/B5_integration_qwen   # Qwen judge / NLI
+```
+
+输出 `integration_eval.{json,md}`：RQ3 三分类准确率 + 混淆矩阵 + 冲突检出率，RQ4 拦截率 TPR + 误杀率 FPR。
+
+### 5.7 B5 压缩层评测（RQ2）
+
+`data/memory_eval/compression_cases.json` 提供 5 条带关键点清单与对照 QA 的超长样本（2 条复用检索语料长文档）。对每条样本用 硬截断 / 抽取式 / Qwen 生成式 三种方法压到同一预算（全局预算与原文 1/3 的较小者），报关键点保留率（宽松/严格双口径）、压缩比与下游答对率（仅 `--llm on`）：
+
+```bash
+python run_b5_compression_eval.py --llm off --outdir ../outputs/B5_compression_rule
+python run_b5_compression_eval.py --llm on  --outdir ../outputs/B5_compression_qwen
+```
+
+### 5.8 B5 生命周期评测（RQ5）
+
+`run_b5_lifecycle_eval.py` 自带合成数据：淘汰部分构造 30 条元数据（含 pinned/global）压到容量 20，报 `_evict_if_needed` 与独立复算 oracle 的 Kendall τ、保护违例与容量稳定性；反思部分构造 3 簇同主题对话（每簇 4 条）按簇触发 `_reflect_if_needed`，用洞见级查询测反思产物的检索命中率，洞见全文落盘供人工评分。反思聚类阈值按向量后端取值（qwen 0.35 / hashing 0.05，短文本 bigram 余弦系统性偏低）：
+
+```bash
+python run_b5_lifecycle_eval.py --llm off --outdir ../outputs/B5_lifecycle_rule
+python run_b5_lifecycle_eval.py --llm on  --outdir ../outputs/B5_lifecycle_qwen
+```
+
+### 5.9 B5 端到端记忆效用（RQ6）
+
+`data/memory_eval/e2e_tasks.json` 提供 10 个"只有靠记忆才能答对"的任务（答案依赖检索语料中的项目事实）。`run_b5_e2e_eval.py` 在"无记忆 / 经 B5 完整检索管线注入记忆"两个条件下让 Qwen 回答，按答案关键词判分（需 GPU）：
+
+```bash
+python run_b5_e2e_eval.py --outdir ../outputs/B5_e2e
+```
+
+输出有/无记忆的任务成功率、提升幅度与检索命中率。平均步数与重复提问率需完整 B1 多轮循环，在 `run_full_demo` 联调中另行演示。
 
 ## 6. B4：真实调用模型 / Mock 调试决策
 

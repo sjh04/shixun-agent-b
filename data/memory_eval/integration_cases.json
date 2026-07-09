@@ -1,0 +1,20 @@
+[
+  {"case_id": "dup_01", "label": "duplicate", "old_answer": "检索层 BM25 的参数定为 k1=1.5、b=0.75，是信息检索文献里的经典默认值。", "new_answer": "BM25 打分的两个超参数取 k1 为 1.5、b 为 0.75，沿用检索文献中的经典缺省设置。"},
+  {"case_id": "dup_02", "label": "duplicate", "old_answer": "模型加载固定用 bfloat16 精度，device_map 设为 auto 自动分配显卡。", "new_answer": "加载模型时精度用 bfloat16，设备映射用 auto 让权重自动分到空闲的卡上。"},
+  {"case_id": "dup_03", "label": "duplicate", "old_answer": "报 ModuleNotFoundError: No module named 'yaml' 时，正确的安装命令是 pip install pyyaml，包名是 pyyaml 而导入名是 yaml。", "new_answer": "缺 yaml 模块的报错要用 pip install pyyaml 来装，安装包叫 pyyaml，import 时才叫 yaml。"},
+  {"case_id": "dup_04", "label": "duplicate", "old_answer": "所有运行产物统一落盘到 outputs/ 目录下，按模块分子目录存放。", "new_answer": "运行结果都写进 outputs/ 目录，每个模块一个子目录。"},
+  {"case_id": "dup_05", "label": "duplicate", "old_answer": "记忆注入预算由 max_memory_chars 控制，默认 2000 字符。", "new_answer": "注入记忆的长度上限走 max_memory_chars 配置，缺省是 2000 个字符。"},
+  {"case_id": "dup_06", "label": "duplicate", "old_answer": "跑 run_full_demo.py 时 --llm_mode 必须显式传 prompt_json，否则会静默回退到 mock 模式。", "new_answer": "运行 run_full_demo.py 需要显式指定 --llm_mode prompt_json，不指定的话它会悄悄退回 mock。"},
+  {"case_id": "sup_01", "label": "supplement", "old_answer": "检索层 BM25 的参数定为 k1=1.5、b=0.75。", "new_answer": "除了 BM25 的 k1=1.5、b=0.75，融合阶段的 rrf_k 取 60，候选上限 30。"},
+  {"case_id": "sup_02", "label": "supplement", "old_answer": "模型加载固定用 bfloat16 精度。", "new_answer": "在 bfloat16 的基础上，加载时还要给 from_pretrained 传 max_memory 把单卡占用压到 20GiB，给生成期激活留余量。"},
+  {"case_id": "sup_03", "label": "supplement", "old_answer": "缺 yaml 模块时用 pip install pyyaml 安装。", "new_answer": "补充一点：装 pyyaml 之前要先 conda activate agent，在 base 环境里装了也没用。"},
+  {"case_id": "sup_04", "label": "supplement", "old_answer": "所有回答一律使用中文。", "new_answer": "除了中文回答，日期要用 ISO 格式书写，金额单位默认人民币。"},
+  {"case_id": "sup_05", "label": "supplement", "old_answer": "记忆注入预算由 max_memory_chars 控制，默认 2000 字符。", "new_answer": "预算之外还有压缩层：单条记忆超预算时不再硬截断，而是生成摘要，模型不可用时退化为抽取式。"},
+  {"case_id": "sup_06", "label": "supplement", "old_answer": "在 apply_chat_template 里传 enable_thinking=False 才能关闭思考链输出。", "new_answer": "关闭思考链之外，还要保持 do_sample=False，同一输入的输出才能逐字符一致，实验才可复现。"},
+  {"case_id": "con_01", "label": "conflict", "old_answer": "检索层 BM25 的参数定为 k1=1.5、b=0.75。", "new_answer": "经重新测试，BM25 的 k1 应设为 0.5、b 设为 0.2，之前 1.5/0.75 的取值在我们的语料上是错的。"},
+  {"case_id": "con_02", "label": "conflict", "old_answer": "模型加载固定用 bfloat16 精度，float16 偶发溢出警告。", "new_answer": "模型加载必须改用 float32 全精度，bfloat16 会导致数值错误，已经全面停用半精度。"},
+  {"case_id": "con_03", "label": "conflict", "old_answer": "报 ModuleNotFoundError 时正确的安装命令是 pip install pyyaml，直接 pip install yaml 装到的是废弃包。", "new_answer": "直接 pip install yaml 就可以解决，包名就是 yaml，不需要装 pyyaml。"},
+  {"case_id": "con_04", "label": "conflict", "old_answer": "所有回答一律使用中文。", "new_answer": "用户已改要求：今后所有回答统一用英文输出，中文回答停用。"},
+  {"case_id": "con_05", "label": "conflict", "old_answer": "跑 run_full_demo.py 时 --llm_mode 不传会静默回退到 mock 模式。", "new_answer": "run_full_demo.py 不传 --llm_mode 时默认就是 prompt_json 真模型模式，不存在回退 mock 的情况。"},
+  {"case_id": "con_06", "label": "conflict", "old_answer": "device_map 设为 auto 让权重自动分配到空闲显卡。", "new_answer": "device_map 用 auto 会报错，必须手动指定 cuda:0 单卡加载。"}
+]
