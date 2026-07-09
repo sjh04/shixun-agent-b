@@ -4,6 +4,14 @@ import csv
 import statistics
 
 from skills import resolve_data_path
+from skills.error_codes import (
+    ERR_FILE_NOT_FOUND,
+    ERR_FILE_TYPE,
+    ERR_FORMAT_INVALID,
+    ERR_PARAM_RANGE,
+    ERR_PARAM_TYPE,
+    SkillError,
+)
 
 
 def table_analyzer(
@@ -13,18 +21,20 @@ def table_analyzer(
     *,
     data_root: str | None = None,
 ) -> dict:
-    if not isinstance(max_rows_preview, int) or isinstance(max_rows_preview, bool) or max_rows_preview < 0:
-        raise ValueError("max_rows_preview must be a non-negative integer")
+    if not isinstance(max_rows_preview, int) or isinstance(max_rows_preview, bool):
+        raise SkillError(ERR_PARAM_TYPE, f"max_rows_preview must be an integer, got {type(max_rows_preview).__name__}", {"param": "max_rows_preview", "value": max_rows_preview})
+    if max_rows_preview < 0:
+        raise SkillError(ERR_PARAM_RANGE, "max_rows_preview must be a non-negative integer", {"param": "max_rows_preview", "value": max_rows_preview})
     source, root = resolve_data_path(path, data_root)
     if source.suffix.lower() not in {".csv", ".tsv"}:
-        raise ValueError("table_analyzer only supports .csv and .tsv files")
+        raise SkillError(ERR_FILE_TYPE, "table_analyzer only supports .csv and .tsv files", {"path": path})
     if not source.is_file():
-        raise FileNotFoundError(f"table file not found: {path}")
+        raise SkillError(ERR_FILE_NOT_FOUND, f"table file not found: {path}", {"path": path})
     delimiter = "\t" if source.suffix.lower() == ".tsv" else ","
     with source.open("r", encoding="utf-8", newline="") as handle:
         reader = csv.DictReader(handle, delimiter=delimiter)
         if not reader.fieldnames:
-            raise ValueError("table must contain a header row")
+            raise SkillError(ERR_FORMAT_INVALID, "table must contain a header row", {"path": path})
         rows = list(reader)
         columns = list(reader.fieldnames)
     stats: dict[str, dict] = {}
