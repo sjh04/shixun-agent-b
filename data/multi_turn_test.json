@@ -1,0 +1,19 @@
+{
+  "conversation_id": "multi_test_001",
+  "user_input": "帮我读取 docs/agent_intro.txt，总结三条要点。",
+  "system_prompt_path": "../prompts/local_tool_agent.txt",
+  "toolset": "basic_tools",
+  "max_turns": 3,
+  "use_global_memory": true,
+  "selected_memory_ids": ["mem_conversation_conv_000"],
+  "save_memory": "none",
+  "multi_turn": {
+    "enabled": true,
+    "max_rounds": 3,
+    "interactive": false,
+    "follow_up_queries": [
+      "请把第一条要点详细展开说明。",
+      "这些内容对我的项目有什么参考价值？"
+    ]
+  }
+}

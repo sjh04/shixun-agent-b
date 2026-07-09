@@ -4,3 +4,10 @@ outputs/_test_*/
 outputs/tmp*/
 models/*
 !models/.gitkeep
+data/docs/20235919任宇轩proposal.md
+data/docs/开发计划.md
+CLAUDE.md
+data/docs/poster模板.pdf
+data/docs/poster草稿.md
+data/docs/B1验收学习文档.md
+data/docs/B1验收答辩文档.md

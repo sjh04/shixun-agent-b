@@ -1,0 +1,27 @@
+{
+  "conversation_id": "switch_replace_001",
+  "user_input": "帮我读取 docs/agent_intro.txt，总结三条要点。",
+  "system_prompt_path": "../prompts/local_tool_agent.txt",
+  "toolset": "basic_tools",
+  "max_turns": 3,
+  "use_global_memory": true,
+  "selected_memory_ids": ["mem_conversation_conv_000"],
+  "save_memory": "none",
+  "multi_turn": {
+    "enabled": true,
+    "max_rounds": 2,
+    "interactive": false,
+    "follow_up_queries": [
+      "用一句话总结这些内容。"
+    ]
+  },
+  "prompt_templates": {
+    "switches": [
+      {
+        "after_round": 1,
+        "action": "replace",
+        "template_path": "../prompts/summarize_mode.txt"
+      }
+    ]
+  }
+}
