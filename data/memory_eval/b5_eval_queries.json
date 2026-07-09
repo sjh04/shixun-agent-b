@@ -1,0 +1,10 @@
+[
+  {
+    "query": "Agent 系统由哪些部分组成，记忆有什么作用？",
+    "relevant_ids": ["mem_course_001"]
+  },
+  {
+    "query": "什么是 Agent 智能体？",
+    "relevant_ids": ["mem_conversation_conv_000"]
+  }
+]

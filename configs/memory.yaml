@@ -4,3 +4,68 @@ memory:
   conversation_memory_dir: conversations
   index_path: memory_index.json
   max_memory_chars: 2000
+
+  retrieval:
+    mode: hybrid          # none | keyword | vector | hybrid
+    top_k: 5
+    candidate_limit: 30
+    chunk_chars: 700
+    chunk_overlap: 120
+    rrf_k: 60
+    recency_half_life_days: 30
+    include_all_conversations: true
+    include_global_when_query: true
+    use_chunk: true
+    use_three_factor: true
+    three_factor_weights:   # 归一化加权和；乘法融合会让 RRF 相关度被 recency/importance 淹没
+      relevance: 0.8
+      recency: 0.1
+      importance: 0.1
+    use_hyde: true
+    use_rerank: true
+    vector_backend: qwen_or_hashing
+    hashing_dim: 768
+    cache_embeddings: true
+    vector_cache_path: memory_vector_cache.json
+
+  compression:
+    enabled: true
+    summary_chars: 700
+    summary_sentences: 5
+    min_chars_for_summary: 480
+
+  integration:
+    enabled: true
+    duplicate_similarity: 0.92
+    conflict_similarity: 0.28
+    use_llm_judge: true   # llm.enabled 时用 Qwen judge 做重复/补充/冲突三分类，失败回退规则
+
+  poison_gate:
+    enabled: true
+    action: flag          # flag | block
+    trusted_memory_types: [global]
+    conflict_threshold: 0.32
+    use_llm_judge: true   # llm.enabled 时用 Qwen 做 NLI 式一致性核验，失败回退规则
+
+  lifecycle:
+    max_memories: 200
+    protect_global: true
+    importance_default: 5
+    update_access_on_load: true
+    reflect_enabled: true
+    reflect_every_n: 10
+    reflect_min_cluster_size: 3
+    reflect_similarity_threshold: 0.35
+
+  llm:
+    enabled: false        # true enables local Qwen for HyDE, rerank, summaries, importance, embeddings
+    model_config: ../configs/model.yaml
+    mode: prompt_json
+    max_new_tokens: 512   # 未在 token_budgets 中列出的用途回退到此值
+    token_budgets:        # 按用途拆分生成预算，砍掉检索热路径的自回归解码开销
+      hyde: 48            # 检索热路径：一句假想段落即可（原 512，HyDE ~4s 的主因）
+      rerank: 160         # 检索热路径：只需吐 <=10 个 memory_id 的 JSON 数组
+      importance: 8       # 只需一个 1-10 整数
+      judge: 96           # 短 JSON 判定（重复/补充/冲突、NLI 核验）
+      compress: 512       # 摘要/压缩，保质量
+      reflect: 512        # 跨会话反思综合，保质量

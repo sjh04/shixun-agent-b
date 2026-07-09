@@ -1,0 +1,87 @@
+[
+  {
+    "case_id": "comp_01",
+    "text_from": "LONG_DOC_C05",
+    "key_points": [
+      {"id": "kp1", "statement": "演示前须确认 outputs/full_demo 目录存在且可写", "match_tokens": ["outputs/full_demo", "可写"]},
+      {"id": "kp2", "statement": "--llm_mode 必须显式设为 prompt_json，否则静默回退 mock", "match_tokens": ["prompt_json", "mock"]},
+      {"id": "kp3", "statement": "先单独跑 b4_local_agent_llm.py 冒烟测试", "match_tokens": ["b4_local_agent_llm", "冒烟"]},
+      {"id": "kp4", "statement": "B3 参数解析失败因 JSON 混入前导文字，加 strip 和花括号定位修复", "match_tokens": ["strip", "花括号"]},
+      {"id": "kp5", "statement": "记忆注入位置应在 system prompt 之后、用户输入之前", "match_tokens": ["注入", "system"]},
+      {"id": "kp6", "statement": "模型加载约九十秒，演示前应提前加载", "match_tokens": ["九十秒", "加载"]}
+    ],
+    "qa": [
+      {"question": "跑 run_full_demo.py 时 --llm_mode 不传会发生什么？", "answer_keywords": ["mock"]},
+      {"question": "全系统演示前要先跑哪个脚本做冒烟测试？", "answer_keywords": ["b4_local_agent_llm"]},
+      {"question": "记忆内容应该注入到消息序列的什么位置？", "answer_keywords": ["system"]}
+    ]
+  },
+  {
+    "case_id": "comp_02",
+    "text_from": "LONG_DOC_C11",
+    "key_points": [
+      {"id": "kp1", "statement": "必须在 apply_chat_template 传 enable_thinking=False 才能关闭思考链", "match_tokens": ["enable_thinking"]},
+      {"id": "kp2", "statement": "do_sample=False 保证同一输入输出逐字符一致", "match_tokens": ["do_sample"]},
+      {"id": "kp3", "statement": "max_new_tokens 定为 1024", "match_tokens": ["1024"]},
+      {"id": "kp4", "statement": "temperature 降到 0 后 JSON 格式错误率几乎为零", "match_tokens": ["temperature"]},
+      {"id": "kp5", "statement": "精度锁定 bfloat16，float16 偶发溢出", "match_tokens": ["bfloat16"]},
+      {"id": "kp6", "statement": "do_sample 关闭时 top_p/top_k 不生效，已从配置清除", "match_tokens": ["top_p"]}
+    ],
+    "qa": [
+      {"question": "怎么才能真正关闭模型的思考链输出？", "answer_keywords": ["enable_thinking"]},
+      {"question": "max_new_tokens 最终定为多少？", "answer_keywords": ["1024"]},
+      {"question": "为什么把 top_p 和 top_k 从配置里清掉了？", "answer_keywords": ["do_sample"]}
+    ]
+  },
+  {
+    "case_id": "comp_03",
+    "text": "这轮对话整理了演示数据表格的完整清洗流程，是后续所有表格分析实验的数据基础，过程记录如下。原始数据是三份来源不同的 CSV，编码混杂，第一步统一转成 UTF-8 无 BOM，转换用 iconv 批处理完成，转完用 file 命令逐一核对。第二步处理缺失值：数值列 amount 的缺失统一用该列中位数填充，不用均值是因为金额分布右偏严重，均值会被大额记录拉高；类别列 category 的缺失填 unknown 保留行，不直接删。第三步统一日期：三份表的日期格式各不相同，有斜杠有点号，全部规整为 ISO 的年-月-日格式，无法解析的日期共 17 行，人工核对后修复了 14 行、丢弃 3 行。第四步去重：以 name 加 date 两列拼接作为去重键，重复时保留 amount 非空的那条，共去掉 42 行重复。第五步处理异常值：amount 超过第 99 百分位的记录做截尾处理压到分位值，而不是删除，保证总量统计不失真。清洗脚本固化为 clean_tables.py 放在 data/tables 目录，重跑一遍约需十秒，输出带 _clean 后缀的新文件，原始文件永远不动。清洗后的表共 1863 行，列结构为 name、category、amount、date 四列，后续所有 table_analyzer 演示都基于 _clean 文件进行。最后留了一个已知问题：category 列有约百分之五的 unknown，等拿到补充数据源再回填。",
+    "key_points": [
+      {"id": "kp1", "statement": "编码统一为 UTF-8 无 BOM", "match_tokens": ["UTF-8"]},
+      {"id": "kp2", "statement": "amount 缺失用中位数填充（分布右偏不用均值）", "match_tokens": ["中位数"]},
+      {"id": "kp3", "statement": "日期统一 ISO 格式", "match_tokens": ["ISO"]},
+      {"id": "kp4", "statement": "去重键是 name+date，保留 amount 非空的记录", "match_tokens": ["name", "date"]},
+      {"id": "kp5", "statement": "异常金额按 99 百分位截尾而非删除", "match_tokens": ["99", "截尾"]},
+      {"id": "kp6", "statement": "清洗脚本 clean_tables.py，输出 _clean 后缀文件，原始文件不动", "match_tokens": ["clean_tables", "_clean"]}
+    ],
+    "qa": [
+      {"question": "amount 列的缺失值是怎么填充的？", "answer_keywords": ["中位数"]},
+      {"question": "异常大额记录是删除还是别的处理方式？", "answer_keywords": ["截尾"]},
+      {"question": "清洗脚本叫什么名字？", "answer_keywords": ["clean_tables"]}
+    ]
+  },
+  {
+    "case_id": "comp_04",
+    "text": "这轮对话确定了共享服务器的使用规约，全组同学都要遵守，违反两次会被收回长任务权限。第一条，跑任何占显存的任务之前必须先 nvidia-smi 查看两张卡的占用情况，确认剩余显存足够再启动，禁止盲跑把别人的训练挤崩。第二条，预计超过两小时的大任务一律错峰，安排到晚上十点以后或周末白天启动，工作日白天留给调试类短任务。第三条，数据一律放 /mnt/aisdata 下自己的目录，home 目录配额只有 20GB 且不定期清理，往 home 里塞数据集导致配额爆掉的问题已经出过两次。第四条，任务名要带自己的姓名缩写前缀，方便别人在进程列表里找到负责人，匿名长任务将被直接杀掉。第五条，进程异常崩溃后先看 dmesg 和 nvidia-smi 确认是不是被 OOM killer 杀的，不要立刻重新提交同样的任务。第六条，每周五下午四点到六点是维护窗口，管理员可能重启机器，重要任务避开这个时段并做好断点保存。最后约定了值班制度：每周轮一位同学负责清理僵尸进程和临时文件，值班表贴在群公告里。",
+    "key_points": [
+      {"id": "kp1", "statement": "跑任务前必须先 nvidia-smi 确认显存", "match_tokens": ["nvidia-smi"]},
+      {"id": "kp2", "statement": "超两小时的大任务错峰到晚十点后或周末", "match_tokens": ["错峰"]},
+      {"id": "kp3", "statement": "数据放 /mnt/aisdata，home 配额仅 20GB", "match_tokens": ["/mnt/aisdata", "20GB"]},
+      {"id": "kp4", "statement": "任务名带姓名缩写前缀", "match_tokens": ["前缀"]},
+      {"id": "kp5", "statement": "崩溃先查 dmesg 确认是否 OOM killer", "match_tokens": ["dmesg"]},
+      {"id": "kp6", "statement": "周五 16-18 点维护窗口可能重启", "match_tokens": ["维护", "周五"]}
+    ],
+    "qa": [
+      {"question": "启动占显存的任务前第一步做什么？", "answer_keywords": ["nvidia-smi"]},
+      {"question": "数据集应该放在哪个目录？", "answer_keywords": ["aisdata"]},
+      {"question": "每周什么时候是维护窗口？", "answer_keywords": ["周五"]}
+    ]
+  },
+  {
+    "case_id": "comp_05",
+    "text": "这轮对话梳理了 B3 工具层的 schema 生成与执行机制，给要新增工具的同学做参考。schema 不是手写的：B3 启动时扫描 skills 目录下的工具函数，从函数签名和 docstring 自动生成工具说明，参数名取自签名，参数说明取自 docstring 的参数段，所以 docstring 写得不规范的工具会生成残缺的 schema，这是新工具接入最常见的坑。类型映射有一张固定表：Python 的 str 映射 string、int 和 float 映射 number、bool 映射 boolean、list 映射 array，暂不支持嵌套对象参数，需要复杂输入的工具改为接收 JSON 字符串自行解析。执行侧的约定：必填参数缺失时 B3 不调用函数，直接返回结构化错误对象，错误码是 E_TOOL_MISSING_ARG；参数类型不匹配会先尝试宽松转换，转换失败返回 E_TOOL_BAD_ARG；工具本体抛异常返回 E_TOOL_RUNTIME。所有工具调用有 30 秒超时，超时返回 E_TOOL_TIMEOUT 并自动重试一次，第二次仍失败才把错误交回给 B1，这个重试对上层完全透明。返回值统一包一层信封结构：status 字段标记 success 或 error，data 字段放工具原始返回，errors 数组放错误详情，B4 在决策时只看 data。新增工具的检查清单：函数放进 skills 目录、写全 docstring、参数用支持的类型、返回可 JSON 序列化的值、在 tools.yaml 里登记名字，五步缺一不可。",
+    "key_points": [
+      {"id": "kp1", "statement": "schema 从函数签名 + docstring 自动生成，docstring 不规范会生成残缺 schema", "match_tokens": ["docstring", "签名"]},
+      {"id": "kp2", "statement": "类型映射 str→string、int/float→number，不支持嵌套对象", "match_tokens": ["嵌套"]},
+      {"id": "kp3", "statement": "必填参数缺失返回 E_TOOL_MISSING_ARG，不调用函数", "match_tokens": ["E_TOOL_MISSING_ARG"]},
+      {"id": "kp4", "statement": "工具调用 30 秒超时，自动重试一次", "match_tokens": ["30", "重试"]},
+      {"id": "kp5", "statement": "返回值统一信封结构 status/data/errors，B4 只看 data", "match_tokens": ["status", "data"]},
+      {"id": "kp6", "statement": "新增工具五步清单：skills 目录、docstring、类型、可序列化返回、tools.yaml 登记", "match_tokens": ["tools.yaml"]}
+    ],
+    "qa": [
+      {"question": "必填参数缺失时 B3 返回什么错误码？", "answer_keywords": ["E_TOOL_MISSING_ARG"]},
+      {"question": "工具调用的超时时间是多久？", "answer_keywords": ["30"]},
+      {"question": "工具 schema 是从哪里自动生成的？", "answer_keywords": ["docstring"]}
+    ]
+  }
+]

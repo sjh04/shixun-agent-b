@@ -1,0 +1,144 @@
+[
+  {
+    "query": "整个系统里哪个模块负责决定下一步调用什么工具？",
+    "relevant_ids": [
+      "mem_g_arch"
+    ],
+    "probe": "paraphrase"
+  },
+  {
+    "query": "表格里某一列数字的均值怎么算？",
+    "relevant_ids": [
+      "mem_conv_c02",
+      "mem_g_tools"
+    ],
+    "probe": "multi_relevant"
+  },
+  {
+    "query": "显卡内存不够、推理时报 CUDA out of memory 该怎么处理？",
+    "relevant_ids": [
+      "mem_conv_c03"
+    ],
+    "probe": "three_factor"
+  },
+  {
+    "query": "为什么全系统演示跑出来的答案像是预置的假数据？",
+    "relevant_ids": [
+      "mem_conv_c05"
+    ],
+    "probe": "chunk_buried"
+  },
+  {
+    "query": "报错 ModuleNotFoundError: No module named 'yaml' 怎么解决？",
+    "relevant_ids": [
+      "mem_conv_c08"
+    ],
+    "probe": "keyword_exact"
+  },
+  {
+    "query": "提示词里写了不要解释，模型还是先输出一大段推理，怎么才能真正关掉？",
+    "relevant_ids": [
+      "mem_conv_c11"
+    ],
+    "probe": "chunk_buried"
+  },
+  {
+    "query": "模型加载要用什么数值精度，多卡怎么分配权重？",
+    "relevant_ids": [
+      "mem_g_qwen"
+    ],
+    "probe": "paraphrase"
+  },
+  {
+    "query": "B5 返回给编排模块的结果里，哪些字段是永远不能动的？",
+    "relevant_ids": [
+      "mem_g_schema"
+    ],
+    "probe": "paraphrase"
+  },
+  {
+    "query": "输出的报告应该保存到哪里、用什么语言写？",
+    "relevant_ids": [
+      "mem_g_prefs"
+    ],
+    "probe": "paraphrase"
+  },
+  {
+    "query": "想把项目里所有的说明文档一次性找出来怎么做？",
+    "relevant_ids": [
+      "mem_conv_c06"
+    ],
+    "probe": "paraphrase"
+  },
+  {
+    "query": "转出来的网页里表格显示不对是什么原因？",
+    "relevant_ids": [
+      "mem_conv_c07"
+    ],
+    "probe": "paraphrase"
+  },
+  {
+    "query": "检索打分函数里的两个超参数是怎么定的？",
+    "relevant_ids": [
+      "mem_conv_c12"
+    ],
+    "probe": "paraphrase"
+  },
+  {
+    "query": "新同学入组配环境要装哪些版本的依赖？",
+    "relevant_ids": [
+      "mem_g_env"
+    ],
+    "probe": "paraphrase"
+  },
+  {
+    "query": "为什么 0.1 + 0.2 在程序里不等于 0.3？",
+    "relevant_ids": [
+      "mem_conv_c01"
+    ],
+    "probe": "keyword_exact"
+  },
+  {
+    "query": "json.loads 报 Expecting value: line 1 column 1 是什么问题？",
+    "relevant_ids": [
+      "mem_conv_c16"
+    ],
+    "probe": "keyword_exact"
+  },
+  {
+    "query": "注入的历史上下文超出预算会发生什么？",
+    "relevant_ids": [
+      "mem_conv_c10"
+    ],
+    "probe": "paraphrase"
+  },
+  {
+    "query": "embedding 算出来的结果存在哪里，需要手动清理吗？",
+    "relevant_ids": [
+      "mem_conv_c17"
+    ],
+    "probe": "paraphrase"
+  },
+  {
+    "query": "git 出现 detached HEAD 状态怎么恢复到分支？",
+    "relevant_ids": [
+      "mem_conv_c15"
+    ],
+    "probe": "keyword_exact"
+  },
+  {
+    "query": "换一份自定义的 system prompt 应该改哪个文件？",
+    "relevant_ids": [
+      "mem_conv_c09"
+    ],
+    "probe": "paraphrase"
+  },
+  {
+    "query": "演示数据里的金额是什么货币单位？",
+    "relevant_ids": [
+      "mem_conv_c18",
+      "mem_g_prefs"
+    ],
+    "probe": "multi_relevant"
+  }
+]
