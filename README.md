@@ -179,9 +179,29 @@ python b3_tool_layer.py --tools_config ../configs/tools.yaml --toolset basic_too
 | `outputs/B3_tools/tools_schema.json` | JSON 数组 | 当前 OpenAI 风格的函数工具说明schema；`x-returns` 描述工具返回值。 |
 | `outputs/B3_tools/tool_schema_report.json` | JSON 对象 | schema 导出报告，包含 toolset、工具数量和工具名称列表。 |
 | `outputs/B3_tools/tool_messages.json` | JSON 数组 | 本次执行生成的 ToolMessage 列表。 |
-| `outputs/B3_tools/tool_call_log.jsonl` | JSONL | 每个 tool call 的完整执行记录，含未转义 SkillResult、状态、参数和耗时。 |
+| `outputs/B3_tools/tool_call_log.jsonl` | JSONL | 每个 tool call 的完整执行记录，含未转义 SkillResult、状态、参数、耗时，以及进阶字段 `attempts`（尝试次数）与 `cache_hit`（是否命中缓存）。 |
+| `outputs/B3_tools/tool_call_stats.json` | JSON 对象 | 进阶 4：按工具聚合的调用统计（次数、成功/失败数、失败率、平均/最大耗时、缓存命中数）。 |
 
-schema/report/tool messages 会被最近一次运行覆盖；tool-call 日志追加写入。
+schema/report/tool messages/stats 会被最近一次运行覆盖；tool-call 日志追加写入。
+
+### 4.4 进阶改动（重试 / 缓存 / 统计）
+
+本次在 `code/b3_tool_layer.py` 与 `configs/tools.yaml` 上完成官方进阶第 2/3/4 条，详细图文讲解见 `docs/B3_讲解.html`。
+
+| 进阶 | 机制 | 配置 / 字段 |
+|---|---|---|
+| 2 有限重试 | 仅对可恢复错误（`TimeoutError`/`ConnectionError`/`InterruptedError`/`RecoverableToolError`）重试，参数错误不重试 | `settings.max_retries`（默认 2）；工具级 `retryable: true` |
+| 3 结果缓存 | 相同 `name+args` 复用成功结果（进程内），写文件工具跳过 | `settings.cache_enabled`；工具级 `cacheable: false` |
+| 4 调用统计 | 按工具聚合次数/失败率/平均耗时，输出 `tool_call_stats.json` | 复用日志 `latency_ms`/`status` |
+
+重试演示使用独立工具集 `demo_tools`（工具 `flaky_probe`，非业务 Skill）：
+
+```
+# 进阶 2 重试（前 2 次失败，第 3 次成功）
+python b3_tool_layer.py --tools_config ../configs/tools.yaml --toolset demo_tools --tool_calls ../data/messages/b3_tool_call_retry_recoverable.json --execute --outdir ../outputs/B3_tools/retry
+# 进阶 3+4 缓存与统计（calculator 重复相同表达式）
+python b3_tool_layer.py --tools_config ../configs/tools.yaml --toolset basic_tools --tool_calls ../data/messages/b3_tool_call_cache_repeat.json --execute --outdir ../outputs/B3_tools/cache
+```
 
 ## 5. B5：Memory 查找与保存
 
