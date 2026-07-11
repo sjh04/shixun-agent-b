@@ -2,6 +2,10 @@ default_toolset: basic_tools
 
 settings:
   data_root: ../data
+  # 进阶 2: 可恢复错误的最大重试次数(总尝试 = 1 + max_retries)。
+  max_retries: 2
+  # 进阶 3: 是否启用相同 name+args 的结果缓存(进程内)。
+  cache_enabled: true
 
 toolsets:
   basic_tools:
@@ -10,6 +14,9 @@ toolsets:
     - local_file_search
     - table_analyzer
     - format_converter
+  # 进阶 2 重试机制的演示工具集(非业务工具, 仅用于验证瞬时错误重试)。
+  demo_tools:
+    - flaky_probe
 
 tools:
   calculator:
@@ -80,6 +87,8 @@ tools:
     module: skills.format_converter
     function: format_converter
     description: Convert text to markdown bullets or formatted JSON and write the converted content to a file.
+    # 进阶 3: 该工具写文件且带自增文件名, 复用缓存会指向旧路径, 故禁用缓存。
+    cacheable: false
     parameters:
       text: {type: string, description: Input text.}
       target_format: {type: string, description: markdown or json.}
@@ -88,3 +97,19 @@ tools:
     returns:
       formatted_text: {type: string, description: Converted text.}
       generated_file_path: {type: string, description: Path of the generated output file.}
+
+  # 进阶 2 演示工具: 前 N-1 次抛出可恢复错误(RecoverableToolError), 第 N 次成功。
+  # 仅用于验证有限重试, 不属于业务 Skill。
+  flaky_probe:
+    module: skills.flaky_probe
+    function: flaky_probe
+    description: A demo tool that fails with a recoverable error until the configured attempt succeeds.
+    retryable: true
+    parameters:
+      fail_times:
+        type: integer
+        description: Number of leading attempts that raise a recoverable error before succeeding.
+    required: [fail_times]
+    returns:
+      attempt: {type: integer, description: The attempt index that finally succeeded.}
+      message: {type: string, description: Success message.}
