@@ -1,0 +1,11 @@
+{
+  "conversation_id": "leader_demo_03_search",
+  "user_input": "请调用 local_file_search，在 leader_demo/docs 目录搜索“ToolMessage memory 注入 ReAct 循环”，返回最相关文件路径和命中片段摘要。",
+  "system_prompt_path": "../../prompts/local_tool_agent.txt",
+  "selected_memory_ids": ["mem_leader_acceptance_policy"],
+  "use_global_memory": true,
+  "toolset": "basic_tools",
+  "max_turns": 3,
+  "save_memory": "none"
+}
+

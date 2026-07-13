@@ -1,0 +1,11 @@
+{
+  "conversation_id": "leader_demo_01_full_chain",
+  "user_input": "请结合已有记忆，阅读 leader_demo/docs/project_requirements.md，用三条中文要点说明验收时这个 Agent 完整链路如何工作。",
+  "system_prompt_path": "../../prompts/local_tool_agent.txt",
+  "selected_memory_ids": ["mem_leader_acceptance_policy", "mem_leader_prev_tool_call"],
+  "use_global_memory": true,
+  "toolset": "basic_tools",
+  "max_turns": 3,
+  "save_memory": "conversation"
+}
+

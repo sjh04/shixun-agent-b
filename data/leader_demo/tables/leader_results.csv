@@ -1,0 +1,12 @@
+module,requirement_type,status,score,latency_ms
+B1,basic,done,95,930
+B1,advanced,done,90,1180
+B2,basic,done,92,210
+B2,advanced,partial,72,260
+B3,basic,done,94,340
+B3,advanced,done,88,470
+B4,basic,done,86,3900
+B4,advanced,partial,65,4100
+B5,basic,done,96,520
+B5,advanced,done,93,760
+

@@ -1,0 +1,11 @@
+{
+  "conversation_id": "leader_demo_02_calculator",
+  "user_input": "请调用 calculator 工具计算验收总分：(95 + 92 + 94 + 86 + 96) / 5，并给出一句中文解释。",
+  "system_prompt_path": "../../prompts/local_tool_agent.txt",
+  "selected_memory_ids": ["mem_leader_demo_constraints"],
+  "use_global_memory": true,
+  "toolset": "basic_tools",
+  "max_turns": 3,
+  "save_memory": "none"
+}
+

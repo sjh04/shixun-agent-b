@@ -58,6 +58,9 @@ def main(argv: list[str] | None = None) -> int:
         )
         write_text(_build_report(result, outdir), outdir / "demo_report.md")
         print(outdir / "demo_report.md")
+        if result.get("final_answer"):
+            print("\nFinal Answer:\n")
+            print(result["final_answer"])
         return 0
     except Exception as exc:
         print(f"fatal: {type(exc).__name__}: {exc}", file=sys.stderr)

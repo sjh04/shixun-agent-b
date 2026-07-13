@@ -1,0 +1,58 @@
+{
+  "mem_leader_acceptance_policy": {
+    "memory_id": "mem_leader_acceptance_policy",
+    "memory_type": "global",
+    "title": "验收演示全局规则",
+    "summary": "组长验收演示时应优先体现 B1-B5 系统链路和完整 Agent 能力。",
+    "retrieval_summary": "leader demo acceptance B1 B2 B3 B4 B5 tools_schema tool_calls ToolMessage memory final_answer",
+    "path": "global/agent_acceptance_policy.md",
+    "conversation_id": null,
+    "importance": 9,
+    "created_at": "2026-07-13T09:00:00+02:00",
+    "updated_at": "2026-07-13T09:00:00+02:00",
+    "last_accessed_at": null,
+    "access_count": 0
+  },
+  "mem_leader_demo_constraints": {
+    "memory_id": "mem_leader_demo_constraints",
+    "memory_type": "global",
+    "title": "现场演示约束",
+    "summary": "默认演示优先使用稳定低风险的五个 basic_tools；代码执行和复合 Skill 作为进阶原型说明。",
+    "retrieval_summary": "calculator file_reader local_file_search table_analyzer format_converter code_executor composite basic_tools safe demo",
+    "path": "global/demo_constraints.md",
+    "conversation_id": null,
+    "importance": 8,
+    "created_at": "2026-07-13T09:00:00+02:00",
+    "updated_at": "2026-07-13T09:00:00+02:00",
+    "last_accessed_at": null,
+    "access_count": 0
+  },
+  "mem_leader_prev_tool_call": {
+    "memory_id": "mem_leader_prev_tool_call",
+    "memory_type": "conversation",
+    "title": "历史工具调用演示",
+    "summary": "历史演示中系统完成 file_reader 工具调用，并形成 assistant(tool_calls) → tool → assistant(final) 消息闭环。",
+    "retrieval_summary": "file_reader docs/agent_intro.txt tool_calls ToolMessage messages ReAct loop final answer",
+    "path": "conversations/demo_previous_tool_call.md",
+    "conversation_id": "demo_previous_tool_call",
+    "importance": 7,
+    "created_at": "2026-07-13T09:00:00+02:00",
+    "updated_at": "2026-07-13T09:00:00+02:00",
+    "last_accessed_at": null,
+    "access_count": 0
+  },
+  "mem_leader_b5_results": {
+    "memory_id": "mem_leader_b5_results",
+    "memory_type": "conversation",
+    "title": "B5 进阶实验结果",
+    "summary": "B5 RQ1-RQ6 均达标：Hit@3 0.20→1.00，投毒拦截 90%，端到端记忆任务 0/10→10/10。",
+    "retrieval_summary": "B5 memory retrieval compression integration poison gate lifecycle RQ1 RQ2 RQ3 RQ4 RQ5 RQ6 Hit@3 10/10",
+    "path": "conversations/demo_b5_results.md",
+    "conversation_id": "demo_b5_results",
+    "importance": 9,
+    "created_at": "2026-07-13T09:05:00+02:00",
+    "updated_at": "2026-07-13T09:05:00+02:00",
+    "last_accessed_at": null,
+    "access_count": 0
+  }
+}

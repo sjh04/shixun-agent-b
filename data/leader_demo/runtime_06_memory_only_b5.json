@@ -1,0 +1,11 @@
+{
+  "conversation_id": "leader_demo_06_memory_only",
+  "user_input": "不用读取文件，请根据已有记忆说明 B5 进阶实验中最能支撑项目完成度的三个结果。",
+  "system_prompt_path": "../../prompts/local_tool_agent.txt",
+  "selected_memory_ids": ["mem_leader_b5_results"],
+  "use_global_memory": true,
+  "toolset": "basic_tools",
+  "max_turns": 3,
+  "save_memory": "none"
+}
+

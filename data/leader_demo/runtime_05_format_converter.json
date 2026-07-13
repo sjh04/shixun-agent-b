@@ -1,0 +1,11 @@
+{
+  "conversation_id": "leader_demo_05_format_converter",
+  "user_input": "请调用 format_converter，把下面键值文本转换成 JSON 文件：\nrole: team_leader\nsystem: local_agent\nstatus: ready\nfocus: B1-B5 complete demo",
+  "system_prompt_path": "../../prompts/local_tool_agent.txt",
+  "selected_memory_ids": ["mem_leader_demo_constraints"],
+  "use_global_memory": true,
+  "toolset": "basic_tools",
+  "max_turns": 3,
+  "save_memory": "none"
+}
+

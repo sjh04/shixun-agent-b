@@ -1,0 +1,33 @@
+{
+  "batch_conversation_id": "leader_demo_batch",
+  "global_config": {
+    "system_prompt_path": "../../prompts/local_tool_agent.txt",
+    "toolset": "basic_tools",
+    "max_turns": 3,
+    "use_global_memory": true,
+    "selected_memory_ids": ["mem_leader_acceptance_policy", "mem_leader_demo_constraints"],
+    "save_memory": "none"
+  },
+  "tasks": [
+    {
+      "task_id": "file_reader_chain",
+      "user_input": "读取 leader_demo/docs/project_requirements.md，用两句话概括验收主线。"
+    },
+    {
+      "task_id": "calculator_score",
+      "user_input": "调用 calculator 计算 (95 + 92 + 94 + 86 + 96) / 5。"
+    },
+    {
+      "task_id": "file_search_react",
+      "user_input": "在 leader_demo/docs 目录搜索 ReAct 和 ToolMessage 相关内容。"
+    },
+    {
+      "task_id": "table_summary",
+      "user_input": "分析 leader_demo/tables/leader_results.csv，给出列名和 score 平均情况。"
+    },
+    {
+      "task_id": "format_json",
+      "user_input": "请调用 format_converter，把下面键值文本转换成 JSON 文件：\nname: Leader Demo\nstatus: ready\nmodule: B1-B5"
+    }
+  ]
+}

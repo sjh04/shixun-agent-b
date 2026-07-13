@@ -59,19 +59,82 @@ def _three_points(text: str) -> list[str]:
     return points
 
 
+def _latest_user_text(messages: list[dict]) -> str:
+    for message in reversed(messages):
+        if message.get("role") == "user":
+            content = message.get("content", "")
+            return content if isinstance(content, str) else ""
+    return ""
+
+
+def _extract_first_path(text: str, extensions: tuple[str, ...]) -> str | None:
+    suffix_pattern = "|".join(re.escape(ext.lstrip(".")) for ext in extensions)
+    pattern = rf"[\w./\-\u4e00-\u9fff]+\.({suffix_pattern})"
+    match = re.search(pattern, text)
+    return match.group(0) if match else None
+
+
+def _mock_tool_call_from_user(user_text: str) -> dict:
+    """Deterministic mock policy for local demos.
+
+    This is intentionally simple: it lets B1/B3/B2/B5 demos run without a GPU
+    while still exercising the requested tool path. Real model behaviour is
+    tested through prompt_json mode.
+    """
+    lowered = user_text.lower()
+    if "calculator" in lowered or "计算" in user_text or "算一下" in user_text:
+        expression_match = re.search(r"[:：]\s*([0-9+\-*/().\s]+)", user_text)
+        expression = expression_match.group(1).strip() if expression_match else ""
+        if not expression:
+            expression_match = re.search(r"计算\s*([0-9+\-*/().\s]+)", user_text)
+            expression = expression_match.group(1).strip() if expression_match else ""
+        if not expression:
+            expression_match = re.search(r"([0-9(][0-9+\-*/().\s]*[+\-*/][0-9+\-*/().\s]*)", user_text)
+            expression = expression_match.group(1).strip() if expression_match else "1+1"
+        expression = expression.strip(" \t\r\n。．.，,；;")
+        return {
+            "id": "call_001",
+            "name": "calculator",
+            "args": {"expression": expression},
+        }
+    if "table_analyzer" in lowered or "表格" in user_text or ".csv" in lowered or ".tsv" in lowered:
+        path = _extract_first_path(user_text, (".csv", ".tsv")) or "tables/results.csv"
+        return {
+            "id": "call_001",
+            "name": "table_analyzer",
+            "args": {"path": path, "max_rows_preview": 5, "describe": True},
+        }
+    if "format_converter" in lowered or "转换成 json" in user_text.lower() or "转成 json" in user_text.lower() or "json 文件" in user_text.lower():
+        text = user_text.split("\n", 1)[1].strip() if "\n" in user_text else "status: ready"
+        return {
+            "id": "call_001",
+            "name": "format_converter",
+            "args": {"text": text, "target_format": "json", "output_filename": "leader_demo.json"},
+        }
+    if "local_file_search" in lowered or "搜索" in user_text:
+        root_match = re.search(r"在\s+([^\s，,]+)\s*目录", user_text)
+        root_dir = root_match.group(1) if root_match else "docs"
+        query = user_text
+        quote_match = re.search(r"[“\"]([^”\"]+)[”\"]", user_text)
+        if quote_match:
+            query = quote_match.group(1)
+        return {
+            "id": "call_001",
+            "name": "local_file_search",
+            "args": {"query": query, "root_dir": root_dir, "file_types": [".txt", ".md"], "top_k": 3},
+        }
+    path = _extract_first_path(user_text, (".txt", ".md")) or "docs/agent_intro.txt"
+    return {
+        "id": "call_001",
+        "name": "file_reader",
+        "args": {"path": path, "max_chars": 2000},
+    }
+
+
 def _mock_generate(messages: list[dict]) -> dict:
     tool_messages = [message for message in messages if message.get("role") == "tool"]
     if not tool_messages:
-        return make_ai_message(
-            "",
-            [
-                {
-                    "id": "call_001",
-                    "name": "file_reader",
-                    "args": {"path": "docs/agent_intro.txt", "max_chars": 2000},
-                }
-            ],
-        )
+        return make_ai_message("", [_mock_tool_call_from_user(_latest_user_text(messages))])
     latest = tool_messages[-1]
     result = _extract_tool_result(latest)
     if latest.get("status") != "success" or result.get("status") != "success":
@@ -119,7 +182,11 @@ def _parse_json_with_backtick_tail(raw_text: str, original_error: json.JSONDecod
     except json.JSONDecodeError:
         raise original_error
     trailing = text[end_index:].strip()
-    if trailing and set(trailing) <= {"`"}:
+    # Some local Qwen generations produce a valid top-level JSON object followed
+    # by a dangling quote/backtick, e.g. {"content":"...","tool_calls":[]}"`
+    # Treat that as a recoverable formatting tail instead of failing the whole
+    # Agent run after the tool call has already succeeded.
+    if trailing and set(trailing) <= {"`", '"'}:
         return candidate
     raise original_error
 

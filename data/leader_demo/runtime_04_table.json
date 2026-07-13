@@ -1,0 +1,11 @@
+{
+  "conversation_id": "leader_demo_04_table",
+  "user_input": "请调用 table_analyzer 分析 leader_demo/tables/leader_results.csv，说明有哪些列，并总结基础要求与进阶要求的 score 情况。",
+  "system_prompt_path": "../../prompts/local_tool_agent.txt",
+  "selected_memory_ids": ["mem_leader_acceptance_policy"],
+  "use_global_memory": true,
+  "toolset": "basic_tools",
+  "max_turns": 3,
+  "save_memory": "none"
+}
+
