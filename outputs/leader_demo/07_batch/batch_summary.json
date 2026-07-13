@@ -1,0 +1,50 @@
+{
+  "batch_id": "leader_demo_batch",
+  "total": 5,
+  "success": 5,
+  "failed": 0,
+  "total_elapsed_ms": 297.726,
+  "generated_at": "2026-07-13T05:26:51+02:00",
+  "results": [
+    {
+      "task_id": "file_reader_chain",
+      "status": "success",
+      "final_answer": "三条中文要点如下：\n1. # 本地 Agent 项目验收需求\n2. 验收演示需要证明系统具备以下能力：\n3. 1. 能读取本地文档并基于真实文件内容回答，不能编造文件内容",
+      "elapsed_ms": 106.106,
+      "output_dir": "/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/07_batch/file_reader_chain",
+      "final_answer_path": "/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/07_batch/file_reader_chain/final_answer.md"
+    },
+    {
+      "task_id": "calculator_score",
+      "status": "success",
+      "final_answer": "三条中文要点如下：\n1. {\"result\": 92.6}\n2. 工具结果未提供更多可提取内容\n3. 工具结果未提供更多可提取内容",
+      "elapsed_ms": 45.252,
+      "output_dir": "/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/07_batch/calculator_score",
+      "final_answer_path": "/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/07_batch/calculator_score/final_answer.md"
+    },
+    {
+      "task_id": "file_search_react",
+      "status": "success",
+      "final_answer": "三条中文要点如下：\n1. {\"results\": [{\"path\": \"leader_demo/docs/retrieval_case.md\", \"score\": 0.1238, \"snippet\": \"...示 `local_file_search` 与 memory 检索的区别\n2. ## 文件检索关键词  - 工具编排 - ReAct 循环 - ToolMessage - memory 注入  ## 核心事实  本地 Agent 的运行主线是...\", \"file_size_bytes\": 600, \"mtime\": \"2026-07-13 05:24:36\"}, {\"path\": \"leader_demo/docs/project_requirements.md\", \"score\": 0.1019, \"snippet\": \"...本地文档并基于真实文件内容回答，不能编造文件内容\n3. 2. 能根据任务选择合适工具，例如计算、文件读取、文件搜索、表格分析和格式转换",
+      "elapsed_ms": 48.59,
+      "output_dir": "/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/07_batch/file_search_react",
+      "final_answer_path": "/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/07_batch/file_search_react/final_answer.md"
+    },
+    {
+      "task_id": "table_summary",
+      "status": "success",
+      "final_answer": "三条中文要点如下：\n1. {\"path\": \"leader_demo/tables/leader_results.csv\", \"num_rows\": 10, \"num_columns\": 5, \"columns\": [\"module\", \"requirement_type\", \"status\", \"score\", \"latency_ms\"], \"preview\": [{\"module\": \"B1\", \"requirement_type\": \"basic\", \"status\": \"done\", \"score\": \"95\", \"latency_ms\": \"930\"}, {\"module\": \"B1\", \"requirement_type\": \"advanced\", \"status\": \"done\", \"score\": \"90\", \"latency_ms\": \"1180\"}, {\"module\": \"B2\", \"requirement_type\": \"basic\", \"status\": \"done\", \"score\": \"92\", \"latency_ms\": \"210\"}, {\"module\": \"B2\", \"requirement_type\": \"advanced\", \"status\": \"partial\", \"score\": \"72\", \"latency_ms\": \"260\"}, {\"module\": \"B3\", \"requirement_type\": \"basic\", \"status\": \"done\", \"score\": \"94\", \"latency_ms\": \"340\"}], \"describe\": {\"score\": {\"count\": 10, \"min\": 65.0, \"max\": 96.0, \"mean\": 87.1}, \"latency_ms\": {\"count\": 10, \"min\": 210.0, \"max\": 4100.0, \"mean\": 1267.0}}}\n2. 工具结果未提供更多可提取内容\n3. 工具结果未提供更多可提取内容",
+      "elapsed_ms": 49.852,
+      "output_dir": "/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/07_batch/table_summary",
+      "final_answer_path": "/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/07_batch/table_summary/final_answer.md"
+    },
+    {
+      "task_id": "format_json",
+      "status": "success",
+      "final_answer": "三条中文要点如下：\n1. {\"formatted_text\": \"{\\n  \\\"name\\\": \\\"Leader Demo\\\",\\n  \\\"status\\\": \\\"ready\\\",\\n  \\\"module\\\": \\\"B1-B5\\\"\\n}\", \"generated_file_path\": \"/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/07_batch/format_json/leader_demo(2).json\"}\n2. 工具结果未提供更多可提取内容\n3. 工具结果未提供更多可提取内容",
+      "elapsed_ms": 44.74,
+      "output_dir": "/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/07_batch/format_json",
+      "final_answer_path": "/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/07_batch/format_json/final_answer.md"
+    }
+  ]
+}

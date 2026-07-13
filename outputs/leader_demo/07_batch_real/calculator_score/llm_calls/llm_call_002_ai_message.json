@@ -1,0 +1,5 @@
+{
+  "role": "assistant",
+  "content": "The result of (95 + 92 + 94 + 86 + 96) / 5 is 92.6.",
+  "tool_calls": []
+}

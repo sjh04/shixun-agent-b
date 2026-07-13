@@ -1,0 +1,10 @@
+{
+  "conversation_id": "demo_flow_file_reader",
+  "user_input": "请结合已有记忆，阅读 docs/agent_intro.txt，并用三条中文要点说明这个 Agent 如何完成任务。",
+  "system_prompt_path": "../../prompts/local_tool_agent.txt",
+  "selected_memory_ids": ["mem_conversation_conv_000"],
+  "use_global_memory": true,
+  "toolset": "basic_tools",
+  "max_turns": 3,
+  "save_memory": "conversation"
+}

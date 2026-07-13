@@ -1,0 +1,41 @@
+{
+  "status": "success",
+  "memory_id": "mem_conversation_demo_flow_file_reader",
+  "memory_type": "conversation",
+  "conversation_id": "demo_flow_file_reader",
+  "title": "Conversation demo_flow_file_reader",
+  "summary": "三条中文要点如下：\n1. Agent 系统通常由模型、工具、记忆和执行循环组成\n2. 工具调用让模型能够读取本地文件、执行计算，并把结果用于后续回答\n3. Memory 为 Agent 提供全局知识和历史对话上下文",
+  "summary_method": "none",
+  "importance": 6,
+  "importance_method": "heuristic",
+  "retrieval_cache": {
+    "status": "fallback",
+    "error": "RuntimeError: Qwen features require torch and transformers"
+  },
+  "path": "conversations/demo_flow_file_reader.md",
+  "index_path": "memory_index.json",
+  "created_at": "2026-07-13T04:23:05+02:00",
+  "updated_at": "2026-07-13T04:23:05+02:00",
+  "change_report": {
+    "change_type": "new",
+    "duplicate": false,
+    "conflict": false,
+    "similarity": null,
+    "method": "rule",
+    "notes": []
+  },
+  "poison_gate": {
+    "flagged": false,
+    "action": "allow",
+    "reason": "no_conflict",
+    "method": "rule",
+    "matches": []
+  },
+  "reflection": null,
+  "evicted": [],
+  "source_paths": {
+    "messages": "/mnt/aisdata/sjh04/实训2/agent/outputs/demo_flow_mock/messages.json",
+    "trace": "/mnt/aisdata/sjh04/实训2/agent/outputs/demo_flow_mock/trace.json",
+    "answer": "/mnt/aisdata/sjh04/实训2/agent/outputs/demo_flow_mock/final_answer.md"
+  }
+}

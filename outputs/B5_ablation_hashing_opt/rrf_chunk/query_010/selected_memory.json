@@ -1,0 +1,157 @@
+{
+  "status": "success",
+  "query": "想把项目里所有的说明文档一次性找出来怎么做？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conv_c05",
+      "memory_type": "conversation",
+      "title": "全系统第一次联调记录",
+      "path": "conversations/mem_conv_c05.md",
+      "content": "# 全系统第一次联调记录\n\nSummary: B1–B5 第一次联调的排错过程与耗时实测。\n\nRelevant chunk:\n全系统第一次联调记录\n\nB1–B5 第一次联调的排错过程与耗时实测。\n\n这次对话完整记录了 B1 到 B5 五个模块第一次联调的全过程，问题比预想的多，前后花了一个下午加一个晚上。最开始的现象是 B1 编排循环在第二轮工具调用后直接退出，终端没有任何报错信息，final_answer 也是空的，trace.json 里的 status 停在 running，看起来像是流程走到一半被静默吞掉了。为了定位问题，我们先把五个模块的日志级别全部调到最详细，重新跑了一遍，逐条对比每一轮的输入输出。\n\n第一步排查消息编排。把 trace.json 里的每轮 AIMessage 和 ToolMessage 打印出来对比，发现第二轮的工具参数 JSON 里混入了模型输出的前导说明文字，导致 B3 工具层解析失败，而这个异常被上层的兜底逻辑吞掉了，没有回传给 B1。给 B3 的参数解析加了 strip 处理和花括号定位之后，这个问题彻底消失。顺带给异常路径补了结构化错误返回，以后再出解析问题至少能在 trace 里看到 errors 记录，不会再出现无声失败。\n\n第二步是 B4 的输出格式。prompt_json 模式要求模型只输出一个 JSON 对象，但 4B 模型偶尔会在 JSON前面加一句中文解释，比如'好的，我将调用工具'。调整了 system prompt，明确要求禁止输出任何 JSON以外的字符，并在解析侧做了宽松提取。问题明显缓解但没有根除，大约二十次里还会出现一次，后续正式演示前需要多跑几次确认稳定性，或者考虑在解析失败时自动重试一轮。",
+      "original_chars": 1956,
+      "included_chars": 741,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 1.0,
+      "factors": {
+        "relevance": 0.032787,
+        "relevance_norm": 1.0,
+        "recency": 0.664747,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c16",
+      "memory_type": "conversation",
+      "title": "JSONDecodeError 修复",
+      "path": "conversations/mem_conv_c16.md",
+      "content": "# JSONDecodeError 修复\n\nSummary: Expecting value 报错的根因：输出混入日志前缀。\n\nRelevant chunk:\nJSONDecodeError 修复\n\nExpecting value 报错的根因：输出混入日志前缀。\n\njson.loads 报 JSONDecodeError: Expecting value: line 1 column 1 的根因是待解析文本开头混入了模型输出的说明文字或日志前缀，不是 JSON 本身坏了。修复：解析前先定位第一个左花括号、截取到匹配的右花括号再 loads；同时在 prompt 里禁止模型输出 JSON 以外的字符。空字符串也会报同样的错，要先判空给出更明确的错误信息。",
+      "original_chars": 349,
+      "included_chars": 330,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.868298,
+      "factors": {
+        "relevance": 0.031498,
+        "relevance_norm": 0.92682,
+        "recency": 0.578696,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c06",
+      "memory_type": "conversation",
+      "title": "本地文件通配符搜索",
+      "path": "conversations/mem_conv_c06.md",
+      "content": "# 本地文件通配符搜索\n\nSummary: local_file_search 的模式匹配与递归用法。\n\nRelevant chunk:\n本地文件通配符搜索\n\nlocal_file_search 的模式匹配与递归用法。\n\n要找出目录下所有 markdown 文件，用 local_file_search 传模式 *.md 并打开递归开关，工具会遍历全部子目录返回相对路径列表。模式匹配只作用于文件名不含路径，想按路径过滤要在返回结果里自己筛。搜索范围被限制在 data 根目录内，越界返回错误。",
+      "original_chars": 279,
+      "included_chars": 247,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.778761,
+      "factors": {
+        "relevance": 0.030622,
+        "relevance_norm": 0.982961,
+        "recency": 0.515559,
+        "importance": 0.4
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 4,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c07",
+      "memory_type": "conversation",
+      "title": "markdown 转 html 的坑",
+      "path": "conversations/mem_conv_c07.md",
+      "content": "# markdown 转 html 的坑\n\nSummary: format_converter 做 markdown 到 html 转换的注意事项。\n\nRelevant chunk:\nmarkdown 转 html 的坑\n\nformat_converter 做 markdown 到 html 转换的注意事项。\n\nmarkdown 转 html 用 format_converter，目标格式参数必须显式传 html。两个坑：一是表格属于扩展语法，简单管道表格能转，嵌套表格会原样输出；二是行内 HTML 默认会被转义，需要保留标签时加 raw 选项。转出来的 html是文档片段不含 head，要完整页面得自己包一层。",
+      "original_chars": 305,
+      "included_chars": 310,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.68554,
+      "factors": {
+        "relevance": 0.02971,
+        "relevance_norm": 0.839897,
+        "recency": 0.539942,
+        "importance": 0.4
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 4,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_arch",
+      "memory_type": "global",
+      "title": "B1–B5 系统架构分工",
+      "path": "global/mem_g_arch.md",
+      "content": "# B1–B5 系统架构分工\n\nSummary: 五个模块的职责边界：B1 编排、B2 技能、B3 工具层、B4 决策、B5 记忆。\n\nRelevant chunk:\nB1–B5 系统架构分工\n\n五个模块的职责边界：B1 编排、B2 技能、B3 工具层、B4 决策、B5 记忆。\n\nB1 负责运行与消息编排，是唯一的入口，维护 messages 与 trace 并按轮次调度其余模块。B2 提供 Skill 工具函数本体（计算器、文件读取、表格分析、本地搜索、格式转换）。B3 负责工具说明生成与执行，把 B2 的函数暴露成 schema 并解析模型的调用参数。B4 封装本地 Qwen3.5-4B 做决策，输入 messages 输出 AIMessage。B5 是记忆子系统，负责记忆文档的检索注入与保存更新，唯一调用方是 B1。",
+      "original_chars": 334,
+      "included_chars": 366,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": 0.634609,
+      "factors": {
+        "relevance": 0.029211,
+        "relevance_norm": 0.782043,
+        "recency": 0.469595,
+        "importance": 0.9
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 9,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "disabled",
+    "rerank": "disabled",
+    "vector_backend": "hashing",
+    "use_chunk": true,
+    "use_three_factor": false,
+    "chunk_count": 29,
+    "chunk_cache": {
+      "hits": 24,
+      "misses": 0
+    },
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "size": 51,
+      "hits": 29,
+      "misses": 0,
+      "disabled": 0
+    },
+    "query_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "hits": 1,
+      "misses": 0,
+      "disabled": 0
+    },
+    "latency_ms": 17.57
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 1994,
+  "truncated": true,
+  "errors": []
+}

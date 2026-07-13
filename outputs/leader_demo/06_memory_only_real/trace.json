@@ -1,0 +1,30 @@
+{
+  "conversation_id": "leader_demo_06_memory_only",
+  "execution_mode": "integrated",
+  "status": "success",
+  "toolset": "basic_tools",
+  "max_turns": 3,
+  "tool_rounds_used": 0,
+  "llm_call_count": 1,
+  "turns": [
+    {
+      "turn_index": 1,
+      "ai_message": {
+        "role": "assistant",
+        "content": "B5 进阶实验中支撑项目完成度的三个核心结果：1. 端到端记忆任务成功率从 0/10 提升至 10/10，证明系统具备完整记忆依赖处理能力；2. 投毒拦截率达到 90%，有效保障系统安全性；3. 检索 Hit@3 从 0.20 提升至 1.00，且 Qwen judge 对重复/补充/冲突三分类准确率达 100%，验证记忆模块核心功能达标。",
+        "tool_calls": []
+      },
+      "llm_status": "success",
+      "llm_error": null,
+      "tool_messages": [],
+      "latency_ms": 16285.526
+    }
+  ],
+  "final_answer_path": "final_answer.md",
+  "memory_save": {
+    "requested": "none",
+    "status": "not_requested"
+  },
+  "warnings": [],
+  "error": null
+}

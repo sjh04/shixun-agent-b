@@ -1,0 +1,50 @@
+{
+  "status": "success",
+  "memory_id": "mem_conversation_meta_yaml",
+  "memory_type": "conversation",
+  "conversation_id": "meta_yaml",
+  "title": "Conversation meta_yaml",
+  "summary": "已定位为运行环境依赖缺失，处理方式是补齐缺少的包并复查配置。",
+  "summary_method": "none",
+  "importance": 5,
+  "importance_method": "heuristic",
+  "retrieval_cache": {
+    "status": "success",
+    "chunk_cache": {
+      "hits": 0,
+      "misses": 1
+    },
+    "vector_backend": "hashing",
+    "embedding_cache": {
+      "embedding_cache_hits": 0,
+      "embedding_cache_misses": 2,
+      "embedding_cache_disabled": 0
+    }
+  },
+  "path": "conversations/meta_yaml.md",
+  "index_path": "memory_index.json",
+  "created_at": "2026-07-13T04:09:53+02:00",
+  "updated_at": "2026-07-13T04:09:53+02:00",
+  "change_report": {
+    "change_type": "new",
+    "duplicate": false,
+    "conflict": false,
+    "similarity": null,
+    "method": "rule",
+    "notes": []
+  },
+  "poison_gate": {
+    "flagged": false,
+    "action": "allow",
+    "reason": "disabled",
+    "method": "disabled",
+    "matches": []
+  },
+  "reflection": null,
+  "evicted": [],
+  "source_paths": {
+    "messages": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_off/inputs/meta_yaml/messages.json",
+    "trace": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_off/inputs/meta_yaml/trace.json",
+    "answer": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_off/inputs/meta_yaml/answer.md"
+  }
+}

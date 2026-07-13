@@ -1,0 +1,157 @@
+{
+  "status": "success",
+  "query": "git 出现 detached HEAD 状态怎么恢复到分支？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conv_c15",
+      "memory_type": "conversation",
+      "title": "git detached HEAD 恢复",
+      "path": "conversations/mem_conv_c15.md",
+      "content": "# git detached HEAD 恢复\n\nSummary: 检出历史提交后回到分支的操作。\n\nRelevant chunk:\ngit detached HEAD 恢复\n\n检出历史提交后回到分支的操作。\n\ngit 提示 detached HEAD 是因为直接 checkout 了某个提交号。想保留当前修改就用 git switch -c 新分支名 把工作现场变成新分支；不需要保留就 git switch main直接回主分支。提交在游离状态下做的 commit 不会丢，reflog 里能找回。",
+      "original_chars": 300,
+      "included_chars": 251,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.883857,
+      "factors": {
+        "relevance": 0.032787,
+        "relevance_norm": 1.0,
+        "recency": 0.438569,
+        "importance": 0.4
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 4,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c11",
+      "memory_type": "conversation",
+      "title": "Qwen 生成参数调优记录",
+      "path": "conversations/mem_conv_c11.md",
+      "content": "# Qwen 生成参数调优记录\n\nSummary: 温度、生成长度等参数的完整调优过程与结论。\n\nRelevant chunk:\nQwen 生成参数调优记录\n\n温度、生成长度等参数的完整调优过程与结论。\n\n这轮对话专门调 Qwen3.5-4B 的生成参数，目标是让 B4 的输出既稳定又可复现，把全部尝试过程记录下来供后面的同学参考。测试方法是固定五个典型任务输入（两个工具调用、两个纯问答、一个长文总结），每改一个参数就把五个输入各跑三遍，统计 JSON 格式错误率、答案长度和端到端延迟。\n\n先试温度。temperature 从默认的 0.7 降到 0.3 再降到 0，工具调用输出的 JSON 格式错误率从大约五分之一降到二十分之一再降到几乎为零。原因很直观：采样温度越高，模型越容易在结构化输出里夹带自由发挥的文字。结论是决策类调用一律用贪心解码，不给采样留口子。创作类任务如果以后有需求再单独开温度，和决策链路隔离。\n\n然后是 max_new_tokens。一开始给了 2048，观察输出发现模型经常把工具返回的结果原样复述一遍，再加一段车轱辘话总结，白白浪费生成配额还拖慢响应。截到 1024 之后，五个测试输入都没有出现答案被截断的情况，平均延迟降了接近一半。再往下压到 512 时长文总结任务开始截尾，所以 1024 是当前任务集下的合理值。\n\n中间试过 top_p 和 top_k 的各种组合，后来意识到在 do_sample 关闭的情况下这些参数根本不生效，写在配置里只会误导后来的人以为它们在起作用，全部从 model.yaml 里清掉了。配置文件里只保留真正生效的参数，这是这次调参的一个附带教训。",
+      "original_chars": 1555,
+      "included_chars": 711,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.454305,
+      "factors": {
+        "relevance": 0.031258,
+        "relevance_norm": 0.395346,
+        "recency": 0.680284,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c01",
+      "memory_type": "conversation",
+      "title": "计算器浮点精度问题",
+      "path": "conversations/mem_conv_c01.md",
+      "content": "# 计算器浮点精度问题\n\nSummary: 0.1 加 0.2 不等于 0.3 的原因与 calculator 的处理方式。\n\nRelevant chunk:\n计算器浮点精度问题\n\n0.1 加 0.2 不等于 0.3 的原因与 calculator 的处理方式。\n\n用户问为什么计算器算 0.1 + 0.2 得到 0.30000000000000004。原因是二进制浮点数无法精确表示十进制小数。calculator 工具内部已改用 Decimal 做十进制运算，对外返回结果前按需要的小数位四舍五入，所以通过工具计算不会再出现这类尾数。直接在 Python 里用 float 仍会有该现象，属于语言特性不是 bug。",
+      "original_chars": 319,
+      "included_chars": 309,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.454294,
+      "factors": {
+        "relevance": 0.032258,
+        "relevance_norm": 0.434683,
+        "recency": 0.565478,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c05",
+      "memory_type": "conversation",
+      "title": "全系统第一次联调记录",
+      "path": "conversations/mem_conv_c05.md",
+      "content": "# 全系统第一次联调记录\n\nSummary: B1–B5 第一次联调的排错过程与耗时实测。\n\nRelevant chunk:\n全系统第一次联调记录\n\nB1–B5 第一次联调的排错过程与耗时实测。\n\n这次对话完整记录了 B1 到 B5 五个模块第一次联调的全过程，问题比预想的多，前后花了一个下午加一个晚上。最开始的现象是 B1 编排循环在第二轮工具调用后直接退出，终端没有任何报错信息，final_answer 也是空的，trace.json 里的 status 停在 running，看起来像是流程走到一半被静默吞掉了。为了定位问题，我们先把五个模块的日志级别全部调到最详细，重新跑了一遍，逐条对比每一轮的输入输出。\n\n第一步排查消息编排。把 trace.json 里的每轮 AIMessage 和 ToolMessage 打印出来对比，发现第二轮的工具参数 JSON 里混入了模型输出的前导说明文字，导致 B3 工具层解析失败，而这个异常被上层的兜底逻辑吞掉了，没有回传给 B1。给 B3 的参数解析加了 strip 处理和花括号定位之后，这个问题彻底消失。顺带给异常路径补了结构化错误返回，以后再出解析问题至少能在 trace 里看到 errors 记录，不会再出现无声失败。\n\n第二步是 B4 的输出格式。prompt_json 模式要求模型只输出一个 JSON 对象，但 4B 模型偶尔会在 JSON前面加一句中文解释，比如'好的，我将调用工具'。调整了 system prompt，明确要求禁止输出任何 JSON以外的字符，并在解析侧做了宽松提取。问题明显缓解但没有根除，大约二十次里还会出现一次，后续正式演示前需要多跑几次确认稳定性，或者考虑在解析失败时自动重试一轮。",
+      "original_chars": 1956,
+      "included_chars": 741,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.428319,
+      "factors": {
+        "relevance": 0.029877,
+        "relevance_norm": 0.364805,
+        "recency": 0.664746,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_qwen",
+      "memory_type": "global",
+      "title": "Qwen3.5-4B 加载配置",
+      "path": "global/mem_g_qwen.md",
+      "content": "# Qwen3.5-4B 加载配置\n\nSummary: 本地模型加载的精度、设备映射与安全选项。\n\nRelevant chunk:\nQwen3.5-4B 加载配置\n\n本地模型加载的精度、设备映射与安全选项。\n\n模型权重放在 models/Qwen3.5-4B，加载参数固定为：torch_dtype 用 bfloat16（这张卡上float16 偶发溢出警告），device_map 设 auto 让权重自动分配到空闲显卡，local_files_only设 true 保证离线可用，trust_remote_code 设 true。tokenizer 与模型同路径。加载一次约九十秒，进程内要缓存复用，不要重复加载。",
+      "original_chars": 316,
+      "included_chars": 309,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": 0.42806,
+      "factors": {
+        "relevance": 0.029911,
+        "relevance_norm": 0.379027,
+        "recency": 0.448388,
+        "importance": 0.8
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 8,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "fallback",
+    "rerank": "fallback",
+    "vector_backend": "hashing",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 29,
+    "chunk_cache": {
+      "hits": 24,
+      "misses": 0
+    },
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "size": 51,
+      "hits": 29,
+      "misses": 0,
+      "disabled": 0
+    },
+    "query_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "hits": 1,
+      "misses": 0,
+      "disabled": 0
+    },
+    "latency_ms": 12.993
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 2321,
+  "truncated": true,
+  "errors": []
+}

@@ -1,0 +1,26 @@
+{
+  "mode": "mock",
+  "backend": "mock",
+  "raw_text": "{\"content\": \"\", \"tool_calls\": [{\"id\": \"call_001\", \"name\": \"local_file_search\", \"args\": {\"query\": \"在 leader_demo/docs 目录搜索 ReAct 和 ToolMessage 相关内容。\", \"root_dir\": \"leader_demo/docs\", \"file_types\": [\".txt\", \".md\"], \"top_k\": 3}}]}",
+  "parsed_candidate": {
+    "content": "",
+    "tool_calls": [
+      {
+        "id": "call_001",
+        "name": "local_file_search",
+        "args": {
+          "query": "在 leader_demo/docs 目录搜索 ReAct 和 ToolMessage 相关内容。",
+          "root_dir": "leader_demo/docs",
+          "file_types": [
+            ".txt",
+            ".md"
+          ],
+          "top_k": 3
+        }
+      }
+    ]
+  },
+  "status": "success",
+  "error": null,
+  "generated_at": "2026-07-13T05:26:51+02:00"
+}

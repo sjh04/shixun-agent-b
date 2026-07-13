@@ -1,0 +1,131 @@
+# Conversation demo_flow_file_reader
+
+- memory_id: `mem_conversation_demo_flow_file_reader`
+- conversation_id: `demo_flow_file_reader`
+- created_or_updated_at: `2026-07-13T04:23:05+02:00`
+- flagged: `false`
+
+## Change Report
+
+```json
+{
+  "change_type": "new",
+  "duplicate": false,
+  "conflict": false,
+  "similarity": null,
+  "method": "rule",
+  "notes": []
+}
+```
+
+## Final Answer
+
+三条中文要点如下：
+1. Agent 系统通常由模型、工具、记忆和执行循环组成
+2. 工具调用让模型能够读取本地文件、执行计算，并把结果用于后续回答
+3. Memory 为 Agent 提供全局知识和历史对话上下文
+
+## Messages
+
+```json
+[
+  {
+    "role": "system",
+    "content": "You are a local tool-using agent. Use available tools when needed. Do not invent file contents. If the user asks about a local file, use the file reading tool. If a tool is needed, choose exactly one tool and wait for its ToolMessage before deciding whether another tool is needed. Never request multiple tools in the same response. If tool results are provided, answer based on the tool results. Follow the user's output requirements.\n\n<memory id=\"mem_conversation_conv_001\" type=\"conversation\">\n# Conversation conv_001\n\nSummary: 1. Agent 系统通常由模型、工具、记忆和执行循环组成\n2. 工具调用让模型能够读取本地文件、执行计算，并把结果用于后续回答\n3. Memory 为 Agent 提供全局知识和历史对话上下文\n\nRelevant chunk:\nConversation conv_001\n\n1. Agent 系统通常由模型、工具、记忆和执行循环组成\n2. 工具调用让模型能够读取本地文件、执行计算，并把结果用于后续回答\n3. Memory 为 Agent 提供全局知识和历史对话上下文\n\n三条中文要点如下：\n1. Agent 系统通常由模型、工具、记忆和执行循环组成\n2. 工具调用让模型能够读取本地文件、执行计算，并把结果用于后续回答\n3. Memory 为 Agent 提供全局知识和历史对话上下文\n</memory>\n\n<memory id=\"mem_conversation_conv_sample_001\" type=\"conversation\">\n# Conversation conv_sample_001\n\nSummary: Agent 会结合模型、工具和记忆完成任务。\n\nRelevant chunk:\nConversation conv_sample_001\n\nAgent 会结合模型、工具和记忆完成任务。\n\nAgent 会结合模型、工具和记忆完成任务。\n\n```json\n{\n  \"change_type\": \"new\",\n  \"duplicate\": false,\n  \"conflict\": false,\n  \"similarity\": null,\n  \"notes\": []\n}\n```\n</memory>\n\n<memory id=\"mem_conversation_conv_000\" type=\"conversation\">\n# Conversation conv_000\n\nSummary: Agent（智能体）是指能够自主感知环境、规划行动并执行任务的智能系统。它通常具备感知、决策和执行三个核心能力，能够根据目标动态调整行为，无需人类持续干预即可完成任务。在人工智能领域，Agent 可以是简单的规则系统，也可以是复杂的深度学习模型，广泛应用于自动化、机器人、客户服务等场景。\n\nRelevant chunk:\nConversation conv_000\n\nAgent（智能体）是指能够自主感知环境、规划行动并执行任务的智能系统。它通常具备感知、决策和执行三个核心能力，能够根据目标动态调整行为，无需人类持续干预即可完成任务。在人工智能领域，Agent 可以是简单的规则系统，也可以是复杂的深度学习模型，广泛应用于自动化、机器人、客户服务等场景。\n\nAgent（智能体）是指能够自主感知环境、规划行动并执行任务的智能系统。它通常具备感知、决策和执行三个核心能力，能够根据目标动态调整行为，无需人类持续干预即可完成任务。在人工智能领域，Agent 可以是简单的规则系统，也可以是复杂的深度学习模型，广泛应用于自动化、机器人、客户服务等场景。\n</memory>\n\n<memory id=\"mem_course_001\" type=\"global\">\n# Agent 基础概念\n\nSummary: Agent 系统由模型、工具、记忆和执行循环组成。\n\nRelevant chunk:\nAgent 基础概念\n\nAgent 系统由模型、工具、记忆和执行循环组成。\n</memory>"
+  },
+  {
+    "role": "user",
+    "content": "请结合已有记忆，阅读 docs/agent_intro.txt，并用三条中文要点说明这个 Agent 如何完成任务。"
+  },
+  {
+    "role": "assistant",
+    "content": "",
+    "tool_calls": [
+      {
+        "id": "call_001",
+        "name": "file_reader",
+        "args": {
+          "path": "docs/agent_intro.txt",
+          "max_chars": 2000
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_001",
+    "name": "file_reader",
+    "content": "{\"skill_name\":\"file_reader\",\"status\":\"success\",\"input\":{\"path\":\"docs/agent_intro.txt\",\"max_chars\":2000},\"output\":{\"content\":\"Agent 系统通常由模型、工具、记忆和执行循环组成。\\n工具调用让模型能够读取本地文件、执行计算，并把结果用于后续回答。\\nMemory 为 Agent 提供全局知识和历史对话上下文。\\n\",\"num_chars\":92,\"source\":\"docs/agent_intro.txt\",\"truncated\":false},\"error\":null,\"latency_ms\":0.345}",
+    "status": "success"
+  },
+  {
+    "role": "assistant",
+    "content": "三条中文要点如下：\n1. Agent 系统通常由模型、工具、记忆和执行循环组成\n2. 工具调用让模型能够读取本地文件、执行计算，并把结果用于后续回答\n3. Memory 为 Agent 提供全局知识和历史对话上下文",
+    "tool_calls": []
+  }
+]
+```
+
+## Trace
+
+```json
+{
+  "conversation_id": "demo_flow_file_reader",
+  "execution_mode": "integrated",
+  "status": "success",
+  "toolset": "basic_tools",
+  "max_turns": 3,
+  "tool_rounds_used": 1,
+  "llm_call_count": 2,
+  "turns": [
+    {
+      "turn_index": 1,
+      "ai_message": {
+        "role": "assistant",
+        "content": "",
+        "tool_calls": [
+          {
+            "id": "call_001",
+            "name": "file_reader",
+            "args": {
+              "path": "docs/agent_intro.txt",
+              "max_chars": 2000
+            }
+          }
+        ]
+      },
+      "llm_status": "success",
+      "llm_error": null,
+      "tool_messages": [
+        {
+          "role": "tool",
+          "tool_call_id": "call_001",
+          "name": "file_reader",
+          "content": "{\"skill_name\":\"file_reader\",\"status\":\"success\",\"input\":{\"path\":\"docs/agent_intro.txt\",\"max_chars\":2000},\"output\":{\"content\":\"Agent 系统通常由模型、工具、记忆和执行循环组成。\\n工具调用让模型能够读取本地文件、执行计算，并把结果用于后续回答。\\nMemory 为 Agent 提供全局知识和历史对话上下文。\\n\",\"num_chars\":92,\"source\":\"docs/agent_intro.txt\",\"truncated\":false},\"error\":null,\"latency_ms\":0.345}",
+          "status": "success"
+        }
+      ],
+      "latency_ms": 20.888
+    },
+    {
+      "turn_index": 2,
+      "ai_message": {
+        "role": "assistant",
+        "content": "三条中文要点如下：\n1. Agent 系统通常由模型、工具、记忆和执行循环组成\n2. 工具调用让模型能够读取本地文件、执行计算，并把结果用于后续回答\n3. Memory 为 Agent 提供全局知识和历史对话上下文",
+        "tool_calls": []
+      },
+      "llm_status": "success",
+      "llm_error": null,
+      "tool_messages": [],
+      "latency_ms": 2.693
+    }
+  ],
+  "final_answer_path": "final_answer.md",
+  "memory_save": {
+    "requested": "conversation",
+    "status": "not_requested"
+  },
+  "warnings": [],
+  "error": null
+}
+```

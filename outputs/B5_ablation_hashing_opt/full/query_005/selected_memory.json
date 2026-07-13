@@ -1,0 +1,157 @@
+{
+  "status": "success",
+  "query": "报错 ModuleNotFoundError: No module named 'yaml' 怎么解决？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conv_c08",
+      "memory_type": "conversation",
+      "title": "ModuleNotFoundError yaml 解决办法",
+      "path": "conversations/mem_conv_c08.md",
+      "content": "# ModuleNotFoundError yaml 解决办法\n\nSummary: No module named yaml 报错的两个原因与修复。\n\nRelevant chunk:\nModuleNotFoundError yaml 解决办法\n\nNo module named yaml 报错的两个原因与修复。\n\n报 ModuleNotFoundError: No module named 'yaml' 有两个常见原因：一是包名装错，正确的安装命令是 pip install pyyaml，包名是 pyyaml 而导入名是 yaml，直接 pip install yaml 装到的是另一个废弃包；二是忘了激活 conda 环境，在 base 里跑了脚本。先 conda activate agent 再确认 pip list 里有 PyYAML。",
+      "original_chars": 380,
+      "included_chars": 374,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.908103,
+      "factors": {
+        "relevance": 0.032787,
+        "relevance_norm": 1.0,
+        "recency": 0.481034,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c16",
+      "memory_type": "conversation",
+      "title": "JSONDecodeError 修复",
+      "path": "conversations/mem_conv_c16.md",
+      "content": "# JSONDecodeError 修复\n\nSummary: Expecting value 报错的根因：输出混入日志前缀。\n\nRelevant chunk:\nJSONDecodeError 修复\n\nExpecting value 报错的根因：输出混入日志前缀。\n\njson.loads 报 JSONDecodeError: Expecting value: line 1 column 1 的根因是待解析文本开头混入了模型输出的说明文字或日志前缀，不是 JSON 本身坏了。修复：解析前先定位第一个左花括号、截取到匹配的右花括号再 loads；同时在 prompt 里禁止模型输出 JSON 以外的字符。空字符串也会报同样的错，要先判空给出更明确的错误信息。",
+      "original_chars": 349,
+      "included_chars": 330,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.485094,
+      "factors": {
+        "relevance": 0.032258,
+        "relevance_norm": 0.459031,
+        "recency": 0.578695,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c03",
+      "memory_type": "conversation",
+      "title": "CUDA OOM 最新解决方案",
+      "path": "conversations/mem_conv_c03.md",
+      "content": "# CUDA OOM 最新解决方案\n\nSummary: 显存不足的现行处理办法：bfloat16 + max_memory 上限 + 减小生成长度。\n\nRelevant chunk:\nCUDA OOM 最新解决方案\n\n显存不足的现行处理办法：bfloat16 + max_memory 上限 + 减小生成长度。\n\n推理时报 CUDA out of memory 的最新结论：第一，加载用 bfloat16 而不是 float32，显存直接省一半；第二，给 from_pretrained 传 max_memory 把单卡上限压到 20GiB，留出生成期激活的余量；第三，把 max_new_tokens 从 2048 降到 1024。三条一起用之后再没有出现过 OOM。注意：五月份那次结论（用 float32 加小 batch）已经过时作废，不要再参考。",
+      "original_chars": 370,
+      "included_chars": 378,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.428703,
+      "factors": {
+        "relevance": 0.031746,
+        "relevance_norm": 0.346822,
+        "recency": 0.712458,
+        "importance": 0.8
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 8,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c05",
+      "memory_type": "conversation",
+      "title": "全系统第一次联调记录",
+      "path": "conversations/mem_conv_c05.md",
+      "content": "# 全系统第一次联调记录\n\nSummary: B1–B5 第一次联调的排错过程与耗时实测。\n\nRelevant chunk:\n同学在跑训练任务，两张卡的显存各被占了一大半，我们的模型加载直接失败，报的还是一个容易误导人的设备映射错误而不是显存不足。等到晚上卡空出来才继续联调。这提醒我们演示前一定要先看 nvidia-smi 确认显存余量，共享服务器上这一步不能省。\n\n结论（重要）：正式跑 run_full_demo.py 全系统演示之前必须做三件事——第一，确认 outputs/full_demo目录存在且当前用户可写，否则最后的落盘环节会失败，前面几分钟全部白跑；第二，命令行参数 --llm_mode 必须显式设为 prompt_json，不传的话脚本会静默回退到 mock 模式，演示出来的答案是预置的假数据，评委一眼就能看穿；第三，先单独跑一次 b4_local_agent_llm.py 冒烟测试，确认显卡可用、模型能正常加载之后，再开始完整的全系统演示。这三条按顺序执行，缺一不可。\n\n之后又验证了保存路径。run_full_demo 跑完后 memory/conversations/conv_001.md 会被覆盖更新，memory_index.json 同步刷新对应条目的 updated_at 和摘要，这是预期行为。但重复演示前要想清楚是否接受覆盖：如果上一轮的对话记忆还要用来展示跨对话召回，就先把 conversation_id 换掉，避免把演示素材冲掉。",
+      "original_chars": 1956,
+      "included_chars": 643,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.401579,
+      "factors": {
+        "relevance": 0.028898,
+        "relevance_norm": 0.33138,
+        "recency": 0.664747,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 2,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_arch",
+      "memory_type": "global",
+      "title": "B1–B5 系统架构分工",
+      "path": "global/mem_g_arch.md",
+      "content": "# B1–B5 系统架构分工\n\nSummary: 五个模块的职责边界：B1 编排、B2 技能、B3 工具层、B4 决策、B5 记忆。\n\nRelevant chunk:\nB1–B5 系统架构分工\n\n五个模块的职责边界：B1 编排、B2 技能、B3 工具层、B4 决策、B5 记忆。\n\nB1 负责运行与消息编排，是唯一的入口，维护 messages 与 trace 并按轮次调度其余模块。B2 提供 Skill 工具函数本体（计算器、文件读取、表格分析、本地搜索、格式转换）。B3 负责工具说明生成与执行，把 B2 的函数暴露成 schema 并解析模型的调用参数。B4 封装本地 Qwen3.5-4B 做决策，输入 messages 输出 AIMessage。B5 是记忆子系统，负责记忆文档的检索注入与保存更新，唯一调用方是 B1。",
+      "original_chars": 334,
+      "included_chars": 366,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": 0.366589,
+      "factors": {
+        "relevance": 0.029857,
+        "relevance_norm": 0.287037,
+        "recency": 0.469594,
+        "importance": 0.9
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 9,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "fallback",
+    "rerank": "fallback",
+    "vector_backend": "hashing",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 29,
+    "chunk_cache": {
+      "hits": 24,
+      "misses": 0
+    },
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "size": 51,
+      "hits": 29,
+      "misses": 0,
+      "disabled": 0
+    },
+    "query_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "hits": 1,
+      "misses": 0,
+      "disabled": 0
+    },
+    "latency_ms": 12.646
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 2091,
+  "truncated": true,
+  "errors": []
+}

@@ -1,0 +1,206 @@
+{
+  "mem_conv_life_01": {
+    "memory_id": "mem_conv_life_01",
+    "memory_type": "conversation",
+    "title": "BM25 参数结论",
+    "summary": "BM25 关键词打分取 k1=1.5、b=0.75，中文按字符 bigram 切词。",
+    "path": "conversations/life_01.md",
+    "conversation_id": "life_01",
+    "importance": 6,
+    "created_at": "2026-07-02T01:02:06.391632+00:00",
+    "updated_at": "2026-07-02T01:02:06.391632+00:00",
+    "last_accessed_at": "2026-07-02T01:02:06.391632+00:00"
+  },
+  "mem_conv_life_02": {
+    "memory_id": "mem_conv_life_02",
+    "memory_type": "conversation",
+    "title": "RRF 融合参数",
+    "summary": "关键词与向量两路检索用 RRF 融合，rrf_k 取 60，候选上限 30 条。",
+    "path": "conversations/life_02.md",
+    "conversation_id": "life_02",
+    "importance": 6,
+    "created_at": "2026-07-02T01:03:06.391632+00:00",
+    "updated_at": "2026-07-02T01:03:06.391632+00:00",
+    "last_accessed_at": "2026-07-02T01:03:06.391632+00:00"
+  },
+  "mem_conv_life_03": {
+    "memory_id": "mem_conv_life_03",
+    "memory_type": "conversation",
+    "title": "chunk 切块参数",
+    "summary": "长记忆按 700 字符切块、重叠 120 字符，chunk 粒度检索后回溯原记忆。",
+    "path": "conversations/life_03.md",
+    "conversation_id": "life_03",
+    "importance": 6,
+    "created_at": "2026-07-02T01:04:06.391632+00:00",
+    "updated_at": "2026-07-02T01:04:06.391632+00:00",
+    "last_accessed_at": "2026-07-02T01:04:06.391632+00:00"
+  },
+  "mem_conv_life_04": {
+    "memory_id": "mem_conv_life_04",
+    "memory_type": "conversation",
+    "title": "top_k 与门控",
+    "summary": "检索最终返回 top 5 条记忆，三因子重排只在相关度前 10 名候选内生效。",
+    "path": "conversations/life_04.md",
+    "conversation_id": "life_04",
+    "importance": 6,
+    "created_at": "2026-07-02T01:05:06.391632+00:00",
+    "updated_at": "2026-07-02T01:05:06.391632+00:00",
+    "last_accessed_at": "2026-07-02T01:05:06.391632+00:00"
+  },
+  "mem_global_reflect_8468e610943c": {
+    "memory_id": "mem_global_reflect_8468e610943c",
+    "memory_type": "global",
+    "title": "Reflection 8468e610943c",
+    "summary": "- BM25 参数结论\nBM25 关键词打分取 k1=1.5、b=0.75，中文按字符 bigram 切词。\n- RRF 融合参数\n关键词与向量两路检索用 RRF 融合，rrf_k 取 60，候选上限 30 条。\n- chunk 切块参数\n长记忆按 700 字符切块、重叠 120 字符，chunk 粒度检索后回溯原记忆。\n- top_k 与门控\n检索最终返回 top 5 条记忆，三因子重排只在相关度前 10 名候选内生效。",
+    "path": "global/reflect_8468e610943c.md",
+    "conversation_id": null,
+    "importance": 7,
+    "created_at": "2026-07-02T03:49:06+02:00",
+    "updated_at": "2026-07-02T03:49:06+02:00",
+    "source_memory_ids": [
+      "mem_conv_life_01",
+      "mem_conv_life_02",
+      "mem_conv_life_03",
+      "mem_conv_life_04"
+    ],
+    "reflection_cluster": {
+      "method": "embedding_greedy",
+      "backend": "hashing",
+      "candidate_count": 4,
+      "cluster_count": 1,
+      "cluster_size": 4,
+      "threshold": 0.05,
+      "source_memory_ids": [
+        "mem_conv_life_01",
+        "mem_conv_life_02",
+        "mem_conv_life_03",
+        "mem_conv_life_04"
+      ]
+    }
+  },
+  "mem_conv_life_05": {
+    "memory_id": "mem_conv_life_05",
+    "memory_type": "conversation",
+    "title": "OOM 修复方案",
+    "summary": "CUDA out of memory 用 bfloat16 加 max_memory 上限 20GiB 解决，float32 更占显存。",
+    "path": "conversations/life_05.md",
+    "conversation_id": "life_05",
+    "importance": 6,
+    "created_at": "2026-07-02T01:06:06.391632+00:00",
+    "updated_at": "2026-07-02T01:06:06.391632+00:00",
+    "last_accessed_at": "2026-07-02T01:06:06.391632+00:00"
+  },
+  "mem_conv_life_06": {
+    "memory_id": "mem_conv_life_06",
+    "memory_type": "conversation",
+    "title": "加载耗时实测",
+    "summary": "Qwen3.5-4B 模型加载约九十秒，进程内必须缓存复用，禁止重复加载。",
+    "path": "conversations/life_06.md",
+    "conversation_id": "life_06",
+    "importance": 6,
+    "created_at": "2026-07-02T01:07:06.391632+00:00",
+    "updated_at": "2026-07-02T01:07:06.391632+00:00",
+    "last_accessed_at": "2026-07-02T01:07:06.391632+00:00"
+  },
+  "mem_conv_life_07": {
+    "memory_id": "mem_conv_life_07",
+    "memory_type": "conversation",
+    "title": "精度选型",
+    "summary": "bfloat16 全程无溢出警告，float16 在长文任务偶发溢出，配置锁定 bfloat16。",
+    "path": "conversations/life_07.md",
+    "conversation_id": "life_07",
+    "importance": 6,
+    "created_at": "2026-07-02T01:08:06.391632+00:00",
+    "updated_at": "2026-07-02T01:08:06.391632+00:00",
+    "last_accessed_at": "2026-07-02T01:08:06.391632+00:00"
+  },
+  "mem_conv_life_08": {
+    "memory_id": "mem_conv_life_08",
+    "memory_type": "conversation",
+    "title": "显存检查习惯",
+    "summary": "共享服务器启动任务前先 nvidia-smi 看显存余量，避免挤崩别人的训练。",
+    "path": "conversations/life_08.md",
+    "conversation_id": "life_08",
+    "importance": 6,
+    "created_at": "2026-07-02T01:09:06.391632+00:00",
+    "updated_at": "2026-07-02T01:09:06.391632+00:00",
+    "last_accessed_at": "2026-07-02T01:09:06.391632+00:00"
+  },
+  "mem_global_reflect_b5294122ae36": {
+    "memory_id": "mem_global_reflect_b5294122ae36",
+    "memory_type": "global",
+    "title": "Reflection b5294122ae36",
+    "summary": "- OOM 修复方案\nCUDA out of memory 用 bfloat16 加 max_memory 上限 20GiB 解决，float32 更占显存。\n- 加载耗时实测\nQwen3.5-4B 模型加载约九十秒，进程内必须缓存复用，禁止重复加载。\n- 显存检查习惯\n共享服务器启动任务前先 nvidia-smi 看显存余量，避免挤崩别人的训练。",
+    "path": "global/reflect_b5294122ae36.md",
+    "conversation_id": null,
+    "importance": 7,
+    "created_at": "2026-07-02T03:49:06+02:00",
+    "updated_at": "2026-07-02T03:49:06+02:00",
+    "source_memory_ids": [
+      "mem_conv_life_05",
+      "mem_conv_life_06",
+      "mem_conv_life_08"
+    ],
+    "reflection_cluster": {
+      "method": "embedding_greedy",
+      "backend": "hashing",
+      "candidate_count": 4,
+      "cluster_count": 2,
+      "cluster_size": 3,
+      "threshold": 0.05,
+      "source_memory_ids": [
+        "mem_conv_life_05",
+        "mem_conv_life_06",
+        "mem_conv_life_08"
+      ]
+    }
+  },
+  "mem_conv_life_09": {
+    "memory_id": "mem_conv_life_09",
+    "memory_type": "conversation",
+    "title": "calculator 用法",
+    "summary": "calculator 只接收标准算式字符串，禁止传自然语言描述。",
+    "path": "conversations/life_09.md",
+    "conversation_id": "life_09",
+    "importance": 6,
+    "created_at": "2026-07-02T01:10:06.391632+00:00",
+    "updated_at": "2026-07-02T01:10:06.391632+00:00",
+    "last_accessed_at": "2026-07-02T01:10:06.391632+00:00"
+  },
+  "mem_conv_life_10": {
+    "memory_id": "mem_conv_life_10",
+    "memory_type": "conversation",
+    "title": "table_analyzer 限制",
+    "summary": "table_analyzer 一次调用只支持一个统计操作，列名须与表头完全一致。",
+    "path": "conversations/life_10.md",
+    "conversation_id": "life_10",
+    "importance": 6,
+    "created_at": "2026-07-02T01:11:06.391632+00:00",
+    "updated_at": "2026-07-02T01:11:06.391632+00:00",
+    "last_accessed_at": "2026-07-02T01:11:06.391632+00:00"
+  },
+  "mem_conv_life_11": {
+    "memory_id": "mem_conv_life_11",
+    "memory_type": "conversation",
+    "title": "file_reader 边界",
+    "summary": "file_reader 只能读取 data 根目录内的文本文件，越界请求被拒绝。",
+    "path": "conversations/life_11.md",
+    "conversation_id": "life_11",
+    "importance": 6,
+    "created_at": "2026-07-02T01:12:06.391632+00:00",
+    "updated_at": "2026-07-02T01:12:06.391632+00:00",
+    "last_accessed_at": "2026-07-02T01:12:06.391632+00:00"
+  },
+  "mem_conv_life_12": {
+    "memory_id": "mem_conv_life_12",
+    "memory_type": "conversation",
+    "title": "搜索工具用法",
+    "summary": "local_file_search 用通配符匹配文件名，可选递归子目录，范围限 data 内。",
+    "path": "conversations/life_12.md",
+    "conversation_id": "life_12",
+    "importance": 6,
+    "created_at": "2026-07-02T01:13:06.391632+00:00",
+    "updated_at": "2026-07-02T01:13:06.391632+00:00",
+    "last_accessed_at": "2026-07-02T01:13:06.391632+00:00"
+  }
+}

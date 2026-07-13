@@ -1,0 +1,12 @@
+{
+  "mode": "prompt_json",
+  "backend": "transformers",
+  "raw_text": "{\"content\":\"验收总分为 92.6 分。\",\"tool_calls\":[]}\n",
+  "parsed_candidate": {
+    "content": "验收总分为 92.6 分。",
+    "tool_calls": []
+  },
+  "status": "success",
+  "error": null,
+  "generated_at": "2026-07-13T06:40:34+02:00"
+}

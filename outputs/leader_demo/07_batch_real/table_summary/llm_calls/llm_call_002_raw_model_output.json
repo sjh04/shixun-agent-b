@@ -1,0 +1,12 @@
+{
+  "mode": "prompt_json",
+  "backend": "transformers",
+  "raw_text": "{\"content\":\"列名：module, requirement_type, status, score, latency_ms\\n\\nscore 平均情况：\\n- 最小值：65.0\\n- 最大值：96.0\\n- 平均值：87.1\\n- 样本数：10\",\"tool_calls\":[]}\n",
+  "parsed_candidate": {
+    "content": "列名：module, requirement_type, status, score, latency_ms\n\nscore 平均情况：\n- 最小值：65.0\n- 最大值：96.0\n- 平均值：87.1\n- 样本数：10",
+    "tool_calls": []
+  },
+  "status": "success",
+  "error": null,
+  "generated_at": "2026-07-13T06:49:10+02:00"
+}

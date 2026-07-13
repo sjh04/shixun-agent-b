@@ -1,0 +1,147 @@
+{
+  "status": "success",
+  "query": "记忆检索层的参数应该怎么配置？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conv_life_04",
+      "memory_type": "conversation",
+      "title": "top_k 与门控",
+      "path": "conversations/life_04.md",
+      "content": "# top_k 与门控\n\nSummary: 检索最终返回 top 5 条记忆，三因子重排只在相关度前 10 名候选内生效。\n\nRelevant chunk:\ntop_k 与门控\n\n检索最终返回 top 5 条记忆，三因子重排只在相关度前 10 名候选内生效。\n\n检索最终返回 top 5 条记忆，三因子重排只在相关度前 10 名候选内生效。",
+      "original_chars": 70,
+      "included_chars": 170,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.959928,
+      "factors": {
+        "relevance": 0.032266,
+        "relevance_norm": 1.0,
+        "recency": 0.999284,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_life_03",
+      "memory_type": "conversation",
+      "title": "chunk 切块参数",
+      "path": "conversations/life_03.md",
+      "content": "# chunk 切块参数\n\nSummary: 长记忆按 700 字符切块、重叠 120 字符，chunk 粒度检索后回溯原记忆。\n\nRelevant chunk:\nchunk 切块参数\n\n长记忆按 700 字符切块、重叠 120 字符，chunk 粒度检索后回溯原记忆。\n\n长记忆按 700 字符切块、重叠 120 字符，chunk 粒度检索后回溯原记忆。",
+      "original_chars": 73,
+      "included_chars": 178,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.959927,
+      "factors": {
+        "relevance": 0.032522,
+        "relevance_norm": 1.0,
+        "recency": 0.999268,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_life_02",
+      "memory_type": "conversation",
+      "title": "RRF 融合参数",
+      "path": "conversations/life_02.md",
+      "content": "# RRF 融合参数\n\nSummary: 关键词与向量两路检索用 RRF 融合，rrf_k 取 60，候选上限 30 条。\n\nRelevant chunk:\nRRF 融合参数\n\n关键词与向量两路检索用 RRF 融合，rrf_k 取 60，候选上限 30 条。\n\n关键词与向量两路检索用 RRF 融合，rrf_k 取 60，候选上限 30 条。",
+      "original_chars": 70,
+      "included_chars": 171,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.817347,
+      "factors": {
+        "relevance": 0.031498,
+        "relevance_norm": 0.821777,
+        "recency": 0.999252,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_global_reflect_e3d7d6804059",
+      "memory_type": "global",
+      "title": "Reflection e3d7d6804059",
+      "path": "global/reflect_e3d7d6804059.md",
+      "content": "# Reflection e3d7d6804059\n\nSummary: 系统采用混合检索架构，以 BM25 处理文本特征（k1=1.5, b=0.75，中文按字符 bigram 切词）与向量检索并行，通过 RRF 融合（rrf_k=60）合并结果并限制候选上限为 30 条。长记忆数据按 700 字符切块、120 字符重叠，检索后回溯原记忆上下文。最终仅对相关性前 10 名候选执行三因子重排，确保仅返回 top 5 条记忆，实现高效精准的长上下文检索。\n\nRelevant chunk:\nReflection e3d7d6804059\n\n系统采用混合检索架构，以 BM25 处理文本特征（k1=1.5, b=0.75，中文按字符 bigram 切词）与向量检索并行，通过 RRF 融合（rrf_k=60）合并结果并限制候选上限为 30 条。长记忆数据按 700 字符切块、120 字符重叠，检索后回溯原记忆上下文。最终仅对相关性前 10 名候选执行三因子重排，确保仅返回 top 5 条记忆，实现高效精准的长上下文检索。\n\n系统采用混合检索架构，以 BM25 处理文本特征（k1=1.5, b=0.75，中文按字符 bigram 切词）与向量检索并行，通过 RRF 融合（rrf_k=60）合并结果并限制候选上限为 30 条。长记忆数据按 700 字符切块、120 字符重叠，检索后回溯原记忆上下文。最终仅对相关性前 10 名候选执行三因子重排，确保仅返回 top 5 条记忆，实现高效精准的长上下文检索。",
+      "original_chars": 686,
+      "included_chars": 654,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.75365,
+      "factors": {
+        "relevance": 0.029643,
+        "relevance_norm": 0.729563,
+        "recency": 0.99999,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_life_07",
+      "memory_type": "conversation",
+      "title": "精度选型",
+      "path": "conversations/life_07.md",
+      "content": "# 精度选型\n\nSummary: bfloat16 全程无溢出警告，float16 在长文任务偶发溢出，配置锁定 bfloat16。\n\nRelevant chunk:\n精度选型\n\nbfloat16 全程无溢出警告，float16 在长文任务偶发溢出，配置锁定 bfloat16。\n\nbfloat16 全程无溢出警告，float16 在长文任务偶发溢出，配置锁定 bfloat16。",
+      "original_chars": 75,
+      "included_chars": 190,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": 0.713559,
+      "factors": {
+        "relevance": 0.030769,
+        "relevance_norm": 0.692032,
+        "recency": 0.999332,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "disabled",
+    "rerank": "disabled",
+    "vector_backend": "qwen",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 15,
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_lifecycle_qwen/corpus_reflect/memory_vector_cache.json",
+      "size": 15,
+      "hits": 0,
+      "misses": 15,
+      "disabled": 0
+    },
+    "latency_ms": 3275.357
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 1363,
+  "truncated": true,
+  "errors": []
+}

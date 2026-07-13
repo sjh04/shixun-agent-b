@@ -1,0 +1,976 @@
+{
+  "status": "success",
+  "metrics": {
+    "query_count": 20,
+    "hit@1": 0.8,
+    "hit@3": 0.9,
+    "hit@5": 1.0,
+    "mrr": 0.8641666666666667,
+    "ndcg@5": 0.8740663550396519,
+    "mean_latency_ms": 32.2178
+  },
+  "records": [
+    {
+      "query": "整个系统里哪个模块负责决定下一步调用什么工具？",
+      "probe": "paraphrase",
+      "relevant_ids": [
+        "mem_g_arch"
+      ],
+      "ranked_ids": [
+        "mem_g_arch",
+        "mem_conv_c05",
+        "mem_conv_c09",
+        "mem_conv_c11",
+        "mem_conv_c13"
+      ],
+      "first_relevant_rank": 1,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "reciprocal_rank": 1.0,
+      "ndcg@5": 1.0,
+      "retrieval": {
+        "mode": "hybrid",
+        "hyde": "disabled",
+        "rerank": "disabled",
+        "vector_backend": "hashing",
+        "use_chunk": true,
+        "use_three_factor": false,
+        "chunk_count": 29,
+        "chunk_cache": {
+          "hits": 0,
+          "misses": 24
+        },
+        "embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "size": 51,
+          "hits": 22,
+          "misses": 7,
+          "disabled": 0
+        },
+        "query_embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "hits": 1,
+          "misses": 0,
+          "disabled": 0
+        },
+        "latency_ms": 380.6
+      },
+      "errors": []
+    },
+    {
+      "query": "表格里某一列数字的均值怎么算？",
+      "probe": "multi_relevant",
+      "relevant_ids": [
+        "mem_conv_c02",
+        "mem_g_tools"
+      ],
+      "ranked_ids": [
+        "mem_conv_c02",
+        "mem_conv_c18",
+        "mem_g_tools",
+        "mem_conv_c07",
+        "mem_conv_c11"
+      ],
+      "first_relevant_rank": 1,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "reciprocal_rank": 1.0,
+      "ndcg@5": 0.9197207891481876,
+      "retrieval": {
+        "mode": "hybrid",
+        "hyde": "disabled",
+        "rerank": "disabled",
+        "vector_backend": "hashing",
+        "use_chunk": true,
+        "use_three_factor": false,
+        "chunk_count": 29,
+        "chunk_cache": {
+          "hits": 24,
+          "misses": 0
+        },
+        "embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "size": 51,
+          "hits": 29,
+          "misses": 0,
+          "disabled": 0
+        },
+        "query_embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "hits": 1,
+          "misses": 0,
+          "disabled": 0
+        },
+        "latency_ms": 13.718
+      },
+      "errors": []
+    },
+    {
+      "query": "显卡内存不够、推理时报 CUDA out of memory 该怎么处理？",
+      "probe": "three_factor",
+      "relevant_ids": [
+        "mem_conv_c03"
+      ],
+      "ranked_ids": [
+        "mem_conv_c04",
+        "mem_conv_c03",
+        "mem_conv_c05",
+        "mem_conv_c10",
+        "mem_conv_c01"
+      ],
+      "first_relevant_rank": 2,
+      "hit@1": false,
+      "hit@3": true,
+      "hit@5": true,
+      "reciprocal_rank": 0.5,
+      "ndcg@5": 0.6309297535714575,
+      "retrieval": {
+        "mode": "hybrid",
+        "hyde": "disabled",
+        "rerank": "disabled",
+        "vector_backend": "hashing",
+        "use_chunk": true,
+        "use_three_factor": false,
+        "chunk_count": 29,
+        "chunk_cache": {
+          "hits": 24,
+          "misses": 0
+        },
+        "embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "size": 51,
+          "hits": 29,
+          "misses": 0,
+          "disabled": 0
+        },
+        "query_embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "hits": 1,
+          "misses": 0,
+          "disabled": 0
+        },
+        "latency_ms": 19.022
+      },
+      "errors": []
+    },
+    {
+      "query": "为什么全系统演示跑出来的答案像是预置的假数据？",
+      "probe": "chunk_buried",
+      "relevant_ids": [
+        "mem_conv_c05"
+      ],
+      "ranked_ids": [
+        "mem_conv_c05",
+        "mem_conv_c11",
+        "mem_conv_c18",
+        "mem_conv_c09",
+        "mem_conv_c01"
+      ],
+      "first_relevant_rank": 1,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "reciprocal_rank": 1.0,
+      "ndcg@5": 1.0,
+      "retrieval": {
+        "mode": "hybrid",
+        "hyde": "disabled",
+        "rerank": "disabled",
+        "vector_backend": "hashing",
+        "use_chunk": true,
+        "use_three_factor": false,
+        "chunk_count": 29,
+        "chunk_cache": {
+          "hits": 24,
+          "misses": 0
+        },
+        "embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "size": 51,
+          "hits": 29,
+          "misses": 0,
+          "disabled": 0
+        },
+        "query_embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "hits": 1,
+          "misses": 0,
+          "disabled": 0
+        },
+        "latency_ms": 13.093
+      },
+      "errors": []
+    },
+    {
+      "query": "报错 ModuleNotFoundError: No module named 'yaml' 怎么解决？",
+      "probe": "keyword_exact",
+      "relevant_ids": [
+        "mem_conv_c08"
+      ],
+      "ranked_ids": [
+        "mem_conv_c08",
+        "mem_conv_c16",
+        "mem_conv_c03",
+        "mem_conv_c05",
+        "mem_g_arch"
+      ],
+      "first_relevant_rank": 1,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "reciprocal_rank": 1.0,
+      "ndcg@5": 1.0,
+      "retrieval": {
+        "mode": "hybrid",
+        "hyde": "disabled",
+        "rerank": "disabled",
+        "vector_backend": "hashing",
+        "use_chunk": true,
+        "use_three_factor": false,
+        "chunk_count": 29,
+        "chunk_cache": {
+          "hits": 24,
+          "misses": 0
+        },
+        "embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "size": 51,
+          "hits": 29,
+          "misses": 0,
+          "disabled": 0
+        },
+        "query_embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "hits": 1,
+          "misses": 0,
+          "disabled": 0
+        },
+        "latency_ms": 12.47
+      },
+      "errors": []
+    },
+    {
+      "query": "提示词里写了不要解释，模型还是先输出一大段推理，怎么才能真正关掉？",
+      "probe": "chunk_buried",
+      "relevant_ids": [
+        "mem_conv_c11"
+      ],
+      "ranked_ids": [
+        "mem_conv_c11",
+        "mem_conv_c05",
+        "mem_conv_c09",
+        "mem_conv_c16",
+        "mem_conv_c15"
+      ],
+      "first_relevant_rank": 1,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "reciprocal_rank": 1.0,
+      "ndcg@5": 1.0,
+      "retrieval": {
+        "mode": "hybrid",
+        "hyde": "disabled",
+        "rerank": "disabled",
+        "vector_backend": "hashing",
+        "use_chunk": true,
+        "use_three_factor": false,
+        "chunk_count": 29,
+        "chunk_cache": {
+          "hits": 24,
+          "misses": 0
+        },
+        "embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "size": 51,
+          "hits": 29,
+          "misses": 0,
+          "disabled": 0
+        },
+        "query_embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "hits": 1,
+          "misses": 0,
+          "disabled": 0
+        },
+        "latency_ms": 13.298
+      },
+      "errors": []
+    },
+    {
+      "query": "模型加载要用什么数值精度，多卡怎么分配权重？",
+      "probe": "paraphrase",
+      "relevant_ids": [
+        "mem_g_qwen"
+      ],
+      "ranked_ids": [
+        "mem_g_qwen",
+        "mem_conv_c11",
+        "mem_conv_c01",
+        "mem_conv_c05",
+        "mem_g_env"
+      ],
+      "first_relevant_rank": 1,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "reciprocal_rank": 1.0,
+      "ndcg@5": 1.0,
+      "retrieval": {
+        "mode": "hybrid",
+        "hyde": "disabled",
+        "rerank": "disabled",
+        "vector_backend": "hashing",
+        "use_chunk": true,
+        "use_three_factor": false,
+        "chunk_count": 29,
+        "chunk_cache": {
+          "hits": 24,
+          "misses": 0
+        },
+        "embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "size": 51,
+          "hits": 29,
+          "misses": 0,
+          "disabled": 0
+        },
+        "query_embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "hits": 1,
+          "misses": 0,
+          "disabled": 0
+        },
+        "latency_ms": 12.962
+      },
+      "errors": []
+    },
+    {
+      "query": "B5 返回给编排模块的结果里，哪些字段是永远不能动的？",
+      "probe": "paraphrase",
+      "relevant_ids": [
+        "mem_g_schema"
+      ],
+      "ranked_ids": [
+        "mem_g_schema",
+        "mem_conv_c05",
+        "mem_conv_c06",
+        "mem_conv_c11",
+        "mem_g_arch"
+      ],
+      "first_relevant_rank": 1,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "reciprocal_rank": 1.0,
+      "ndcg@5": 1.0,
+      "retrieval": {
+        "mode": "hybrid",
+        "hyde": "disabled",
+        "rerank": "disabled",
+        "vector_backend": "hashing",
+        "use_chunk": true,
+        "use_three_factor": false,
+        "chunk_count": 29,
+        "chunk_cache": {
+          "hits": 24,
+          "misses": 0
+        },
+        "embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "size": 51,
+          "hits": 29,
+          "misses": 0,
+          "disabled": 0
+        },
+        "query_embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "hits": 1,
+          "misses": 0,
+          "disabled": 0
+        },
+        "latency_ms": 12.828
+      },
+      "errors": []
+    },
+    {
+      "query": "输出的报告应该保存到哪里、用什么语言写？",
+      "probe": "paraphrase",
+      "relevant_ids": [
+        "mem_g_prefs"
+      ],
+      "ranked_ids": [
+        "mem_conv_c11",
+        "mem_conv_c16",
+        "mem_conv_c05",
+        "mem_conv_c01",
+        "mem_g_prefs"
+      ],
+      "first_relevant_rank": 5,
+      "hit@1": false,
+      "hit@3": false,
+      "hit@5": true,
+      "reciprocal_rank": 0.2,
+      "ndcg@5": 0.38685280723454163,
+      "retrieval": {
+        "mode": "hybrid",
+        "hyde": "disabled",
+        "rerank": "disabled",
+        "vector_backend": "hashing",
+        "use_chunk": true,
+        "use_three_factor": false,
+        "chunk_count": 29,
+        "chunk_cache": {
+          "hits": 24,
+          "misses": 0
+        },
+        "embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "size": 51,
+          "hits": 29,
+          "misses": 0,
+          "disabled": 0
+        },
+        "query_embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "hits": 1,
+          "misses": 0,
+          "disabled": 0
+        },
+        "latency_ms": 12.899
+      },
+      "errors": []
+    },
+    {
+      "query": "想把项目里所有的说明文档一次性找出来怎么做？",
+      "probe": "paraphrase",
+      "relevant_ids": [
+        "mem_conv_c06"
+      ],
+      "ranked_ids": [
+        "mem_conv_c05",
+        "mem_conv_c16",
+        "mem_conv_c06",
+        "mem_conv_c07",
+        "mem_g_arch"
+      ],
+      "first_relevant_rank": 3,
+      "hit@1": false,
+      "hit@3": true,
+      "hit@5": true,
+      "reciprocal_rank": 0.3333333333333333,
+      "ndcg@5": 0.5,
+      "retrieval": {
+        "mode": "hybrid",
+        "hyde": "disabled",
+        "rerank": "disabled",
+        "vector_backend": "hashing",
+        "use_chunk": true,
+        "use_three_factor": false,
+        "chunk_count": 29,
+        "chunk_cache": {
+          "hits": 24,
+          "misses": 0
+        },
+        "embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "size": 51,
+          "hits": 29,
+          "misses": 0,
+          "disabled": 0
+        },
+        "query_embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "hits": 1,
+          "misses": 0,
+          "disabled": 0
+        },
+        "latency_ms": 17.57
+      },
+      "errors": []
+    },
+    {
+      "query": "转出来的网页里表格显示不对是什么原因？",
+      "probe": "paraphrase",
+      "relevant_ids": [
+        "mem_conv_c07"
+      ],
+      "ranked_ids": [
+        "mem_conv_c07",
+        "mem_conv_c18",
+        "mem_conv_c11",
+        "mem_conv_c01",
+        "mem_conv_c05"
+      ],
+      "first_relevant_rank": 1,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "reciprocal_rank": 1.0,
+      "ndcg@5": 1.0,
+      "retrieval": {
+        "mode": "hybrid",
+        "hyde": "disabled",
+        "rerank": "disabled",
+        "vector_backend": "hashing",
+        "use_chunk": true,
+        "use_three_factor": false,
+        "chunk_count": 29,
+        "chunk_cache": {
+          "hits": 24,
+          "misses": 0
+        },
+        "embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "size": 51,
+          "hits": 29,
+          "misses": 0,
+          "disabled": 0
+        },
+        "query_embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "hits": 1,
+          "misses": 0,
+          "disabled": 0
+        },
+        "latency_ms": 13.119
+      },
+      "errors": []
+    },
+    {
+      "query": "检索打分函数里的两个超参数是怎么定的？",
+      "probe": "paraphrase",
+      "relevant_ids": [
+        "mem_conv_c12"
+      ],
+      "ranked_ids": [
+        "mem_conv_c12",
+        "mem_g_arch",
+        "mem_conv_c11",
+        "mem_conv_c17",
+        "mem_conv_c05"
+      ],
+      "first_relevant_rank": 1,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "reciprocal_rank": 1.0,
+      "ndcg@5": 1.0,
+      "retrieval": {
+        "mode": "hybrid",
+        "hyde": "disabled",
+        "rerank": "disabled",
+        "vector_backend": "hashing",
+        "use_chunk": true,
+        "use_three_factor": false,
+        "chunk_count": 29,
+        "chunk_cache": {
+          "hits": 24,
+          "misses": 0
+        },
+        "embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "size": 51,
+          "hits": 29,
+          "misses": 0,
+          "disabled": 0
+        },
+        "query_embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "hits": 1,
+          "misses": 0,
+          "disabled": 0
+        },
+        "latency_ms": 12.978
+      },
+      "errors": []
+    },
+    {
+      "query": "新同学入组配环境要装哪些版本的依赖？",
+      "probe": "paraphrase",
+      "relevant_ids": [
+        "mem_g_env"
+      ],
+      "ranked_ids": [
+        "mem_g_env",
+        "mem_conv_c11",
+        "mem_conv_c05",
+        "mem_conv_c08",
+        "mem_conv_c16"
+      ],
+      "first_relevant_rank": 1,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "reciprocal_rank": 1.0,
+      "ndcg@5": 1.0,
+      "retrieval": {
+        "mode": "hybrid",
+        "hyde": "disabled",
+        "rerank": "disabled",
+        "vector_backend": "hashing",
+        "use_chunk": true,
+        "use_three_factor": false,
+        "chunk_count": 29,
+        "chunk_cache": {
+          "hits": 24,
+          "misses": 0
+        },
+        "embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "size": 51,
+          "hits": 29,
+          "misses": 0,
+          "disabled": 0
+        },
+        "query_embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "hits": 1,
+          "misses": 0,
+          "disabled": 0
+        },
+        "latency_ms": 13.01
+      },
+      "errors": []
+    },
+    {
+      "query": "为什么 0.1 + 0.2 在程序里不等于 0.3？",
+      "probe": "keyword_exact",
+      "relevant_ids": [
+        "mem_conv_c01"
+      ],
+      "ranked_ids": [
+        "mem_conv_c01",
+        "mem_conv_c12",
+        "mem_g_env",
+        "mem_conv_c11",
+        "mem_conv_c06"
+      ],
+      "first_relevant_rank": 1,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "reciprocal_rank": 1.0,
+      "ndcg@5": 1.0,
+      "retrieval": {
+        "mode": "hybrid",
+        "hyde": "disabled",
+        "rerank": "disabled",
+        "vector_backend": "hashing",
+        "use_chunk": true,
+        "use_three_factor": false,
+        "chunk_count": 29,
+        "chunk_cache": {
+          "hits": 24,
+          "misses": 0
+        },
+        "embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "size": 51,
+          "hits": 29,
+          "misses": 0,
+          "disabled": 0
+        },
+        "query_embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "hits": 1,
+          "misses": 0,
+          "disabled": 0
+        },
+        "latency_ms": 12.63
+      },
+      "errors": []
+    },
+    {
+      "query": "json.loads 报 Expecting value: line 1 column 1 是什么问题？",
+      "probe": "keyword_exact",
+      "relevant_ids": [
+        "mem_conv_c16"
+      ],
+      "ranked_ids": [
+        "mem_conv_c16",
+        "mem_conv_c01",
+        "mem_conv_c05",
+        "mem_conv_c04",
+        "mem_conv_c08"
+      ],
+      "first_relevant_rank": 1,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "reciprocal_rank": 1.0,
+      "ndcg@5": 1.0,
+      "retrieval": {
+        "mode": "hybrid",
+        "hyde": "disabled",
+        "rerank": "disabled",
+        "vector_backend": "hashing",
+        "use_chunk": true,
+        "use_three_factor": false,
+        "chunk_count": 29,
+        "chunk_cache": {
+          "hits": 24,
+          "misses": 0
+        },
+        "embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "size": 51,
+          "hits": 29,
+          "misses": 0,
+          "disabled": 0
+        },
+        "query_embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "hits": 1,
+          "misses": 0,
+          "disabled": 0
+        },
+        "latency_ms": 12.77
+      },
+      "errors": []
+    },
+    {
+      "query": "注入的历史上下文超出预算会发生什么？",
+      "probe": "paraphrase",
+      "relevant_ids": [
+        "mem_conv_c10"
+      ],
+      "ranked_ids": [
+        "mem_conv_c10",
+        "mem_conv_c11",
+        "mem_conv_c05",
+        "mem_conv_c18",
+        "mem_g_schema"
+      ],
+      "first_relevant_rank": 1,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "reciprocal_rank": 1.0,
+      "ndcg@5": 1.0,
+      "retrieval": {
+        "mode": "hybrid",
+        "hyde": "disabled",
+        "rerank": "disabled",
+        "vector_backend": "hashing",
+        "use_chunk": true,
+        "use_three_factor": false,
+        "chunk_count": 29,
+        "chunk_cache": {
+          "hits": 24,
+          "misses": 0
+        },
+        "embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "size": 51,
+          "hits": 29,
+          "misses": 0,
+          "disabled": 0
+        },
+        "query_embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "hits": 1,
+          "misses": 0,
+          "disabled": 0
+        },
+        "latency_ms": 13.078
+      },
+      "errors": []
+    },
+    {
+      "query": "embedding 算出来的结果存在哪里，需要手动清理吗？",
+      "probe": "paraphrase",
+      "relevant_ids": [
+        "mem_conv_c17"
+      ],
+      "ranked_ids": [
+        "mem_conv_c11",
+        "mem_conv_c05",
+        "mem_conv_c01",
+        "mem_conv_c17",
+        "mem_conv_c06"
+      ],
+      "first_relevant_rank": 4,
+      "hit@1": false,
+      "hit@3": false,
+      "hit@5": true,
+      "reciprocal_rank": 0.25,
+      "ndcg@5": 0.43067655807339306,
+      "retrieval": {
+        "mode": "hybrid",
+        "hyde": "disabled",
+        "rerank": "disabled",
+        "vector_backend": "hashing",
+        "use_chunk": true,
+        "use_three_factor": false,
+        "chunk_count": 29,
+        "chunk_cache": {
+          "hits": 24,
+          "misses": 0
+        },
+        "embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "size": 51,
+          "hits": 29,
+          "misses": 0,
+          "disabled": 0
+        },
+        "query_embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "hits": 1,
+          "misses": 0,
+          "disabled": 0
+        },
+        "latency_ms": 12.829
+      },
+      "errors": []
+    },
+    {
+      "query": "git 出现 detached HEAD 状态怎么恢复到分支？",
+      "probe": "keyword_exact",
+      "relevant_ids": [
+        "mem_conv_c15"
+      ],
+      "ranked_ids": [
+        "mem_conv_c15",
+        "mem_conv_c01",
+        "mem_conv_c11",
+        "mem_conv_c03",
+        "mem_g_qwen"
+      ],
+      "first_relevant_rank": 1,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "reciprocal_rank": 1.0,
+      "ndcg@5": 1.0,
+      "retrieval": {
+        "mode": "hybrid",
+        "hyde": "disabled",
+        "rerank": "disabled",
+        "vector_backend": "hashing",
+        "use_chunk": true,
+        "use_three_factor": false,
+        "chunk_count": 29,
+        "chunk_cache": {
+          "hits": 24,
+          "misses": 0
+        },
+        "embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "size": 51,
+          "hits": 29,
+          "misses": 0,
+          "disabled": 0
+        },
+        "query_embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "hits": 1,
+          "misses": 0,
+          "disabled": 0
+        },
+        "latency_ms": 12.897
+      },
+      "errors": []
+    },
+    {
+      "query": "换一份自定义的 system prompt 应该改哪个文件？",
+      "probe": "paraphrase",
+      "relevant_ids": [
+        "mem_conv_c09"
+      ],
+      "ranked_ids": [
+        "mem_conv_c09",
+        "mem_conv_c05",
+        "mem_g_tools",
+        "mem_conv_c11",
+        "mem_conv_c07"
+      ],
+      "first_relevant_rank": 1,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "reciprocal_rank": 1.0,
+      "ndcg@5": 1.0,
+      "retrieval": {
+        "mode": "hybrid",
+        "hyde": "disabled",
+        "rerank": "disabled",
+        "vector_backend": "hashing",
+        "use_chunk": true,
+        "use_three_factor": false,
+        "chunk_count": 29,
+        "chunk_cache": {
+          "hits": 24,
+          "misses": 0
+        },
+        "embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "size": 51,
+          "hits": 29,
+          "misses": 0,
+          "disabled": 0
+        },
+        "query_embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "hits": 1,
+          "misses": 0,
+          "disabled": 0
+        },
+        "latency_ms": 19.87
+      },
+      "errors": []
+    },
+    {
+      "query": "演示数据里的金额是什么货币单位？",
+      "probe": "multi_relevant",
+      "relevant_ids": [
+        "mem_conv_c18",
+        "mem_g_prefs"
+      ],
+      "ranked_ids": [
+        "mem_conv_c18",
+        "mem_conv_c05",
+        "mem_conv_c09",
+        "mem_conv_c11",
+        "mem_conv_c01"
+      ],
+      "first_relevant_rank": 1,
+      "hit@1": true,
+      "hit@3": true,
+      "hit@5": true,
+      "reciprocal_rank": 1.0,
+      "ndcg@5": 0.6131471927654584,
+      "retrieval": {
+        "mode": "hybrid",
+        "hyde": "disabled",
+        "rerank": "disabled",
+        "vector_backend": "hashing",
+        "use_chunk": true,
+        "use_three_factor": false,
+        "chunk_count": 29,
+        "chunk_cache": {
+          "hits": 24,
+          "misses": 0
+        },
+        "embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "size": 51,
+          "hits": 29,
+          "misses": 0,
+          "disabled": 0
+        },
+        "query_embedding_cache": {
+          "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+          "hits": 1,
+          "misses": 0,
+          "disabled": 0
+        },
+        "latency_ms": 12.715
+      },
+      "errors": []
+    }
+  ]
+}

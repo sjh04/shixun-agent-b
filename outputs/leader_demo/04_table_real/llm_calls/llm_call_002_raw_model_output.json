@@ -1,0 +1,12 @@
+{
+  "mode": "prompt_json",
+  "backend": "transformers",
+  "raw_text": "{\"content\":\"表格包含5列：module（模块）、requirement_type（要求类型）、status（状态）、score（分数）、latency_ms（延迟）。\\\\n\\\\n基础要求（basic）与进阶要求（advanced）的score情况：\\\\n\\\\n**基础要求（basic）**：\\\\n- B1: 95分\\\\n- B2: 92分\\\\n- B3: 94分\\\\n- B4: 86分\\\\n- B5: 96分\\\\n- 平均分：92.6分，全部完成（status: done）\\\\n\\\\n**进阶要求（advanced）**：\\\\n- B1: 90分（完成）\\\\n- B2: 72分（部分完成，status: partial）\\\\n- B3: 88分（完成）\\\\n- B4: 65分（部分完成，status: partial）\\\\n- B5: 93分（完成）\\\\n- 平均分：83.6分，B2和B4为部分完成\\\\n\\\\n整体score统计：最小65分，最大96分，平均87.1分。\", \"tool_calls\":[]}\"\n",
+  "parsed_candidate": {
+    "content": "表格包含5列：module（模块）、requirement_type（要求类型）、status（状态）、score（分数）、latency_ms（延迟）。\\n\\n基础要求（basic）与进阶要求（advanced）的score情况：\\n\\n**基础要求（basic）**：\\n- B1: 95分\\n- B2: 92分\\n- B3: 94分\\n- B4: 86分\\n- B5: 96分\\n- 平均分：92.6分，全部完成（status: done）\\n\\n**进阶要求（advanced）**：\\n- B1: 90分（完成）\\n- B2: 72分（部分完成，status: partial）\\n- B3: 88分（完成）\\n- B4: 65分（部分完成，status: partial）\\n- B5: 93分（完成）\\n- 平均分：83.6分，B2和B4为部分完成\\n\\n整体score统计：最小65分，最大96分，平均87.1分。",
+    "tool_calls": []
+  },
+  "status": "success",
+  "error": null,
+  "generated_at": "2026-07-13T06:45:09+02:00"
+}

@@ -1,0 +1,2 @@
+1. 读取本地文档：通过 file_reader 工具读取 leader_demo/docs/project_requirements.md 等真实文件，确保回答基于文件实际内容而非编造。
+2. 执行完整链路：演示 B1-B5 系统链路，包括记忆检索、压缩、投毒拦截、生命周期管理等核心能力。

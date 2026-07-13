@@ -1,0 +1,26 @@
+{
+  "mode": "prompt_json",
+  "backend": "transformers",
+  "raw_text": "{\"content\":\"\",\"tool_calls\":[{\"id\":\"call_001\",\"name\":\"local_file_search\",\"args\":{\"query\":\"ToolMessage memory 注入 ReAct 循环\",\"root_dir\":\"leader_demo/docs\",\"file_types\":[\"md\",\"txt\"],\"top_k\":5}}]}\n",
+  "parsed_candidate": {
+    "content": "",
+    "tool_calls": [
+      {
+        "id": "call_001",
+        "name": "local_file_search",
+        "args": {
+          "query": "ToolMessage memory 注入 ReAct 循环",
+          "root_dir": "leader_demo/docs",
+          "file_types": [
+            "md",
+            "txt"
+          ],
+          "top_k": 5
+        }
+      }
+    ]
+  },
+  "status": "success",
+  "error": null,
+  "generated_at": "2026-07-13T06:41:31+02:00"
+}

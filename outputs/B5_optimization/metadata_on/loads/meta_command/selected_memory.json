@@ -1,0 +1,85 @@
+{
+  "status": "success",
+  "query": "run_b5_ablation llm on FULL 命令",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conversation_meta_command",
+      "memory_type": "conversation",
+      "title": "Conversation meta_command",
+      "path": "conversations/meta_command.md",
+      "content": "# Conversation meta_command\n\nSummary: 已确认完整检索评测需要使用专用环境运行消融脚本，并只选择完整配置行。\n\nRelevant chunk:\nConversation meta_command\n\n已确认完整检索评测需要使用专用环境运行消融脚本，并只选择完整配置行。\n\nexec_command; miniconda3; run_b5_ablation; FULL; run_b5_ablation.py; python run_b5_ablation.py --llm on --only FULL\n\nexec_command miniconda3 run_b5_ablation FULL run_b5_ablation.py\n\nexec_command miniconda3 run_b5_ablation FULL\n\nrun_b5_ablation.py\n\npython run_b5_ablation.py --llm on --only FULL\n\nexec_command\n\n已确认完整检索评测需要使用专用环境运行消融脚本，并只选择完整配置行。",
+      "original_chars": 651,
+      "included_chars": 497,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.95,
+      "factors": {
+        "relevance": 0.032787,
+        "relevance_norm": 1.0,
+        "recency": 1.0,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conversation_meta_tool",
+      "memory_type": "conversation",
+      "title": "Conversation meta_tool",
+      "path": "conversations/meta_tool.md",
+      "content": "# Conversation meta_tool\n\nSummary: 已确认本地资料读取和路径搜索需要分别走两个不同的工具入口。\n\nRelevant chunk:\nConversation meta_tool\n\n已确认本地资料读取和路径搜索需要分别走两个不同的工具入口。\n\nfile_reader; local_file_search\n\nfile_reader local_file_search\n\nfile_reader local_file_search\n\nfile_reader local_file_search\n\n已确认本地资料读取和路径搜索需要分别走两个不同的工具入口。\n\n```json\n{\n  \"change_type\": \"new\",\n  \"duplicate\": false,\n  \"conflict\": false,\n  \"similarity\": null,\n  \"method\": \"rule\",\n  \"notes\": []\n}\n```",
+      "original_chars": 560,
+      "included_chars": 431,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.15,
+      "factors": {
+        "relevance": 0.015873,
+        "relevance_norm": 0.0,
+        "recency": 1.0,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "disabled",
+    "rerank": "disabled",
+    "vector_backend": "hashing",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 7,
+    "chunk_cache": {
+      "hits": 5,
+      "misses": 0
+    },
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_on/memory/memory_retrieval_cache.sqlite3",
+      "size": 7,
+      "hits": 7,
+      "misses": 0,
+      "disabled": 0
+    },
+    "query_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_on/memory/memory_retrieval_cache.sqlite3",
+      "hits": 0,
+      "misses": 1,
+      "disabled": 0
+    },
+    "latency_ms": 59.193
+  },
+  "max_memory_chars": 6000,
+  "total_chars": 928,
+  "truncated": true,
+  "errors": []
+}

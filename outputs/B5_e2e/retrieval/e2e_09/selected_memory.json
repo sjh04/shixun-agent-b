@@ -1,0 +1,147 @@
+{
+  "status": "success",
+  "query": "selected_memory.json 里永远不能删改的三个字段是哪三个？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_g_schema",
+      "memory_type": "global",
+      "title": "selected_memory.json 字段约定",
+      "path": "global/mem_g_schema.md",
+      "content": "# selected_memory.json 字段约定\n\nSummary: B5 返回给 B1 的记忆注入 JSON 的字段契约。\n\nRelevant chunk:\nselected_memory.json 字段约定\n\nB5 返回给 B1 的记忆注入 JSON 的字段契约。\n\nB1 的记忆注入只依赖三个基础字段：memory_id、memory_type、content，这三个字段永远不删不改。检索增强后新增的字段全部是可选的：score 是三因子总分，rank 是最终名次，factors 拆出相关度、时近性、重要性三个分量，retrieval_mode 记录检索模式，compressed 与 compression_method 标记压缩情况，flagged 表示被 Poison Gate 标记。消费方应当忽略不认识的字段，保证向前兼容。",
+      "original_chars": 360,
+      "included_chars": 375,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.93798,
+      "factors": {
+        "relevance": 0.032787,
+        "relevance_norm": 1.0,
+        "recency": 0.679805,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c17",
+      "memory_type": "conversation",
+      "title": "向量缓存设计",
+      "path": "conversations/mem_conv_c17.md",
+      "content": "# 向量缓存设计\n\nSummary: memory_vector_cache.json 的键设计与失效策略。\n\nRelevant chunk:\n向量缓存设计\n\nmemory_vector_cache.json 的键设计与失效策略。\n\n向量缓存文件 memory_vector_cache.json 的作用是避免每次检索都重算 chunk embedding。缓存键由记忆 id、chunk 序号、向量后端和内容 hash 四部分拼成，内容一变 hash 就变，旧向量自动失效不会被误用，因此不需要显式清缓存。qwen 和 hashing 两个后端的向量分开缓存互不覆盖。该文件可随时删除，代价只是下次检索重算一遍。",
+      "original_chars": 330,
+      "included_chars": 307,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.801297,
+      "factors": {
+        "relevance": 0.031498,
+        "relevance_norm": 0.841416,
+        "recency": 0.781643,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c09",
+      "memory_type": "conversation",
+      "title": "系统提示词模板位置",
+      "path": "conversations/mem_conv_c09.md",
+      "content": "# 系统提示词模板位置\n\nSummary: system prompt 模板文件路径与替换方式。\n\nRelevant chunk:\n系统提示词模板位置\n\nsystem prompt 模板文件路径与替换方式。\n\n系统提示词模板放在 prompts/ 目录下，具体用哪个由 runtime_input.json 的 system_prompt_path 字段指定，路径相对输入文件所在目录解析。要换提示词不要直接改默认模板，复制一份改名后把 system_prompt_path 指过去，保证别人的演示不受影响。模板里的占位符由 B1 在注入时填充。",
+      "original_chars": 311,
+      "included_chars": 273,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.768295,
+      "factors": {
+        "relevance": 0.031498,
+        "relevance_norm": 0.823821,
+        "recency": 0.592375,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_tools",
+      "memory_type": "global",
+      "title": "工具使用规范",
+      "path": "global/mem_g_tools.md",
+      "content": "# 工具使用规范\n\nSummary: 五个内置工具的输入输出约定与常见误用。\n\nRelevant chunk:\n工具使用规范\n\n五个内置工具的输入输出约定与常见误用。\n\ncalculator 接收算式字符串返回数值，内部用高精度计算，不要传自然语言。file_reader 只能读 data 根目录内的文本文件，路径越界会被拒绝。table_analyzer 针对 CSV 表格，支持求和、平均值、最大最小值等操作，需要指定列名。local_file_search 支持通配符模式匹配文件名，可选递归子目录。format_converter 在 markdown、html、json 等格式间转换文本。所有工具返回统一的status/errors 结构，调用失败不会中断主流程。",
+      "original_chars": 358,
+      "included_chars": 339,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.769459,
+      "factors": {
+        "relevance": 0.028898,
+        "relevance_norm": 0.782539,
+        "recency": 0.63428,
+        "importance": 0.8
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 8,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c18",
+      "memory_type": "conversation",
+      "title": "示例表格字段说明",
+      "path": "conversations/mem_conv_c18.md",
+      "content": "# 示例表格字段说明\n\nSummary: data/tables 下演示 CSV 的列含义。\n\nRelevant chunk:\n示例表格字段说明\n\ndata/tables 下演示 CSV 的列含义。\n\ndata/tables 目录下的演示表格各列含义：name 是条目名称，category 是类别标签，amount 是数值金额（人民币），date 是发生日期 ISO 格式。表头首行固定，编码统一 UTF-8 无 BOM。做表格分析演示时用这份表，别再造新数据。",
+      "original_chars": 273,
+      "included_chars": 232,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": 0.75869,
+      "factors": {
+        "relevance": 0.030018,
+        "relevance_norm": 0.841775,
+        "recency": 0.552705,
+        "importance": 0.3
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 3,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "qwen",
+    "rerank": "qwen",
+    "vector_backend": "qwen",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 29,
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_vector_cache.json",
+      "size": 62,
+      "hits": 29,
+      "misses": 0,
+      "disabled": 0
+    },
+    "latency_ms": 3474.774
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 1526,
+  "truncated": true,
+  "errors": []
+}

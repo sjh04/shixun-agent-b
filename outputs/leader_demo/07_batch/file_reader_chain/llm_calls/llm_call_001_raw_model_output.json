@@ -1,0 +1,21 @@
+{
+  "mode": "mock",
+  "backend": "mock",
+  "raw_text": "{\"content\": \"\", \"tool_calls\": [{\"id\": \"call_001\", \"name\": \"file_reader\", \"args\": {\"path\": \"leader_demo/docs/project_requirements.md\", \"max_chars\": 2000}}]}",
+  "parsed_candidate": {
+    "content": "",
+    "tool_calls": [
+      {
+        "id": "call_001",
+        "name": "file_reader",
+        "args": {
+          "path": "leader_demo/docs/project_requirements.md",
+          "max_chars": 2000
+        }
+      }
+    ]
+  },
+  "status": "success",
+  "error": null,
+  "generated_at": "2026-07-13T05:26:51+02:00"
+}

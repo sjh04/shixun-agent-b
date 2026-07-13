@@ -1,0 +1,14 @@
+{
+  "conversation_id": "leader_demo_batch_file_search_react",
+  "user_input": "在 leader_demo/docs 目录搜索 ReAct 和 ToolMessage 相关内容。",
+  "system_prompt_path": "/mnt/aisdata/sjh04/实训2/agent/prompts/local_tool_agent.txt",
+  "toolset": "basic_tools",
+  "max_turns": 3,
+  "use_global_memory": true,
+  "selected_memory_ids": [
+    "mem_leader_acceptance_policy",
+    "mem_leader_demo_constraints"
+  ],
+  "save_memory": "none",
+  "execution_mode": "integrated"
+}

@@ -1,0 +1,157 @@
+{
+  "status": "success",
+  "query": "git 出现 detached HEAD 状态怎么恢复到分支？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conv_c15",
+      "memory_type": "conversation",
+      "title": "git detached HEAD 恢复",
+      "path": "conversations/mem_conv_c15.md",
+      "content": "# git detached HEAD 恢复\n\nSummary: 检出历史提交后回到分支的操作。\n\nRelevant chunk:\ngit detached HEAD 恢复\n\n检出历史提交后回到分支的操作。\n\ngit 提示 detached HEAD 是因为直接 checkout 了某个提交号。想保留当前修改就用 git switch -c 新分支名 把工作现场变成新分支；不需要保留就 git switch main直接回主分支。提交在游离状态下做的 commit 不会丢，reflog 里能找回。",
+      "original_chars": 300,
+      "included_chars": 251,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.883855,
+      "factors": {
+        "relevance": 0.032787,
+        "relevance_norm": 1.0,
+        "recency": 0.438553,
+        "importance": 0.4
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 4,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c05",
+      "memory_type": "conversation",
+      "title": "全系统第一次联调记录",
+      "path": "conversations/mem_conv_c05.md",
+      "content": "# 全系统第一次联调记录\n\nSummary: B1–B5 第一次联调的排错过程与耗时实测。\n\nRelevant chunk:\n同学在跑训练任务，两张卡的显存各被占了一大半，我们的模型加载直接失败，报的还是一个容易误导人的设备映射错误而不是显存不足。等到晚上卡空出来才继续联调。这提醒我们演示前一定要先看 nvidia-smi 确认显存余量，共享服务器上这一步不能省。\n\n结论（重要）：正式跑 run_full_demo.py 全系统演示之前必须做三件事——第一，确认 outputs/full_demo目录存在且当前用户可写，否则最后的落盘环节会失败，前面几分钟全部白跑；第二，命令行参数 --llm_mode 必须显式设为 prompt_json，不传的话脚本会静默回退到 mock 模式，演示出来的答案是预置的假数据，评委一眼就能看穿；第三，先单独跑一次 b4_local_agent_llm.py 冒烟测试，确认显卡可用、模型能正常加载之后，再开始完整的全系统演示。这三条按顺序执行，缺一不可。\n\n之后又验证了保存路径。run_full_demo 跑完后 memory/conversations/conv_001.md 会被覆盖更新，memory_index.json 同步刷新对应条目的 updated_at 和摘要，这是预期行为。但重复演示前要想清楚是否接受覆盖：如果上一轮的对话记忆还要用来展示跨对话召回，就先把 conversation_id 换掉，避免把演示素材冲掉。",
+      "original_chars": 1956,
+      "included_chars": 643,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.502436,
+      "factors": {
+        "relevance": 0.029644,
+        "relevance_norm": 0.457454,
+        "recency": 0.664723,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 2,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c08",
+      "memory_type": "conversation",
+      "title": "ModuleNotFoundError yaml 解决办法",
+      "path": "conversations/mem_conv_c08.md",
+      "content": "# ModuleNotFoundError yaml 解决办法\n\nSummary: No module named yaml 报错的两个原因与修复。\n\nRelevant chunk:\nModuleNotFoundError yaml 解决办法\n\nNo module named yaml 报错的两个原因与修复。\n\n报 ModuleNotFoundError: No module named 'yaml' 有两个常见原因：一是包名装错，正确的安装命令是 pip install pyyaml，包名是 pyyaml 而导入名是 yaml，直接 pip install yaml 装到的是另一个废弃包；二是忘了激活 conda 环境，在 base 里跑了脚本。先 conda activate agent 再确认 pip list 里有 PyYAML。",
+      "original_chars": 380,
+      "included_chars": 374,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.49867,
+      "factors": {
+        "relevance": 0.02782,
+        "relevance_norm": 0.48821,
+        "recency": 0.481016,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c09",
+      "memory_type": "conversation",
+      "title": "系统提示词模板位置",
+      "path": "conversations/mem_conv_c09.md",
+      "content": "# 系统提示词模板位置\n\nSummary: system prompt 模板文件路径与替换方式。\n\nRelevant chunk:\n系统提示词模板位置\n\nsystem prompt 模板文件路径与替换方式。\n\n系统提示词模板放在 prompts/ 目录下，具体用哪个由 runtime_input.json 的 system_prompt_path 字段指定，路径相对输入文件所在目录解析。要换提示词不要直接改默认模板，复制一份改名后把 system_prompt_path 指过去，保证别人的演示不受影响。模板里的占位符由 B1 在注入时填充。",
+      "original_chars": 311,
+      "included_chars": 273,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.490828,
+      "factors": {
+        "relevance": 0.02886,
+        "relevance_norm": 0.493623,
+        "recency": 0.459294,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_tools",
+      "memory_type": "global",
+      "title": "工具使用规范",
+      "path": "global/mem_g_tools.md",
+      "content": "# 工具使用规范\n\nSummary: 五个内置工具的输入输出约定与常见误用。\n\nRelevant chunk:\n工具使用规范\n\n五个内置工具的输入输出约定与常见误用。\n\ncalculator 接收算式字符串返回数值，内部用高精度计算，不要传自然语言。file_reader 只能读 data 根目录内的文本文件，路径越界会被拒绝。table_analyzer 针对 CSV 表格，支持求和、平均值、最大最小值等操作，需要指定列名。local_file_search 支持通配符模式匹配文件名，可选递归子目录。format_converter 在 markdown、html、json 等格式间转换文本。所有工具返回统一的status/errors 结构，调用失败不会中断主流程。",
+      "original_chars": 358,
+      "included_chars": 339,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": 0.488958,
+      "factors": {
+        "relevance": 0.029877,
+        "relevance_norm": 0.449724,
+        "recency": 0.491786,
+        "importance": 0.8
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 8,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "qwen",
+    "rerank": "qwen",
+    "vector_backend": "qwen",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 29,
+    "chunk_cache": {
+      "hits": 24,
+      "misses": 0
+    },
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "size": 58,
+      "hits": 29,
+      "misses": 0,
+      "disabled": 0
+    },
+    "query_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "hits": 1,
+      "misses": 0,
+      "disabled": 0
+    },
+    "latency_ms": 3847.746
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 1880,
+  "truncated": true,
+  "errors": []
+}

@@ -1,0 +1,15 @@
+{
+  "role": "assistant",
+  "content": "",
+  "tool_calls": [
+    {
+      "id": "call_001",
+      "name": "table_analyzer",
+      "args": {
+        "path": "leader_demo/tables/leader_results.csv",
+        "max_rows_preview": 5,
+        "describe": true
+      }
+    }
+  ]
+}

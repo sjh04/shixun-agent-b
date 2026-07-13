@@ -26,7 +26,7 @@ memory:
     vector_backend: qwen_or_hashing
     hashing_dim: 768
     cache_embeddings: true
-    vector_cache_path: memory_vector_cache.json
+    retrieval_cache_path: memory_retrieval_cache.sqlite3
 
   compression:
     enabled: true
@@ -58,7 +58,7 @@ memory:
     reflect_similarity_threshold: 0.35
 
   llm:
-    enabled: false        # true enables local Qwen for HyDE, rerank, summaries, importance, embeddings
+    enabled: true         # true enables local Qwen for HyDE, rerank, summaries, importance, embeddings
     model_config: ../configs/model.yaml
     mode: prompt_json
     max_new_tokens: 512   # 未在 token_budgets 中列出的用途回退到此值

@@ -1,0 +1,157 @@
+{
+  "status": "success",
+  "query": "输出的报告应该保存到哪里、用什么语言写？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_g_prefs",
+      "memory_type": "global",
+      "title": "用户偏好",
+      "path": "global/mem_g_prefs.md",
+      "content": "# 用户偏好\n\nSummary: 回答语言、产物目录与格式方面的固定偏好。\n\nRelevant chunk:\n用户偏好\n\n回答语言、产物目录与格式方面的固定偏好。\n\n所有回答一律使用中文。运行产物统一落盘到 outputs/ 目录下按模块分子目录，不要写到仓库根目录。金额单位默认人民币。日期用 ISO 格式书写。长回答优先给结论再给过程。",
+      "original_chars": 189,
+      "included_chars": 170,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.898142,
+      "factors": {
+        "relevance": 0.032522,
+        "relevance_norm": 1.0,
+        "recency": 0.381422,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c01",
+      "memory_type": "conversation",
+      "title": "计算器浮点精度问题",
+      "path": "conversations/mem_conv_c01.md",
+      "content": "# 计算器浮点精度问题\n\nSummary: 0.1 加 0.2 不等于 0.3 的原因与 calculator 的处理方式。\n\nRelevant chunk:\n计算器浮点精度问题\n\n0.1 加 0.2 不等于 0.3 的原因与 calculator 的处理方式。\n\n用户问为什么计算器算 0.1 + 0.2 得到 0.30000000000000004。原因是二进制浮点数无法精确表示十进制小数。calculator 工具内部已改用 Decimal 做十进制运算，对外返回结果前按需要的小数位四舍五入，所以通过工具计算不会再出现这类尾数。直接在 Python 里用 float 仍会有该现象，属于语言特性不是 bug。",
+      "original_chars": 319,
+      "included_chars": 309,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.906547,
+      "factors": {
+        "relevance": 0.028442,
+        "relevance_norm": 1.0,
+        "recency": 0.565468,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_tools",
+      "memory_type": "global",
+      "title": "工具使用规范",
+      "path": "global/mem_g_tools.md",
+      "content": "# 工具使用规范\n\nSummary: 五个内置工具的输入输出约定与常见误用。\n\nRelevant chunk:\n工具使用规范\n\n五个内置工具的输入输出约定与常见误用。\n\ncalculator 接收算式字符串返回数值，内部用高精度计算，不要传自然语言。file_reader 只能读 data 根目录内的文本文件，路径越界会被拒绝。table_analyzer 针对 CSV 表格，支持求和、平均值、最大最小值等操作，需要指定列名。local_file_search 支持通配符模式匹配文件名，可选递归子目录。format_converter 在 markdown、html、json 等格式间转换文本。所有工具返回统一的status/errors 结构，调用失败不会中断主流程。",
+      "original_chars": 358,
+      "included_chars": 339,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.862927,
+      "factors": {
+        "relevance": 0.032002,
+        "relevance_norm": 0.917184,
+        "recency": 0.491794,
+        "importance": 0.8
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 8,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c05",
+      "memory_type": "conversation",
+      "title": "全系统第一次联调记录",
+      "path": "conversations/mem_conv_c05.md",
+      "content": "# 全系统第一次联调记录\n\nSummary: B1–B5 第一次联调的排错过程与耗时实测。\n\nRelevant chunk:\nmory_index.json 同步刷新对应条目的 updated_at 和摘要，这是预期行为。但重复演示前要想清楚是否接受覆盖：如果上一轮的对话记忆还要用来展示跨对话召回，就先把 conversation_id 换掉，避免把演示素材冲掉。\n\n关于耗时的实测数据：完整一轮联调（含模型加载）大约六分钟，其中模型加载约九十秒，两轮工具调用各三十秒左右，B5 记忆检索在缓存命中时不到一秒、冷启动重算向量时十几秒，剩下的时间花在落盘和报告生成。正式演示时建议提前把模型加载好放在后台，把观众等待时间压到两分钟以内。\n\n还有一个小插曲：中途 outputs 目录被之前的失败运行留下的半截文件占着，新一轮运行时 JSON 合并报了奇怪的键冲突。清空输出目录重跑后正常。结论是每次正式演示前先清一遍输出目录，或者给每次运行加时间戳子目录。\n\n最后把所有修复点整理进了各模块的 README 小节，B3 的解析补丁和 B1 的注入位置调整都已提交仓库。下次联调的重点是验证记忆跨对话复用的效果：第一轮对话沉淀的结论，第二轮换个问法还能不能被检索出来并影响回答。",
+      "original_chars": 1956,
+      "included_chars": 538,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.838377,
+      "factors": {
+        "relevance": 0.03055,
+        "relevance_norm": 0.87738,
+        "recency": 0.664734,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 3,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c09",
+      "memory_type": "conversation",
+      "title": "系统提示词模板位置",
+      "path": "conversations/mem_conv_c09.md",
+      "content": "# 系统提示词模板位置\n\nSummary: system prompt 模板文件路径与替换方式。\n\nRelevant chunk:\n系统提示词模板位置\n\nsystem prompt 模板文件路径与替换方式。\n\n系统提示词模板放在 prompts/ 目录下，具体用哪个由 runtime_input.json 的 system_prompt_path 字段指定，路径相对输入文件所在目录解析。要换提示词不要直接改默认模板，复制一份改名后把 system_prompt_path 指过去，保证别人的演示不受影响。模板里的占位符由 B1 在注入时填充。",
+      "original_chars": 311,
+      "included_chars": 273,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": 0.709866,
+      "factors": {
+        "relevance": 0.029514,
+        "relevance_norm": 0.76742,
+        "recency": 0.459302,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "qwen",
+    "rerank": "qwen",
+    "vector_backend": "qwen",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 29,
+    "chunk_cache": {
+      "hits": 24,
+      "misses": 0
+    },
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "size": 58,
+      "hits": 29,
+      "misses": 0,
+      "disabled": 0
+    },
+    "query_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "hits": 1,
+      "misses": 0,
+      "disabled": 0
+    },
+    "latency_ms": 3298.775
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 1629,
+  "truncated": true,
+  "errors": []
+}

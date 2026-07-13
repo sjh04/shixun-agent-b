@@ -1,0 +1,42 @@
+{
+  "status": "success",
+  "memory_id": "mem_conversation_conv_sample_001",
+  "memory_type": "conversation",
+  "conversation_id": "conv_sample_001",
+  "title": "Conversation conv_sample_001",
+  "summary": "Agent 会结合模型、工具和记忆完成任务。",
+  "summary_method": "none",
+  "importance": 5,
+  "importance_method": "heuristic",
+  "path": "conversations/conv_sample_001.md",
+  "index_path": "memory_index.json",
+  "created_at": "2026-07-02T03:20:46+02:00",
+  "updated_at": "2026-07-02T03:37:57+02:00",
+  "change_report": {
+    "change_type": "duplicate",
+    "duplicate": true,
+    "conflict": false,
+    "conflict_reason": "no_rule_conflict",
+    "similarity": 1.0,
+    "method": "rule",
+    "rule_change_type": "duplicate",
+    "judge_reason": null,
+    "notes": [
+      "duplicate content discarded"
+    ]
+  },
+  "poison_gate": {
+    "flagged": false,
+    "action": "allow",
+    "reason": "no_conflict",
+    "method": "rule",
+    "matches": []
+  },
+  "reflection": null,
+  "evicted": [],
+  "source_paths": {
+    "messages": "/mnt/aisdata/sjh04/实训2/agent/data/memory_inputs/sample_messages.json",
+    "trace": "/mnt/aisdata/sjh04/实训2/agent/data/memory_inputs/sample_trace.json",
+    "answer": "/mnt/aisdata/sjh04/实训2/agent/data/memory_inputs/sample_final_answer.md"
+  }
+}

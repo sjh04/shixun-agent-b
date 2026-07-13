@@ -1,0 +1,157 @@
+{
+  "status": "success",
+  "query": "转出来的网页里表格显示不对是什么原因？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conv_c07",
+      "memory_type": "conversation",
+      "title": "markdown 转 html 的坑",
+      "path": "conversations/mem_conv_c07.md",
+      "content": "# markdown 转 html 的坑\n\nSummary: format_converter 做 markdown 到 html 转换的注意事项。\n\nRelevant chunk:\nmarkdown 转 html 的坑\n\nformat_converter 做 markdown 到 html 转换的注意事项。\n\nmarkdown 转 html 用 format_converter，目标格式参数必须显式传 html。两个坑：一是表格属于扩展语法，简单管道表格能转，嵌套表格会原样输出；二是行内 HTML 默认会被转义，需要保留标签时加 raw 选项。转出来的 html是文档片段不含 head，要完整页面得自己包一层。",
+      "original_chars": 305,
+      "included_chars": 310,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.893993,
+      "factors": {
+        "relevance": 0.032787,
+        "relevance_norm": 1.0,
+        "recency": 0.53993,
+        "importance": 0.4
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 4,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c05",
+      "memory_type": "conversation",
+      "title": "全系统第一次联调记录",
+      "path": "conversations/mem_conv_c05.md",
+      "content": "# 全系统第一次联调记录\n\nSummary: B1–B5 第一次联调的排错过程与耗时实测。\n\nRelevant chunk:\n全系统第一次联调记录\n\nB1–B5 第一次联调的排错过程与耗时实测。\n\n这次对话完整记录了 B1 到 B5 五个模块第一次联调的全过程，问题比预想的多，前后花了一个下午加一个晚上。最开始的现象是 B1 编排循环在第二轮工具调用后直接退出，终端没有任何报错信息，final_answer 也是空的，trace.json 里的 status 停在 running，看起来像是流程走到一半被静默吞掉了。为了定位问题，我们先把五个模块的日志级别全部调到最详细，重新跑了一遍，逐条对比每一轮的输入输出。\n\n第一步排查消息编排。把 trace.json 里的每轮 AIMessage 和 ToolMessage 打印出来对比，发现第二轮的工具参数 JSON 里混入了模型输出的前导说明文字，导致 B3 工具层解析失败，而这个异常被上层的兜底逻辑吞掉了，没有回传给 B1。给 B3 的参数解析加了 strip 处理和花括号定位之后，这个问题彻底消失。顺带给异常路径补了结构化错误返回，以后再出解析问题至少能在 trace 里看到 errors 记录，不会再出现无声失败。\n\n第二步是 B4 的输出格式。prompt_json 模式要求模型只输出一个 JSON 对象，但 4B 模型偶尔会在 JSON前面加一句中文解释，比如'好的，我将调用工具'。调整了 system prompt，明确要求禁止输出任何 JSON以外的字符，并在解析侧做了宽松提取。问题明显缓解但没有根除，大约二十次里还会出现一次，后续正式演示前需要多跑几次确认稳定性，或者考虑在解析失败时自动重试一轮。",
+      "original_chars": 1956,
+      "included_chars": 741,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.713378,
+      "factors": {
+        "relevance": 0.03055,
+        "relevance_norm": 0.721131,
+        "recency": 0.664732,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c16",
+      "memory_type": "conversation",
+      "title": "JSONDecodeError 修复",
+      "path": "conversations/mem_conv_c16.md",
+      "content": "# JSONDecodeError 修复\n\nSummary: Expecting value 报错的根因：输出混入日志前缀。\n\nRelevant chunk:\nJSONDecodeError 修复\n\nExpecting value 报错的根因：输出混入日志前缀。\n\njson.loads 报 JSONDecodeError: Expecting value: line 1 column 1 的根因是待解析文本开头混入了模型输出的说明文字或日志前缀，不是 JSON 本身坏了。修复：解析前先定位第一个左花括号、截取到匹配的右花括号再 loads；同时在 prompt 里禁止模型输出 JSON 以外的字符。空字符串也会报同样的错，要先判空给出更明确的错误信息。",
+      "original_chars": 349,
+      "included_chars": 330,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.739758,
+      "factors": {
+        "relevance": 0.029139,
+        "relevance_norm": 0.777363,
+        "recency": 0.578683,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c02",
+      "memory_type": "conversation",
+      "title": "CSV 列平均值统计",
+      "path": "conversations/mem_conv_c02.md",
+      "content": "# CSV 列平均值统计\n\nSummary: 用 table_analyzer 统计 CSV 某列平均值的正确姿势。\n\nRelevant chunk:\nCSV 列平均值统计\n\n用 table_analyzer 统计 CSV 某列平均值的正确姿势。\n\n统计 CSV 某一列的平均值要用 table_analyzer 工具：传入表格路径、操作类型 mean、以及目标列名。列名必须与表头完全一致，含空格时要原样传入。数值列里混有空值时工具会自动跳过空值再求平均，行为与 Excel 一致。求和用 sum、最大最小用 max/min，同一次调用只支持一个操作。",
+      "original_chars": 296,
+      "included_chars": 277,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.703532,
+      "factors": {
+        "relevance": 0.029083,
+        "relevance_norm": 0.742889,
+        "recency": 0.592209,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c18",
+      "memory_type": "conversation",
+      "title": "示例表格字段说明",
+      "path": "conversations/mem_conv_c18.md",
+      "content": "# 示例表格字段说明\n\nSummary: data/tables 下演示 CSV 的列含义。\n\nRelevant chunk:\n示例表格字段说明\n\ndata/tables 下演示 CSV 的列含义。\n\ndata/tables 目录下的演示表格各列含义：name 是条目名称，category 是类别标签，amount 是数值金额（人民币），date 是发生日期 ISO 格式。表头首行固定，编码统一 UTF-8 无 BOM。做表格分析演示时用这份表，别再造新数据。",
+      "original_chars": 273,
+      "included_chars": 232,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": 0.734117,
+      "factors": {
+        "relevance": 0.031514,
+        "relevance_norm": 0.826578,
+        "recency": 0.428543,
+        "importance": 0.3
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 3,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "qwen",
+    "rerank": "qwen",
+    "vector_backend": "qwen",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 29,
+    "chunk_cache": {
+      "hits": 24,
+      "misses": 0
+    },
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "size": 58,
+      "hits": 29,
+      "misses": 0,
+      "disabled": 0
+    },
+    "query_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "hits": 1,
+      "misses": 0,
+      "disabled": 0
+    },
+    "latency_ms": 7090.099
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 1890,
+  "truncated": true,
+  "errors": []
+}

@@ -1,0 +1,147 @@
+{
+  "status": "success",
+  "query": "B5 的向量缓存文件叫什么名字？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conv_c17",
+      "memory_type": "conversation",
+      "title": "向量缓存设计",
+      "path": "conversations/mem_conv_c17.md",
+      "content": "# 向量缓存设计\n\nSummary: memory_vector_cache.json 的键设计与失效策略。\n\nRelevant chunk:\n向量缓存设计\n\nmemory_vector_cache.json 的键设计与失效策略。\n\n向量缓存文件 memory_vector_cache.json 的作用是避免每次检索都重算 chunk embedding。缓存键由记忆 id、chunk 序号、向量后端和内容 hash 四部分拼成，内容一变 hash 就变，旧向量自动失效不会被误用，因此不需要显式清缓存。qwen 和 hashing 两个后端的向量分开缓存互不覆盖。该文件可随时删除，代价只是下次检索重算一遍。",
+      "original_chars": 330,
+      "included_chars": 307,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.928165,
+      "factors": {
+        "relevance": 0.032787,
+        "relevance_norm": 1.0,
+        "recency": 0.78165,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_arch",
+      "memory_type": "global",
+      "title": "B1–B5 系统架构分工",
+      "path": "global/mem_g_arch.md",
+      "content": "# B1–B5 系统架构分工\n\nSummary: 五个模块的职责边界：B1 编排、B2 技能、B3 工具层、B4 决策、B5 记忆。\n\nRelevant chunk:\nB1–B5 系统架构分工\n\n五个模块的职责边界：B1 编排、B2 技能、B3 工具层、B4 决策、B5 记忆。\n\nB1 负责运行与消息编排，是唯一的入口，维护 messages 与 trace 并按轮次调度其余模块。B2 提供 Skill 工具函数本体（计算器、文件读取、表格分析、本地搜索、格式转换）。B3 负责工具说明生成与执行，把 B2 的函数暴露成 schema 并解析模型的调用参数。B4 封装本地 Qwen3.5-4B 做决策，输入 messages 输出 AIMessage。B5 是记忆子系统，负责记忆文档的检索注入与保存更新，唯一调用方是 B1。",
+      "original_chars": 334,
+      "included_chars": 366,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.793222,
+      "factors": {
+        "relevance": 0.030835,
+        "relevance_norm": 0.803322,
+        "recency": 0.605643,
+        "importance": 0.9
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 9,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_schema",
+      "memory_type": "global",
+      "title": "selected_memory.json 字段约定",
+      "path": "global/mem_g_schema.md",
+      "content": "# selected_memory.json 字段约定\n\nSummary: B5 返回给 B1 的记忆注入 JSON 的字段契约。\n\nRelevant chunk:\nselected_memory.json 字段约定\n\nB5 返回给 B1 的记忆注入 JSON 的字段契约。\n\nB1 的记忆注入只依赖三个基础字段：memory_id、memory_type、content，这三个字段永远不删不改。检索增强后新增的字段全部是可选的：score 是三因子总分，rank 是最终名次，factors 拆出相关度、时近性、重要性三个分量，retrieval_mode 记录检索模式，compressed 与 compression_method 标记压缩情况，flagged 表示被 Poison Gate 标记。消费方应当忽略不认识的字段，保证向前兼容。",
+      "original_chars": 360,
+      "included_chars": 375,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.865045,
+      "factors": {
+        "relevance": 0.029572,
+        "relevance_norm": 0.90883,
+        "recency": 0.679811,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c18",
+      "memory_type": "conversation",
+      "title": "示例表格字段说明",
+      "path": "conversations/mem_conv_c18.md",
+      "content": "# 示例表格字段说明\n\nSummary: data/tables 下演示 CSV 的列含义。\n\nRelevant chunk:\n示例表格字段说明\n\ndata/tables 下演示 CSV 的列含义。\n\ndata/tables 目录下的演示表格各列含义：name 是条目名称，category 是类别标签，amount 是数值金额（人民币），date 是发生日期 ISO 格式。表头首行固定，编码统一 UTF-8 无 BOM。做表格分析演示时用这份表，别再造新数据。",
+      "original_chars": 273,
+      "included_chars": 232,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.812394,
+      "factors": {
+        "relevance": 0.027894,
+        "relevance_norm": 0.908904,
+        "recency": 0.55271,
+        "importance": 0.3
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 3,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_tools",
+      "memory_type": "global",
+      "title": "工具使用规范",
+      "path": "global/mem_g_tools.md",
+      "content": "# 工具使用规范\n\nSummary: 五个内置工具的输入输出约定与常见误用。\n\nRelevant chunk:\n工具使用规范\n\n五个内置工具的输入输出约定与常见误用。\n\ncalculator 接收算式字符串返回数值，内部用高精度计算，不要传自然语言。file_reader 只能读 data 根目录内的文本文件，路径越界会被拒绝。table_analyzer 针对 CSV 表格，支持求和、平均值、最大最小值等操作，需要指定列名。local_file_search 支持通配符模式匹配文件名，可选递归子目录。format_converter 在 markdown、html、json 等格式间转换文本。所有工具返回统一的status/errors 结构，调用失败不会中断主流程。",
+      "original_chars": 358,
+      "included_chars": 339,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": 0.800211,
+      "factors": {
+        "relevance": 0.030077,
+        "relevance_norm": 0.820978,
+        "recency": 0.634286,
+        "importance": 0.8
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 8,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "qwen",
+    "rerank": "qwen",
+    "vector_backend": "qwen",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 29,
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_vector_cache.json",
+      "size": 62,
+      "hits": 29,
+      "misses": 0,
+      "disabled": 0
+    },
+    "latency_ms": 4406.579
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 1619,
+  "truncated": true,
+  "errors": []
+}

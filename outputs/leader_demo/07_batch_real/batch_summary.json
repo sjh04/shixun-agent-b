@@ -1,0 +1,50 @@
+{
+  "batch_id": "leader_demo_batch",
+  "total": 5,
+  "success": 5,
+  "failed": 0,
+  "total_elapsed_ms": 52774.462,
+  "generated_at": "2026-07-13T06:49:24+02:00",
+  "results": [
+    {
+      "task_id": "file_reader_chain",
+      "status": "success",
+      "final_answer": "1. 读取本地文档：通过 file_reader 工具读取 leader_demo/docs/project_requirements.md 等真实文件，确保回答基于文件实际内容而非编造。\n2. 执行完整链路：演示 B1-B5 系统链路，包括记忆检索、压缩、投毒拦截、生命周期管理等核心能力。",
+      "elapsed_ms": 14754.891,
+      "output_dir": "/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/07_batch_real/file_reader_chain",
+      "final_answer_path": "/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/07_batch_real/file_reader_chain/final_answer.md"
+    },
+    {
+      "task_id": "calculator_score",
+      "status": "success",
+      "final_answer": "The result of (95 + 92 + 94 + 86 + 96) / 5 is 92.6.",
+      "elapsed_ms": 6123.456,
+      "output_dir": "/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/07_batch_real/calculator_score",
+      "final_answer_path": "/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/07_batch_real/calculator_score/final_answer.md"
+    },
+    {
+      "task_id": "file_search_react",
+      "status": "success",
+      "final_answer": "在 leader_demo/docs 目录中搜索到 1 个包含 ReAct 和 ToolMessage 相关内容：\n\n1. **docs/search_skill_demo.md** (匹配度 0.1097)\n   - 片段内容：\"工具编排强调模型先决定调用哪个工具，再由运行时执行工具并把 ToolMessage 返回给模型。\"\n   - 文件大小：291 字节\n   - 修改时间：2026-06-24 18:05:43\n\n该文件描述了工具编排机制，其中 ToolMessage 是运行时执行工具后将结果返回给模型的格式。",
+      "elapsed_ms": 14919.286,
+      "output_dir": "/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/07_batch_real/file_search_react",
+      "final_answer_path": "/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/07_batch_real/file_search_react/final_answer.md"
+    },
+    {
+      "task_id": "table_summary",
+      "status": "success",
+      "final_answer": "列名：module, requirement_type, status, score, latency_ms\n\nscore 平均情况：\n- 最小值：65.0\n- 最大值：96.0\n- 平均值：87.1\n- 样本数：10",
+      "elapsed_ms": 7855.919,
+      "output_dir": "/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/07_batch_real/table_summary",
+      "final_answer_path": "/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/07_batch_real/table_summary/final_answer.md"
+    },
+    {
+      "task_id": "format_json",
+      "status": "success",
+      "final_answer": "已成功将键值文本转换为 JSON 格式并保存到文件：\n\n```json\n{\n  \"name\": \"Leader Demo\",\n  \"status\": \"ready\",\n  \"module\": \"B1-B5\"\n}\n```\n\n文件路径：/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/07_batch_real/format_json/leader_demo.json",
+      "elapsed_ms": 9117.95,
+      "output_dir": "/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/07_batch_real/format_json",
+      "final_answer_path": "/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/07_batch_real/format_json/final_answer.md"
+    }
+  ]
+}

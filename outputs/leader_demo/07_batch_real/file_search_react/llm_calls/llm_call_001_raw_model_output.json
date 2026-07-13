@@ -1,0 +1,26 @@
+{
+  "mode": "prompt_json",
+  "backend": "transformers",
+  "raw_text": "{\n  \"content\": \"\",\n  \"tool_calls\": [\n    {\n      \"id\": \"call_001\",\n      \"name\": \"local_file_search\",\n      \"args\": {\n        \"query\": \"ReAct ToolMessage\",\n        \"root_dir\": \"docs\",\n        \"file_types\": [\"md\", \"txt\"],\n        \"top_k\": 10\n      }\n    }\n  ]\n}\n",
+  "parsed_candidate": {
+    "content": "",
+    "tool_calls": [
+      {
+        "id": "call_001",
+        "name": "local_file_search",
+        "args": {
+          "query": "ReAct ToolMessage",
+          "root_dir": "docs",
+          "file_types": [
+            "md",
+            "txt"
+          ],
+          "top_k": 10
+        }
+      }
+    ]
+  },
+  "status": "success",
+  "error": null,
+  "generated_at": "2026-07-13T06:48:52+02:00"
+}

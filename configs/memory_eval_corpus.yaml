@@ -4,7 +4,7 @@
 # - compression.enabled false：RQ1 只测排序，压缩是 RQ2 的实验对象；
 # - update_access_on_load false：评测本身不回写 last_accessed_at / access_count，
 #   否则跑一遍评测就污染语料的时近性，结果不可复现。
-# retrieval 各开关由 run_b5_ablation.py 按消融矩阵逐行覆盖。
+# retrieval 各开关由 evals/run_b5_ablation.py 按消融矩阵逐行覆盖。
 memory:
   root_dir: ../data/memory_eval/corpus
   global_memory_dir: global
@@ -33,7 +33,7 @@ memory:
     vector_backend: qwen_or_hashing
     hashing_dim: 768
     cache_embeddings: true
-    vector_cache_path: memory_vector_cache.json
+    retrieval_cache_path: memory_retrieval_cache.sqlite3
 
   compression:
     enabled: false
@@ -48,7 +48,7 @@ memory:
     use_llm_judge: true
 
   poison_gate:
-    enabled: false        # RQ1 检索评测不触发保存路径；RQ4 由 run_b5_integration_eval.py 单独开启
+    enabled: false        # RQ1 检索评测不触发保存路径；RQ4 由 evals/run_b5_integration_eval.py 单独开启
     action: flag
     trusted_memory_types: [global]
     conflict_threshold: 0.32

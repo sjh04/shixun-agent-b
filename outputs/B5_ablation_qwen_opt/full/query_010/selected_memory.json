@@ -1,0 +1,157 @@
+{
+  "status": "success",
+  "query": "想把项目里所有的说明文档一次性找出来怎么做？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conv_c06",
+      "memory_type": "conversation",
+      "title": "本地文件通配符搜索",
+      "path": "conversations/mem_conv_c06.md",
+      "content": "# 本地文件通配符搜索\n\nSummary: local_file_search 的模式匹配与递归用法。\n\nRelevant chunk:\n本地文件通配符搜索\n\nlocal_file_search 的模式匹配与递归用法。\n\n要找出目录下所有 markdown 文件，用 local_file_search 传模式 *.md 并打开递归开关，工具会遍历全部子目录返回相对路径列表。模式匹配只作用于文件名不含路径，想按路径过滤要在返回结果里自己筛。搜索范围被限制在 data 根目录内，越界返回错误。",
+      "original_chars": 279,
+      "included_chars": 247,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.891555,
+      "factors": {
+        "relevance": 0.032522,
+        "relevance_norm": 1.0,
+        "recency": 0.515549,
+        "importance": 0.4
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 4,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_tools",
+      "memory_type": "global",
+      "title": "工具使用规范",
+      "path": "global/mem_g_tools.md",
+      "content": "# 工具使用规范\n\nSummary: 五个内置工具的输入输出约定与常见误用。\n\nRelevant chunk:\n工具使用规范\n\n五个内置工具的输入输出约定与常见误用。\n\ncalculator 接收算式字符串返回数值，内部用高精度计算，不要传自然语言。file_reader 只能读 data 根目录内的文本文件，路径越界会被拒绝。table_analyzer 针对 CSV 表格，支持求和、平均值、最大最小值等操作，需要指定列名。local_file_search 支持通配符模式匹配文件名，可选递归子目录。format_converter 在 markdown、html、json 等格式间转换文本。所有工具返回统一的status/errors 结构，调用失败不会中断主流程。",
+      "original_chars": 358,
+      "included_chars": 339,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.821263,
+      "factors": {
+        "relevance": 0.030579,
+        "relevance_norm": 0.865105,
+        "recency": 0.491794,
+        "importance": 0.8
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 8,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c07",
+      "memory_type": "conversation",
+      "title": "markdown 转 html 的坑",
+      "path": "conversations/mem_conv_c07.md",
+      "content": "# markdown 转 html 的坑\n\nSummary: format_converter 做 markdown 到 html 转换的注意事项。\n\nRelevant chunk:\nmarkdown 转 html 的坑\n\nformat_converter 做 markdown 到 html 转换的注意事项。\n\nmarkdown 转 html 用 format_converter，目标格式参数必须显式传 html。两个坑：一是表格属于扩展语法，简单管道表格能转，嵌套表格会原样输出；二是行内 HTML 默认会被转义，需要保留标签时加 raw 选项。转出来的 html是文档片段不含 head，要完整页面得自己包一层。",
+      "original_chars": 305,
+      "included_chars": 310,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.723815,
+      "factors": {
+        "relevance": 0.029387,
+        "relevance_norm": 0.787277,
+        "recency": 0.539931,
+        "importance": 0.4
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 4,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c16",
+      "memory_type": "conversation",
+      "title": "JSONDecodeError 修复",
+      "path": "conversations/mem_conv_c16.md",
+      "content": "# JSONDecodeError 修复\n\nSummary: Expecting value 报错的根因：输出混入日志前缀。\n\nRelevant chunk:\nJSONDecodeError 修复\n\nExpecting value 报错的根因：输出混入日志前缀。\n\njson.loads 报 JSONDecodeError: Expecting value: line 1 column 1 的根因是待解析文本开头混入了模型输出的说明文字或日志前缀，不是 JSON 本身坏了。修复：解析前先定位第一个左花括号、截取到匹配的右花括号再 loads；同时在 prompt 里禁止模型输出 JSON 以外的字符。空字符串也会报同样的错，要先判空给出更明确的错误信息。",
+      "original_chars": 349,
+      "included_chars": 330,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.616896,
+      "factors": {
+        "relevance": 0.028283,
+        "relevance_norm": 0.77112,
+        "recency": 0.578684,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c09",
+      "memory_type": "conversation",
+      "title": "系统提示词模板位置",
+      "path": "conversations/mem_conv_c09.md",
+      "content": "# 系统提示词模板位置\n\nSummary: system prompt 模板文件路径与替换方式。\n\nRelevant chunk:\n系统提示词模板位置\n\nsystem prompt 模板文件路径与替换方式。\n\n系统提示词模板放在 prompts/ 目录下，具体用哪个由 runtime_input.json 的 system_prompt_path 字段指定，路径相对输入文件所在目录解析。要换提示词不要直接改默认模板，复制一份改名后把 system_prompt_path 指过去，保证别人的演示不受影响。模板里的占位符由 B1 在注入时填充。",
+      "original_chars": 311,
+      "included_chars": 273,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": 0.725747,
+      "factors": {
+        "relevance": 0.029083,
+        "relevance_norm": 0.787271,
+        "recency": 0.459302,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "qwen",
+    "rerank": "qwen",
+    "vector_backend": "qwen",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 29,
+    "chunk_cache": {
+      "hits": 24,
+      "misses": 0
+    },
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "size": 58,
+      "hits": 29,
+      "misses": 0,
+      "disabled": 0
+    },
+    "query_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "hits": 1,
+      "misses": 0,
+      "disabled": 0
+    },
+    "latency_ms": 6863.162
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 1499,
+  "truncated": true,
+  "errors": []
+}

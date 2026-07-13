@@ -1,0 +1,157 @@
+{
+  "status": "success",
+  "query": "表格里某一列数字的均值怎么算？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conv_c02",
+      "memory_type": "conversation",
+      "title": "CSV 列平均值统计",
+      "path": "conversations/mem_conv_c02.md",
+      "content": "# CSV 列平均值统计\n\nSummary: 用 table_analyzer 统计 CSV 某列平均值的正确姿势。\n\nRelevant chunk:\nCSV 列平均值统计\n\n用 table_analyzer 统计 CSV 某列平均值的正确姿势。\n\n统计 CSV 某一列的平均值要用 table_analyzer 工具：传入表格路径、操作类型 mean、以及目标列名。列名必须与表头完全一致，含空格时要原样传入。数值列里混有空值时工具会自动跳过空值再求平均，行为与 Excel 一致。求和用 sum、最大最小用 max/min，同一次调用只支持一个操作。",
+      "original_chars": 296,
+      "included_chars": 277,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 1.0,
+      "factors": {
+        "relevance": 0.032787,
+        "relevance_norm": 1.0,
+        "recency": 0.592222,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c18",
+      "memory_type": "conversation",
+      "title": "示例表格字段说明",
+      "path": "conversations/mem_conv_c18.md",
+      "content": "# 示例表格字段说明\n\nSummary: data/tables 下演示 CSV 的列含义。\n\nRelevant chunk:\n示例表格字段说明\n\ndata/tables 下演示 CSV 的列含义。\n\ndata/tables 目录下的演示表格各列含义：name 是条目名称，category 是类别标签，amount 是数值金额（人民币），date 是发生日期 ISO 格式。表头首行固定，编码统一 UTF-8 无 BOM。做表格分析演示时用这份表，别再造新数据。",
+      "original_chars": 273,
+      "included_chars": 232,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.922959,
+      "factors": {
+        "relevance": 0.032002,
+        "relevance_norm": 0.784617,
+        "recency": 0.428552,
+        "importance": 0.3
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 3,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_tools",
+      "memory_type": "global",
+      "title": "工具使用规范",
+      "path": "global/mem_g_tools.md",
+      "content": "# 工具使用规范\n\nSummary: 五个内置工具的输入输出约定与常见误用。\n\nRelevant chunk:\n工具使用规范\n\n五个内置工具的输入输出约定与常见误用。\n\ncalculator 接收算式字符串返回数值，内部用高精度计算，不要传自然语言。file_reader 只能读 data 根目录内的文本文件，路径越界会被拒绝。table_analyzer 针对 CSV 表格，支持求和、平均值、最大最小值等操作，需要指定列名。local_file_search 支持通配符模式匹配文件名，可选递归子目录。format_converter 在 markdown、html、json 等格式间转换文本。所有工具返回统一的status/errors 结构，调用失败不会中断主流程。",
+      "original_chars": 358,
+      "included_chars": 339,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.922959,
+      "factors": {
+        "relevance": 0.032002,
+        "relevance_norm": 0.596923,
+        "recency": 0.491804,
+        "importance": 0.8
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 8,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c07",
+      "memory_type": "conversation",
+      "title": "markdown 转 html 的坑",
+      "path": "conversations/mem_conv_c07.md",
+      "content": "# markdown 转 html 的坑\n\nSummary: format_converter 做 markdown 到 html 转换的注意事项。\n\nRelevant chunk:\nmarkdown 转 html 的坑\n\nformat_converter 做 markdown 到 html 转换的注意事项。\n\nmarkdown 转 html 用 format_converter，目标格式参数必须显式传 html。两个坑：一是表格属于扩展语法，简单管道表格能转，嵌套表格会原样输出；二是行内 HTML 默认会被转义，需要保留标签时加 raw 选项。转出来的 html是文档片段不含 head，要完整页面得自己包一层。",
+      "original_chars": 305,
+      "included_chars": 310,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.779063,
+      "factors": {
+        "relevance": 0.030536,
+        "relevance_norm": 0.530557,
+        "recency": 0.539942,
+        "importance": 0.4
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 4,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c11",
+      "memory_type": "conversation",
+      "title": "Qwen 生成参数调优记录",
+      "path": "conversations/mem_conv_c11.md",
+      "content": "# Qwen 生成参数调优记录\n\nSummary: 温度、生成长度等参数的完整调优过程与结论。\n\nRelevant chunk:\n和 top_k 的各种组合，后来意识到在 do_sample 关闭的情况下这些参数根本不生效，写在配置里只会误导后来的人以为它们在起作用，全部从 model.yaml 里清掉了。配置文件里只保留真正生效的参数，这是这次调参的一个附带教训。\n\n关键发现（重要）：模型总在正式回答前输出一大段思考过程，各种在 prompt 里写'不要解释、直接给答案''禁止输出推理过程'都压不住，模型嘴上答应实际照旧。最终确认必须在 tokenizer.apply_chat_template 调用里显式传 enable_thinking=False，才能真正关闭 <think> 思考链输出；光靠提示词约束是没有用的，这是模板层的开关不是指令层的问题。同时保持 do_sample=False，同一输入的输出才能逐字符一致，后面的消融实验才有可复现的基础。\n\n顺带测了输入长度上限。max_input_tokens 设 4096，超长的记忆上下文会被 B1 侧截断后再进模型，所以 B5 压缩层的摘要质量直接决定 B4 能看到什么信息，这两层必须配合着调：压缩预算给太小，模型拿到的记忆残缺不全；给太大又挤占用户输入和工具结果的空间。目前 2000 字符的记忆预算配 4096 的输入上限是平衡点。\n\n还对比了 bfloat16 和 float16 两种半精度：bfloat16 在这张卡上连续跑完整个测试集没有出现数值溢出警告，float16 在长文总结任务上偶尔出现，虽然没直接影响输出质量，但保险起见配置里锁定 bfloat16。显存占用两者几乎一样，没有理由冒险。",
+      "original_chars": 1555,
+      "included_chars": 743,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": 0.756864,
+      "factors": {
+        "relevance": 0.03031,
+        "relevance_norm": 0.537376,
+        "recency": 0.680285,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 1,
+      "importance": 7,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "disabled",
+    "rerank": "disabled",
+    "vector_backend": "hashing",
+    "use_chunk": true,
+    "use_three_factor": false,
+    "chunk_count": 29,
+    "chunk_cache": {
+      "hits": 24,
+      "misses": 0
+    },
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "size": 51,
+      "hits": 29,
+      "misses": 0,
+      "disabled": 0
+    },
+    "query_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "hits": 1,
+      "misses": 0,
+      "disabled": 0
+    },
+    "latency_ms": 13.718
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 1901,
+  "truncated": true,
+  "errors": []
+}

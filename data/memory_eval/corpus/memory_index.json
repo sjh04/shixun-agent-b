@@ -289,7 +289,7 @@
     "memory_id": "mem_conv_c17",
     "memory_type": "conversation",
     "title": "向量缓存设计",
-    "summary": "memory_vector_cache.json 的键设计与失效策略。",
+    "summary": "SQLite 检索缓存的键设计与失效策略。",
     "path": "conversations/mem_conv_c17.md",
     "conversation_id": "eval_c17",
     "importance": 5,

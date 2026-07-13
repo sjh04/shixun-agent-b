@@ -1,0 +1,12 @@
+{
+  "mode": "prompt_json",
+  "backend": "transformers",
+  "raw_text": "{\"content\":\"The result of (95 + 92 + 94 + 86 + 96) / 5 is 92.6.\",\"tool_calls\":[]}\n",
+  "parsed_candidate": {
+    "content": "The result of (95 + 92 + 94 + 86 + 96) / 5 is 92.6.",
+    "tool_calls": []
+  },
+  "status": "success",
+  "error": null,
+  "generated_at": "2026-07-13T06:48:49+02:00"
+}

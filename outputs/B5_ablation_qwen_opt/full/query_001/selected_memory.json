@@ -1,0 +1,157 @@
+{
+  "status": "success",
+  "query": "整个系统里哪个模块负责决定下一步调用什么工具？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_g_arch",
+      "memory_type": "global",
+      "title": "B1–B5 系统架构分工",
+      "path": "global/mem_g_arch.md",
+      "content": "# B1–B5 系统架构分工\n\nSummary: 五个模块的职责边界：B1 编排、B2 技能、B3 工具层、B4 决策、B5 记忆。\n\nRelevant chunk:\nB1–B5 系统架构分工\n\n五个模块的职责边界：B1 编排、B2 技能、B3 工具层、B4 决策、B5 记忆。\n\nB1 负责运行与消息编排，是唯一的入口，维护 messages 与 trace 并按轮次调度其余模块。B2 提供 Skill 工具函数本体（计算器、文件读取、表格分析、本地搜索、格式转换）。B3 负责工具说明生成与执行，把 B2 的函数暴露成 schema 并解析模型的调用参数。B4 封装本地 Qwen3.5-4B 做决策，输入 messages 输出 AIMessage。B5 是记忆子系统，负责记忆文档的检索注入与保存更新，唯一调用方是 B1。",
+      "original_chars": 334,
+      "included_chars": 366,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.936959,
+      "factors": {
+        "relevance": 0.032787,
+        "relevance_norm": 1.0,
+        "recency": 0.469591,
+        "importance": 0.9
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 9,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c11",
+      "memory_type": "conversation",
+      "title": "Qwen 生成参数调优记录",
+      "path": "conversations/mem_conv_c11.md",
+      "content": "# Qwen 生成参数调优记录\n\nSummary: 温度、生成长度等参数的完整调优过程与结论。\n\nRelevant chunk:\nQwen 生成参数调优记录\n\n温度、生成长度等参数的完整调优过程与结论。\n\n这轮对话专门调 Qwen3.5-4B 的生成参数，目标是让 B4 的输出既稳定又可复现，把全部尝试过程记录下来供后面的同学参考。测试方法是固定五个典型任务输入（两个工具调用、两个纯问答、一个长文总结），每改一个参数就把五个输入各跑三遍，统计 JSON 格式错误率、答案长度和端到端延迟。\n\n先试温度。temperature 从默认的 0.7 降到 0.3 再降到 0，工具调用输出的 JSON 格式错误率从大约五分之一降到二十分之一再降到几乎为零。原因很直观：采样温度越高，模型越容易在结构化输出里夹带自由发挥的文字。结论是决策类调用一律用贪心解码，不给采样留口子。创作类任务如果以后有需求再单独开温度，和决策链路隔离。\n\n然后是 max_new_tokens。一开始给了 2048，观察输出发现模型经常把工具返回的结果原样复述一遍，再加一段车轱辘话总结，白白浪费生成配额还拖慢响应。截到 1024 之后，五个测试输入都没有出现答案被截断的情况，平均延迟降了接近一半。再往下压到 512 时长文总结任务开始截尾，所以 1024 是当前任务集下的合理值。\n\n中间试过 top_p 和 top_k 的各种组合，后来意识到在 do_sample 关闭的情况下这些参数根本不生效，写在配置里只会误导后来的人以为它们在起作用，全部从 model.yaml 里清掉了。配置文件里只保留真正生效的参数，这是这次调参的一个附带教训。",
+      "original_chars": 1555,
+      "included_chars": 711,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.62395,
+      "factors": {
+        "relevance": 0.029958,
+        "relevance_norm": 0.607402,
+        "recency": 0.680279,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c05",
+      "memory_type": "conversation",
+      "title": "全系统第一次联调记录",
+      "path": "conversations/mem_conv_c05.md",
+      "content": "# 全系统第一次联调记录\n\nSummary: B1–B5 第一次联调的排错过程与耗时实测。\n\nRelevant chunk:\n我将调用工具'。调整了 system prompt，明确要求禁止输出任何 JSON以外的字符，并在解析侧做了宽松提取。问题明显缓解但没有根除，大约二十次里还会出现一次，后续正式演示前需要多跑几次确认稳定性，或者考虑在解析失败时自动重试一轮。\n\n第三步排查记忆注入。B5 返回的 selected_memory.json 里 content 字段是完整的，检索本身没有问题，但 B1 注入 messages 时把 <memory> 标签放在了 system prompt 之前，导致模型在长上下文下偶尔完全忽略记忆内容，回答里引用不到历史结论。把注入位置调整到 system prompt 之后、用户输入之前，再测记忆引用就稳定了。这个顺序问题很隐蔽，值得写进接口文档。\n\n中间还遇到一个环境问题：服务器上另一个同学在跑训练任务，两张卡的显存各被占了一大半，我们的模型加载直接失败，报的还是一个容易误导人的设备映射错误而不是显存不足。等到晚上卡空出来才继续联调。这提醒我们演示前一定要先看 nvidia-smi 确认显存余量，共享服务器上这一步不能省。",
+      "original_chars": 1956,
+      "included_chars": 538,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.675576,
+      "factors": {
+        "relevance": 0.030777,
+        "relevance_norm": 0.673878,
+        "recency": 0.664741,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 1,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_prefs",
+      "memory_type": "global",
+      "title": "用户偏好",
+      "path": "global/mem_g_prefs.md",
+      "content": "# 用户偏好\n\nSummary: 回答语言、产物目录与格式方面的固定偏好。\n\nRelevant chunk:\n用户偏好\n\n回答语言、产物目录与格式方面的固定偏好。\n\n所有回答一律使用中文。运行产物统一落盘到 outputs/ 目录下按模块分子目录，不要写到仓库根目录。金额单位默认人民币。日期用 ISO 格式书写。长回答优先给结论再给过程。",
+      "original_chars": 189,
+      "included_chars": 170,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.658036,
+      "factors": {
+        "relevance": 0.029387,
+        "relevance_norm": 0.699867,
+        "recency": 0.381426,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_tools",
+      "memory_type": "global",
+      "title": "工具使用规范",
+      "path": "global/mem_g_tools.md",
+      "content": "# 工具使用规范\n\nSummary: 五个内置工具的输入输出约定与常见误用。\n\nRelevant chunk:\n工具使用规范\n\n五个内置工具的输入输出约定与常见误用。\n\ncalculator 接收算式字符串返回数值，内部用高精度计算，不要传自然语言。file_reader 只能读 data 根目录内的文本文件，路径越界会被拒绝。table_analyzer 针对 CSV 表格，支持求和、平均值、最大最小值等操作，需要指定列名。local_file_search 支持通配符模式匹配文件名，可选递归子目录。format_converter 在 markdown、html、json 等格式间转换文本。所有工具返回统一的status/errors 结构，调用失败不会中断主流程。",
+      "original_chars": 358,
+      "included_chars": 339,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": 0.655254,
+      "factors": {
+        "relevance": 0.03101,
+        "relevance_norm": 0.657592,
+        "recency": 0.4918,
+        "importance": 0.8
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 8,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "qwen",
+    "rerank": "qwen",
+    "vector_backend": "qwen",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 29,
+    "chunk_cache": {
+      "hits": 24,
+      "misses": 0
+    },
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "size": 58,
+      "hits": 22,
+      "misses": 7,
+      "disabled": 0
+    },
+    "query_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "hits": 1,
+      "misses": 0,
+      "disabled": 0
+    },
+    "latency_ms": 17058.019
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 2124,
+  "truncated": true,
+  "errors": []
+}

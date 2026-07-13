@@ -1,0 +1,109 @@
+{
+  "status": "success",
+  "query": "runtime.yaml ImportError PyYAML",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conversation_meta_yaml",
+      "memory_type": "conversation",
+      "title": "Conversation meta_yaml",
+      "path": "conversations/meta_yaml.md",
+      "content": "# Conversation meta_yaml\n\nSummary: 更新后的结论：PyYAML 已安装时无需 pip；如果报 ImportError，请检查 agent/configs/runtime.yaml。\n\nRelevant chunk:\nConversation meta_yaml\n\n更新后的结论：PyYAML 已安装时无需 pip；如果报 ImportError，请检查 agent/configs/runtime.yaml。\n\nImportError; ModuleNotFoundError; PyYAML; exec_command; python3; agent/configs/runtime.yaml; agent/configs/model.yaml; python3 -m pip install PyYAML\n\nImportError ModuleNotFoundError PyYAML exec_command python3 agent/configs/runtime.yaml agent/configs/model.yaml\n\nPyYAML ImportError exec_command ModuleNotFoundError python3\n\nagent/configs/runtime.yaml agent/configs/model.yaml",
+      "original_chars": 931,
+      "included_chars": 598,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.95,
+      "factors": {
+        "relevance": 0.032787,
+        "relevance_norm": 1.0,
+        "recency": 1.0,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conversation_meta_command",
+      "memory_type": "conversation",
+      "title": "Conversation meta_command",
+      "path": "conversations/meta_command.md",
+      "content": "# Conversation meta_command\n\nSummary: 已确认完整检索评测需要使用专用环境运行消融脚本，并只选择完整配置行。\n\nRelevant chunk:\nlation.py --llm on --only FULL\n\nexec_command\n\n已确认完整检索评测需要使用专用环境运行消融脚本，并只选择完整配置行。\n\n```json\n{\n  \"change_type\": \"new\",\n  \"duplicate\": false,\n  \"conflict\": false,\n  \"similarity\": null,\n  \"method\": \"rule\",\n  \"notes\": []\n}\n```",
+      "original_chars": 651,
+      "included_chars": 310,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.285798,
+      "factors": {
+        "relevance": 0.015625,
+        "relevance_norm": 0.169748,
+        "recency": 1.0,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 1,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conversation_meta_cuda",
+      "memory_type": "conversation",
+      "title": "Conversation meta_cuda",
+      "path": "conversations/meta_cuda.md",
+      "content": "# Conversation meta_cuda\n\nSummary: 已确认是资源不足导致的加载失败，处理方式是降低精度并限制模型占用。\n\nRelevant chunk:\nConversation meta_cuda\n\n已确认是资源不足导致的加载失败，处理方式是降低精度并限制模型占用。\n\nCUDA out of memory; read_json; CUDA; bfloat16; device_map; max_memory\n\nCUDA out of memory read_json CUDA bfloat16 device_map max_memory\n\nread_json CUDA bfloat16 device_map max_memory\n\nCUDA out of memory\n\nread_json\n\n已确认是资源不足导致的加载失败，处理方式是降低精度并限制模型占用。\n\n```json\n{\n  \"change_type\": \"new\",\n  \"duplicate\": false,\n  \"conflict\": false,\n  \"similarity\": null,\n  \"method\": \"rule\",\n  \"notes\": []\n}\n```",
+      "original_chars": 639,
+      "included_chars": 533,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.285045,
+      "factors": {
+        "relevance": 0.015385,
+        "relevance_norm": 0.168806,
+        "recency": 1.0,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "disabled",
+    "rerank": "disabled",
+    "vector_backend": "hashing",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 8,
+    "chunk_cache": {
+      "hits": 5,
+      "misses": 0
+    },
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/cache_update/memory/memory_retrieval_cache.sqlite3",
+      "size": 8,
+      "hits": 8,
+      "misses": 0,
+      "disabled": 0
+    },
+    "query_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/cache_update/memory/memory_retrieval_cache.sqlite3",
+      "hits": 0,
+      "misses": 1,
+      "disabled": 0
+    },
+    "latency_ms": 27.977
+  },
+  "max_memory_chars": 6000,
+  "total_chars": 1441,
+  "truncated": true,
+  "errors": []
+}

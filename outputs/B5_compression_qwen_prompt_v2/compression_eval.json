@@ -1,0 +1,1124 @@
+{
+  "llm": "on",
+  "budget_chars": 700,
+  "by_method": {
+    "hard_truncate": {
+      "cases": 5,
+      "mean_retention_lenient": 0.33331999999999995,
+      "mean_retention_strict": 0.26666,
+      "mean_compression_ratio": 0.33296,
+      "qa_accuracy": 0.26666666666666666
+    },
+    "extractive": {
+      "cases": 5,
+      "mean_retention_lenient": 0.23334000000000002,
+      "mean_retention_strict": 0.23334000000000002,
+      "mean_compression_ratio": 0.30228,
+      "qa_accuracy": 0.26666666666666666
+    },
+    "qwen": {
+      "cases": 5,
+      "mean_retention_lenient": 0.33334,
+      "mean_retention_strict": 0.23334000000000002,
+      "mean_compression_ratio": 0.33264,
+      "qa_accuracy": 0.26666666666666666
+    }
+  },
+  "records": [
+    {
+      "case_id": "comp_01",
+      "method": "hard_truncate",
+      "actual_method": "hard_truncate",
+      "budget_chars": 604,
+      "source_chars": 1812,
+      "compressed_chars": 604,
+      "compression_ratio": 0.3333,
+      "keypoint_retention_lenient": 0.5,
+      "keypoint_retention_strict": 0.1667,
+      "keypoints": [
+        {
+          "id": "kp1",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp2",
+          "found_tokens": 1,
+          "total_tokens": 2,
+          "retained_lenient": true,
+          "retained_strict": false
+        },
+        {
+          "id": "kp3",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp4",
+          "found_tokens": 2,
+          "total_tokens": 2,
+          "retained_lenient": true,
+          "retained_strict": true
+        },
+        {
+          "id": "kp5",
+          "found_tokens": 1,
+          "total_tokens": 2,
+          "retained_lenient": true,
+          "retained_strict": false
+        },
+        {
+          "id": "kp6",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        }
+      ],
+      "qa": [
+        {
+          "question": "跑 run_full_demo.py 时 --llm_mode 不传会发生什么？",
+          "answer": "未发生，因为该参数在提供的记忆内容中未提及。",
+          "correct": false
+        },
+        {
+          "question": "全系统演示前要先跑哪个脚本做冒烟测试？",
+          "answer": "未提及",
+          "correct": false
+        },
+        {
+          "question": "记忆内容应该注入到消息序列的什么位置？",
+          "answer": "记忆内容应注入到消息序列的末尾。",
+          "correct": false
+        }
+      ],
+      "compressed_preview": "这次对话完整记录了 B1 到 B5 五个模块第一次联调的全过程，问题比预想的多，前后花了一个下午加一个晚上。最开始的现象是 B1 编排循环在第二轮工具调用后直接退出，终端没有任何报错信息，final_answer 也是空的，trace.json 里的 status 停在 running，看起来像是流程走到一半被静默吞掉了。为了定位问题，我们先把五个模块的日志级别全部调到最详细，重新跑了一遍，逐条对比每一轮的输入输出。\n\n第一步排查消息编排。把 trace.json 里的每轮 AIMessage 和 ToolMessage 打印出来对比，发现第二轮的工具参数 JSON 里混入了模型输出的前导说明文字，导致 B3 工具层解析失败，而这个异常被上层的兜底逻辑吞掉了，没有回传给 B1。给 B3 的参数解析加了 strip 处理和花括号定位之后，这个问题彻底消失。顺带给异常路径补了结构化错误返回，以后再出解析问题至少能在 trace 里看到 errors 记录，不会再出现无声失败。\n\n第二步是 B4 的输出格式。prompt_json 模式要求模型只输出一个 JSON 对象，但 4B 模型偶尔会"
+    },
+    {
+      "case_id": "comp_01",
+      "method": "extractive",
+      "actual_method": "extractive",
+      "budget_chars": 604,
+      "source_chars": 1812,
+      "compressed_chars": 474,
+      "compression_ratio": 0.2616,
+      "keypoint_retention_lenient": 0.1667,
+      "keypoint_retention_strict": 0.1667,
+      "keypoints": [
+        {
+          "id": "kp1",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp2",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp3",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp4",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp5",
+          "found_tokens": 2,
+          "total_tokens": 2,
+          "retained_lenient": true,
+          "retained_strict": true
+        },
+        {
+          "id": "kp6",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        }
+      ],
+      "qa": [
+        {
+          "question": "跑 run_full_demo.py 时 --llm_mode 不传会发生什么？",
+          "answer": "未发生，该参数不在提供的记忆内容中提及。",
+          "correct": false
+        },
+        {
+          "question": "全系统演示前要先跑哪个脚本做冒烟测试？",
+          "answer": "无",
+          "correct": false
+        },
+        {
+          "question": "记忆内容应该注入到消息序列的什么位置？",
+          "answer": "system prompt 之后",
+          "correct": true
+        }
+      ],
+      "compressed_preview": "这次对话完整记录了 B1 到 B5 五个模块第一次联调的全过程，问题比预想的多，前后花了一个下午加一个晚上。\n最开始的现象是 B1 编排循环在第二轮工具调用后直接退出，终端没有任何报错信息，final_answer 也是空的，trace.json 里的 status 停在 running，看起来像是流程走到一半被静默吞掉了。\n为了定位问题，我们先把五个模块的日志级别全部调到最详细，重新跑了一遍，逐条对比每一轮的输入输出。\n把 trace.json 里的每轮 AIMessage 和 ToolMessage 打印出来对比，发现第二轮的工具参数 JSON 里混入了模型输出的前导说明文字，导致 B3 工具层解析失败，而这个异常被上层的兜底逻辑吞掉了，没有回传给 B1。\nB5 返回的 selected_memory.json 里 content 字段是完整的，检索本身没有问题，但 B1 注入 messages 时把 <memory> 标签放在了 system prompt 之前，导致模型在长上下文下偶尔完全忽略记忆内容，回答里引用不到历史结论。"
+    },
+    {
+      "case_id": "comp_01",
+      "method": "qwen",
+      "actual_method": "qwen",
+      "budget_chars": 604,
+      "source_chars": 1812,
+      "compressed_chars": 604,
+      "compression_ratio": 0.3333,
+      "keypoint_retention_lenient": 0.3333,
+      "keypoint_retention_strict": 0.0,
+      "keypoints": [
+        {
+          "id": "kp1",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp2",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp3",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp4",
+          "found_tokens": 1,
+          "total_tokens": 2,
+          "retained_lenient": true,
+          "retained_strict": false
+        },
+        {
+          "id": "kp5",
+          "found_tokens": 1,
+          "total_tokens": 2,
+          "retained_lenient": true,
+          "retained_strict": false
+        },
+        {
+          "id": "kp6",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        }
+      ],
+      "qa": [
+        {
+          "question": "跑 run_full_demo.py 时 --llm_mode 不传会发生什么？",
+          "answer": "未提供相关信息，无法回答。",
+          "correct": false
+        },
+        {
+          "question": "全系统演示前要先跑哪个脚本做冒烟测试？",
+          "answer": "无",
+          "correct": false
+        },
+        {
+          "question": "记忆内容应该注入到消息序列的什么位置？",
+          "answer": "系统提示词（System Prompt）",
+          "correct": true
+        }
+      ],
+      "compressed_preview": "- **Scope**: B1-B5 first integration, 1 afternoon + 1 night.\n- **Issue 1 (B1 Loop Exit)**: Round 2 tool call exit, no error, empty final_answer, trace.json status=running.\n- **Root Cause 1**: B3 tool params JSON mixed with model preamble text; B3 parse failure swallowed by B1 fallback.\n- **Fix 1**: Added strip + brace localization to B3 params; added structured error returns to trace.\n- **Issue 2 (B4 Output Format)**: 4B model adds Chinese text before JSON (e.g., '好的，我将调用工具').\n- **Fix 2**: Adjus"
+    },
+    {
+      "case_id": "comp_02",
+      "method": "hard_truncate",
+      "actual_method": "hard_truncate",
+      "budget_chars": 469,
+      "source_chars": 1408,
+      "compressed_chars": 469,
+      "compression_ratio": 0.3331,
+      "keypoint_retention_lenient": 0.3333,
+      "keypoint_retention_strict": 0.3333,
+      "keypoints": [
+        {
+          "id": "kp1",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp2",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp3",
+          "found_tokens": 1,
+          "total_tokens": 1,
+          "retained_lenient": true,
+          "retained_strict": true
+        },
+        {
+          "id": "kp4",
+          "found_tokens": 1,
+          "total_tokens": 1,
+          "retained_lenient": true,
+          "retained_strict": true
+        },
+        {
+          "id": "kp5",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp6",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        }
+      ],
+      "qa": [
+        {
+          "question": "怎么才能真正关闭模型的思考链输出？",
+          "answer": "无法根据提供的记忆内容回答该问题。",
+          "correct": false
+        },
+        {
+          "question": "max_new_tokens 最终定为多少？",
+          "answer": "1024",
+          "correct": true
+        },
+        {
+          "question": "为什么把 top_p 和 top_k 从配置里清掉了？",
+          "answer": "未提及",
+          "correct": false
+        }
+      ],
+      "compressed_preview": "这轮对话专门调 Qwen3.5-4B 的生成参数，目标是让 B4 的输出既稳定又可复现，把全部尝试过程记录下来供后面的同学参考。测试方法是固定五个典型任务输入（两个工具调用、两个纯问答、一个长文总结），每改一个参数就把五个输入各跑三遍，统计 JSON 格式错误率、答案长度和端到端延迟。\n\n先试温度。temperature 从默认的 0.7 降到 0.3 再降到 0，工具调用输出的 JSON 格式错误率从大约五分之一降到二十分之一再降到几乎为零。原因很直观：采样温度越高，模型越容易在结构化输出里夹带自由发挥的文字。结论是决策类调用一律用贪心解码，不给采样留口子。创作类任务如果以后有需求再单独开温度，和决策链路隔离。\n\n然后是 max_new_tokens。一开始给了 2048，观察输出发现模型经常把工具返回的结果原样复述一遍，再加一段车轱辘话总结，白白浪费生成配额还拖慢响应。截到 1024 之后，五个测试输入都没有出现答案被截断的情况，平均延迟降了接近一半。再往下压到 512 时长文总结任务开始截尾，所以 1024 是当前任务"
+    },
+    {
+      "case_id": "comp_02",
+      "method": "extractive",
+      "actual_method": "extractive",
+      "budget_chars": 469,
+      "source_chars": 1408,
+      "compressed_chars": 356,
+      "compression_ratio": 0.2528,
+      "keypoint_retention_lenient": 0.1667,
+      "keypoint_retention_strict": 0.1667,
+      "keypoints": [
+        {
+          "id": "kp1",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp2",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp3",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp4",
+          "found_tokens": 1,
+          "total_tokens": 1,
+          "retained_lenient": true,
+          "retained_strict": true
+        },
+        {
+          "id": "kp5",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp6",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        }
+      ],
+      "qa": [
+        {
+          "question": "怎么才能真正关闭模型的思考链输出？",
+          "answer": "无法根据提供的记忆内容回答该问题。",
+          "correct": false
+        },
+        {
+          "question": "max_new_tokens 最终定为多少？",
+          "answer": "未提及",
+          "correct": false
+        },
+        {
+          "question": "为什么把 top_p 和 top_k 从配置里清掉了？",
+          "answer": "根据提供的记忆内容，无法回答该问题，因为文中未提及 top_p 和 top_k 的配置情况。",
+          "correct": false
+        }
+      ],
+      "compressed_preview": "这轮对话专门调 Qwen3.5-4B 的生成参数，目标是让 B4 的输出既稳定又可复现，把全部尝试过程记录下来供后面的同学参考。\n测试方法是固定五个典型任务输入（两个工具调用、两个纯问答、一个长文总结），每改一个参数就把五个输入各跑三遍，统计 JSON 格式错误率、答案长度和端到端延迟。\n先试温度。\ntemperature 从默认的 0.7 降到 0.3 再降到 0，工具调用输出的 JSON 格式错误率从大约五分之一降到二十分之一再降到几乎为零。\n另外记录一个容易踩的坑：换了 transformers 版本后 apply_chat_template 的默认行为可能变化，升级依赖后要重新核对模板渲染出来的完整 prompt 文本，我们在 outputs 里保留了 prompt_text 落盘就是为了这个。"
+    },
+    {
+      "case_id": "comp_02",
+      "method": "qwen",
+      "actual_method": "qwen",
+      "budget_chars": 469,
+      "source_chars": 1408,
+      "compressed_chars": 469,
+      "compression_ratio": 0.3331,
+      "keypoint_retention_lenient": 0.1667,
+      "keypoint_retention_strict": 0.1667,
+      "keypoints": [
+        {
+          "id": "kp1",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp2",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp3",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp4",
+          "found_tokens": 1,
+          "total_tokens": 1,
+          "retained_lenient": true,
+          "retained_strict": true
+        },
+        {
+          "id": "kp5",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp6",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        }
+      ],
+      "qa": [
+        {
+          "question": "怎么才能真正关闭模型的思考链输出？",
+          "answer": "无法关闭，模型默认会输出思考链。",
+          "correct": false
+        },
+        {
+          "question": "max_new_tokens 最终定为多少？",
+          "answer": "未提供",
+          "correct": false
+        },
+        {
+          "question": "为什么把 top_p 和 top_k 从配置里清掉了？",
+          "answer": "记忆内容未提及 top_p 和 top_k 的配置变更原因。",
+          "correct": false
+        }
+      ],
+      "compressed_preview": "- **Model**: Qwen3.5-4B\n- **Goal**: Stable, reproducible B4 output; record all attempts for future reference.\n- **Methodology**: Fixed 5 inputs (2 tool calls, 2 QA, 1 long summary); 3 runs per param change; metrics: JSON error rate, answer length, end-to-end latency.\n- **Temperature**: 0.7 -> 0.3 -> 0. JSON errors: ~1/5 -> ~1/20 -> ~0. High temp causes free text in structured output. **Decision**: Greedy decoding for decision calls; isolate creative tasks.\n- **max_"
+    },
+    {
+      "case_id": "comp_03",
+      "method": "hard_truncate",
+      "actual_method": "hard_truncate",
+      "budget_chars": 208,
+      "source_chars": 626,
+      "compressed_chars": 208,
+      "compression_ratio": 0.3323,
+      "keypoint_retention_lenient": 0.3333,
+      "keypoint_retention_strict": 0.3333,
+      "keypoints": [
+        {
+          "id": "kp1",
+          "found_tokens": 1,
+          "total_tokens": 1,
+          "retained_lenient": true,
+          "retained_strict": true
+        },
+        {
+          "id": "kp2",
+          "found_tokens": 1,
+          "total_tokens": 1,
+          "retained_lenient": true,
+          "retained_strict": true
+        },
+        {
+          "id": "kp3",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp4",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp5",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp6",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        }
+      ],
+      "qa": [
+        {
+          "question": "amount 列的缺失值是怎么填充的？",
+          "answer": "用该列中位数填充。",
+          "correct": true
+        },
+        {
+          "question": "异常大额记录是删除还是别的处理方式？",
+          "answer": "未删除，用中位数填充。",
+          "correct": false
+        },
+        {
+          "question": "清洗脚本叫什么名字？",
+          "answer": "未提及",
+          "correct": false
+        }
+      ],
+      "compressed_preview": "这轮对话整理了演示数据表格的完整清洗流程，是后续所有表格分析实验的数据基础，过程记录如下。原始数据是三份来源不同的 CSV，编码混杂，第一步统一转成 UTF-8 无 BOM，转换用 iconv 批处理完成，转完用 file 命令逐一核对。第二步处理缺失值：数值列 amount 的缺失统一用该列中位数填充，不用均值是因为金额分布右偏严重，均值会被大额记录拉高；类别列 category 的缺失填 unknown 保留"
+    },
+    {
+      "case_id": "comp_03",
+      "method": "extractive",
+      "actual_method": "extractive",
+      "budget_chars": 208,
+      "source_chars": 626,
+      "compressed_chars": 208,
+      "compression_ratio": 0.3323,
+      "keypoint_retention_lenient": 0.3333,
+      "keypoint_retention_strict": 0.3333,
+      "keypoints": [
+        {
+          "id": "kp1",
+          "found_tokens": 1,
+          "total_tokens": 1,
+          "retained_lenient": true,
+          "retained_strict": true
+        },
+        {
+          "id": "kp2",
+          "found_tokens": 1,
+          "total_tokens": 1,
+          "retained_lenient": true,
+          "retained_strict": true
+        },
+        {
+          "id": "kp3",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp4",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp5",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp6",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        }
+      ],
+      "qa": [
+        {
+          "question": "amount 列的缺失值是怎么填充的？",
+          "answer": "用该列中位数填充。",
+          "correct": true
+        },
+        {
+          "question": "异常大额记录是删除还是别的处理方式？",
+          "answer": "保留",
+          "correct": false
+        },
+        {
+          "question": "清洗脚本叫什么名字？",
+          "answer": "未提及",
+          "correct": false
+        }
+      ],
+      "compressed_preview": "这轮对话整理了演示数据表格的完整清洗流程，是后续所有表格分析实验的数据基础，过程记录如下。\n原始数据是三份来源不同的 CSV，编码混杂，第一步统一转成 UTF-8 无 BOM，转换用 iconv 批处理完成，转完用 file 命令逐一核对。\n第二步处理缺失值：数值列 amount 的缺失统一用该列中位数填充，不用均值是因为金额分布右偏严重，均值会被大额记录拉高；\n第三步统一日期：三份表的日期格式各不相同，有斜杠有"
+    },
+    {
+      "case_id": "comp_03",
+      "method": "qwen",
+      "actual_method": "qwen",
+      "budget_chars": 208,
+      "source_chars": 626,
+      "compressed_chars": 207,
+      "compression_ratio": 0.3307,
+      "keypoint_retention_lenient": 0.1667,
+      "keypoint_retention_strict": 0.1667,
+      "keypoints": [
+        {
+          "id": "kp1",
+          "found_tokens": 1,
+          "total_tokens": 1,
+          "retained_lenient": true,
+          "retained_strict": true
+        },
+        {
+          "id": "kp2",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp3",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp4",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp5",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp6",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        }
+      ],
+      "qa": [
+        {
+          "question": "amount 列的缺失值是怎么填充的？",
+          "answer": "中位数",
+          "correct": true
+        },
+        {
+          "question": "异常大额记录是删除还是别的处理方式？",
+          "answer": "记忆内容未提及异常大额记录的处理方式。",
+          "correct": false
+        },
+        {
+          "question": "清洗脚本叫什么名字？",
+          "answer": "未提及",
+          "correct": false
+        }
+      ],
+      "compressed_preview": "- **Goal**: Table demo data cleaning foundation.\n- **Inputs**: 3 mixed-encoding CSVs.\n- **Step 1**: Convert to UTF-8 no BOM via `iconv` batch; verify with `file`.\n- **Step 2**: Impute `amount` (numeric) with"
+    },
+    {
+      "case_id": "comp_04",
+      "method": "hard_truncate",
+      "actual_method": "hard_truncate",
+      "budget_chars": 148,
+      "source_chars": 444,
+      "compressed_chars": 148,
+      "compression_ratio": 0.3333,
+      "keypoint_retention_lenient": 0.3333,
+      "keypoint_retention_strict": 0.3333,
+      "keypoints": [
+        {
+          "id": "kp1",
+          "found_tokens": 1,
+          "total_tokens": 1,
+          "retained_lenient": true,
+          "retained_strict": true
+        },
+        {
+          "id": "kp2",
+          "found_tokens": 1,
+          "total_tokens": 1,
+          "retained_lenient": true,
+          "retained_strict": true
+        },
+        {
+          "id": "kp3",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp4",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp5",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp6",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        }
+      ],
+      "qa": [
+        {
+          "question": "启动占显存的任务前第一步做什么？",
+          "answer": "先 nvidia-smi 查看两张卡的占用情况。",
+          "correct": true
+        },
+        {
+          "question": "数据集应该放在哪个目录？",
+          "answer": "无法回答",
+          "correct": false
+        },
+        {
+          "question": "每周什么时候是维护窗口？",
+          "answer": "无",
+          "correct": false
+        }
+      ],
+      "compressed_preview": "这轮对话确定了共享服务器的使用规约，全组同学都要遵守，违反两次会被收回长任务权限。第一条，跑任何占显存的任务之前必须先 nvidia-smi 查看两张卡的占用情况，确认剩余显存足够再启动，禁止盲跑把别人的训练挤崩。第二条，预计超过两小时的大任务一律错峰，安排到晚上十点以后或周末白天启动，工作日白"
+    },
+    {
+      "case_id": "comp_04",
+      "method": "extractive",
+      "actual_method": "extractive",
+      "budget_chars": 148,
+      "source_chars": 444,
+      "compressed_chars": 148,
+      "compression_ratio": 0.3333,
+      "keypoint_retention_lenient": 0.3333,
+      "keypoint_retention_strict": 0.3333,
+      "keypoints": [
+        {
+          "id": "kp1",
+          "found_tokens": 1,
+          "total_tokens": 1,
+          "retained_lenient": true,
+          "retained_strict": true
+        },
+        {
+          "id": "kp2",
+          "found_tokens": 1,
+          "total_tokens": 1,
+          "retained_lenient": true,
+          "retained_strict": true
+        },
+        {
+          "id": "kp3",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp4",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp5",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp6",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        }
+      ],
+      "qa": [
+        {
+          "question": "启动占显存的任务前第一步做什么？",
+          "answer": "先 nvidia-smi 查看两张卡的占用情况，确认剩余显存足够再启动。",
+          "correct": true
+        },
+        {
+          "question": "数据集应该放在哪个目录？",
+          "answer": "无法回答",
+          "correct": false
+        },
+        {
+          "question": "每周什么时候是维护窗口？",
+          "answer": "无",
+          "correct": false
+        }
+      ],
+      "compressed_preview": "这轮对话确定了共享服务器的使用规约，全组同学都要遵守，违反两次会被收回长任务权限。\n第一条，跑任何占显存的任务之前必须先 nvidia-smi 查看两张卡的占用情况，确认剩余显存足够再启动，禁止盲跑把别人的训练挤崩。\n第二条，预计超过两小时的大任务一律错峰，安排到晚上十点以后或周末白天启动，工作"
+    },
+    {
+      "case_id": "comp_04",
+      "method": "qwen",
+      "actual_method": "qwen",
+      "budget_chars": 148,
+      "source_chars": 444,
+      "compressed_chars": 148,
+      "compression_ratio": 0.3333,
+      "keypoint_retention_lenient": 0.8333,
+      "keypoint_retention_strict": 0.8333,
+      "keypoints": [
+        {
+          "id": "kp1",
+          "found_tokens": 1,
+          "total_tokens": 1,
+          "retained_lenient": true,
+          "retained_strict": true
+        },
+        {
+          "id": "kp2",
+          "found_tokens": 1,
+          "total_tokens": 1,
+          "retained_lenient": true,
+          "retained_strict": true
+        },
+        {
+          "id": "kp3",
+          "found_tokens": 2,
+          "total_tokens": 2,
+          "retained_lenient": true,
+          "retained_strict": true
+        },
+        {
+          "id": "kp4",
+          "found_tokens": 1,
+          "total_tokens": 1,
+          "retained_lenient": true,
+          "retained_strict": true
+        },
+        {
+          "id": "kp5",
+          "found_tokens": 1,
+          "total_tokens": 1,
+          "retained_lenient": true,
+          "retained_strict": true
+        },
+        {
+          "id": "kp6",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        }
+      ],
+      "qa": [
+        {
+          "question": "启动占显存的任务前第一步做什么？",
+          "answer": "使用 nvidia-smi 检查显存",
+          "correct": true
+        },
+        {
+          "question": "数据集应该放在哪个目录？",
+          "answer": "/mnt/aisdata",
+          "correct": true
+        },
+        {
+          "question": "每周什么时候是维护窗口？",
+          "answer": "无",
+          "correct": false
+        }
+      ],
+      "compressed_preview": "- 违规两次收回长任务权限\n- 1. 显存检查：nvidia-smi 查双卡，禁盲跑\n- 2. 长任务错峰：>2h 仅晚10点/周末白\n- 3. 数据路径：/mnt/aisdata，home 限20GB\n- 4. 任务命名：姓名缩写前缀，匿名杀\n- 5. 崩溃排查：dmesg/nvidia-sm"
+    },
+    {
+      "case_id": "comp_05",
+      "method": "hard_truncate",
+      "actual_method": "hard_truncate",
+      "budget_chars": 226,
+      "source_chars": 679,
+      "compressed_chars": 226,
+      "compression_ratio": 0.3328,
+      "keypoint_retention_lenient": 0.1667,
+      "keypoint_retention_strict": 0.1667,
+      "keypoints": [
+        {
+          "id": "kp1",
+          "found_tokens": 2,
+          "total_tokens": 2,
+          "retained_lenient": true,
+          "retained_strict": true
+        },
+        {
+          "id": "kp2",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp3",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp4",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp5",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp6",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        }
+      ],
+      "qa": [
+        {
+          "question": "必填参数缺失时 B3 返回什么错误码？",
+          "answer": "未提供相关信息",
+          "correct": false
+        },
+        {
+          "question": "工具调用的超时时间是多久？",
+          "answer": "未提及",
+          "correct": false
+        },
+        {
+          "question": "工具 schema 是从哪里自动生成的？",
+          "answer": "从函数签名和 docstring 自动生成",
+          "correct": true
+        }
+      ],
+      "compressed_preview": "这轮对话梳理了 B3 工具层的 schema 生成与执行机制，给要新增工具的同学做参考。schema 不是手写的：B3 启动时扫描 skills 目录下的工具函数，从函数签名和 docstring 自动生成工具说明，参数名取自签名，参数说明取自 docstring 的参数段，所以 docstring 写得不规范的工具会生成残缺的 schema，这是新工具接入最常见的坑。类型映射有一张固定表：Python 的 str 映射 string、int 和 "
+    },
+    {
+      "case_id": "comp_05",
+      "method": "extractive",
+      "actual_method": "extractive",
+      "budget_chars": 226,
+      "source_chars": 679,
+      "compressed_chars": 225,
+      "compression_ratio": 0.3314,
+      "keypoint_retention_lenient": 0.1667,
+      "keypoint_retention_strict": 0.1667,
+      "keypoints": [
+        {
+          "id": "kp1",
+          "found_tokens": 2,
+          "total_tokens": 2,
+          "retained_lenient": true,
+          "retained_strict": true
+        },
+        {
+          "id": "kp2",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp3",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp4",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp5",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp6",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        }
+      ],
+      "qa": [
+        {
+          "question": "必填参数缺失时 B3 返回什么错误码？",
+          "answer": "未提供相关信息",
+          "correct": false
+        },
+        {
+          "question": "工具调用的超时时间是多久？",
+          "answer": "未提及",
+          "correct": false
+        },
+        {
+          "question": "工具 schema 是从哪里自动生成的？",
+          "answer": "从函数签名和 docstring 自动生成。",
+          "correct": true
+        }
+      ],
+      "compressed_preview": "这轮对话梳理了 B3 工具层的 schema 生成与执行机制，给要新增工具的同学做参考。\nschema 不是手写的：B3 启动时扫描 skills 目录下的工具函数，从函数签名和 docstring 自动生成工具说明，参数名取自签名，参数说明取自 docstring 的参数段，所以 docstring 写得不规范的工具会生成残缺的 schema，这是新工具接入最常见的坑。\n类型映射有一张固定表：Python 的 str 映射 string、int"
+    },
+    {
+      "case_id": "comp_05",
+      "method": "qwen",
+      "actual_method": "qwen",
+      "budget_chars": 226,
+      "source_chars": 679,
+      "compressed_chars": 226,
+      "compression_ratio": 0.3328,
+      "keypoint_retention_lenient": 0.1667,
+      "keypoint_retention_strict": 0.0,
+      "keypoints": [
+        {
+          "id": "kp1",
+          "found_tokens": 1,
+          "total_tokens": 2,
+          "retained_lenient": true,
+          "retained_strict": false
+        },
+        {
+          "id": "kp2",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp3",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp4",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp5",
+          "found_tokens": 0,
+          "total_tokens": 2,
+          "retained_lenient": false,
+          "retained_strict": false
+        },
+        {
+          "id": "kp6",
+          "found_tokens": 0,
+          "total_tokens": 1,
+          "retained_lenient": false,
+          "retained_strict": false
+        }
+      ],
+      "qa": [
+        {
+          "question": "必填参数缺失时 B3 返回什么错误码？",
+          "answer": "未提供相关信息，无法回答。",
+          "correct": false
+        },
+        {
+          "question": "工具调用的超时时间是多久？",
+          "answer": "未提及",
+          "correct": false
+        },
+        {
+          "question": "工具 schema 是从哪里自动生成的？",
+          "answer": "从 `skills` funcs 自动生成",
+          "correct": false
+        }
+      ],
+      "compressed_preview": "- **Schema Gen**: Auto from `skills` funcs; params from signature, docs from docstring; `docstring` errors cause残缺 schema.\n- **Type Map**: `str`->`string`; `int`/`float`->`number`; `bool`->`boolean`; `list`->`array`; no nested"
+    }
+  ]
+}

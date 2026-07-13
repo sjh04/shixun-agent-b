@@ -1,0 +1,157 @@
+{
+  "status": "success",
+  "query": "为什么 0.1 + 0.2 在程序里不等于 0.3？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conv_c01",
+      "memory_type": "conversation",
+      "title": "计算器浮点精度问题",
+      "path": "conversations/mem_conv_c01.md",
+      "content": "# 计算器浮点精度问题\n\nSummary: 0.1 加 0.2 不等于 0.3 的原因与 calculator 的处理方式。\n\nRelevant chunk:\n计算器浮点精度问题\n\n0.1 加 0.2 不等于 0.3 的原因与 calculator 的处理方式。\n\n用户问为什么计算器算 0.1 + 0.2 得到 0.30000000000000004。原因是二进制浮点数无法精确表示十进制小数。calculator 工具内部已改用 Decimal 做十进制运算，对外返回结果前按需要的小数位四舍五入，所以通过工具计算不会再出现这类尾数。直接在 Python 里用 float 仍会有该现象，属于语言特性不是 bug。",
+      "original_chars": 319,
+      "included_chars": 309,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 1.0,
+      "factors": {
+        "relevance": 0.032787,
+        "relevance_norm": 1.0,
+        "recency": 0.565478,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c12",
+      "memory_type": "conversation",
+      "title": "BM25 参数讨论",
+      "path": "conversations/mem_conv_c12.md",
+      "content": "# BM25 参数讨论\n\nSummary: 检索层 BM25 的 k1 与 b 参数取值依据。\n\nRelevant chunk:\nBM25 参数讨论\n\n检索层 BM25 的 k1 与 b 参数取值依据。\n\nB5 检索层的 BM25 参数定为 k1=1.5、b=0.75，是信息检索文献里的经典默认值。k1 控制词频饱和速度，中文字符 bigram 的词频分布偏平，1.5 够用；b 控制文档长度归一化强度，语料里长短文档混杂，0.75 能压住长文档的天然优势。调参优先级不高，先把 chunk 和融合做好收益更大。",
+      "original_chars": 297,
+      "included_chars": 257,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.963365,
+      "factors": {
+        "relevance": 0.032002,
+        "relevance_norm": 0.459525,
+        "recency": 0.552563,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_env",
+      "memory_type": "global",
+      "title": "运行环境与依赖版本",
+      "path": "global/mem_g_env.md",
+      "content": "# 运行环境与依赖版本\n\nSummary: conda 环境 agent 的 Python 与关键依赖版本清单。\n\nRelevant chunk:\n运行环境与依赖版本\n\nconda 环境 agent 的 Python 与关键依赖版本清单。\n\n项目统一使用 conda 环境 agent：Python 3.10、torch 2.7.1+cu118、transformers 5.12、numpy 2.2、PyYAML 6.0。不安装 faiss 和 sentence-transformers，离线环境下模型local_files_only 加载。新同学入组先 conda activate agent 再跑 requirements.txt 核对版本。",
+      "original_chars": 310,
+      "included_chars": 326,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.963365,
+      "factors": {
+        "relevance": 0.032002,
+        "relevance_norm": 0.382758,
+        "recency": 0.418361,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c11",
+      "memory_type": "conversation",
+      "title": "Qwen 生成参数调优记录",
+      "path": "conversations/mem_conv_c11.md",
+      "content": "# Qwen 生成参数调优记录\n\nSummary: 温度、生成长度等参数的完整调优过程与结论。\n\nRelevant chunk:\nQwen 生成参数调优记录\n\n温度、生成长度等参数的完整调优过程与结论。\n\n这轮对话专门调 Qwen3.5-4B 的生成参数，目标是让 B4 的输出既稳定又可复现，把全部尝试过程记录下来供后面的同学参考。测试方法是固定五个典型任务输入（两个工具调用、两个纯问答、一个长文总结），每改一个参数就把五个输入各跑三遍，统计 JSON 格式错误率、答案长度和端到端延迟。\n\n先试温度。temperature 从默认的 0.7 降到 0.3 再降到 0，工具调用输出的 JSON 格式错误率从大约五分之一降到二十分之一再降到几乎为零。原因很直观：采样温度越高，模型越容易在结构化输出里夹带自由发挥的文字。结论是决策类调用一律用贪心解码，不给采样留口子。创作类任务如果以后有需求再单独开温度，和决策链路隔离。\n\n然后是 max_new_tokens。一开始给了 2048，观察输出发现模型经常把工具返回的结果原样复述一遍，再加一段车轱辘话总结，白白浪费生成配额还拖慢响应。截到 1024 之后，五个测试输入都没有出现答案被截断的情况，平均延迟降了接近一半。再往下压到 512 时长文总结任务开始截尾，所以 1024 是当前任务集下的合理值。\n\n中间试过 top_p 和 top_k 的各种组合，后来意识到在 do_sample 关闭的情况下这些参数根本不生效，写在配置里只会误导后来的人以为它们在起作用，全部从 model.yaml 里清掉了。配置文件里只保留真正生效的参数，这是这次调参的一个附带教训。",
+      "original_chars": 1555,
+      "included_chars": 711,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.895604,
+      "factors": {
+        "relevance": 0.03055,
+        "relevance_norm": 0.328764,
+        "recency": 0.680284,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c06",
+      "memory_type": "conversation",
+      "title": "本地文件通配符搜索",
+      "path": "conversations/mem_conv_c06.md",
+      "content": "# 本地文件通配符搜索\n\nSummary: local_file_search 的模式匹配与递归用法。\n\nRelevant chunk:\n本地文件通配符搜索\n\nlocal_file_search 的模式匹配与递归用法。\n\n要找出目录下所有 markdown 文件，用 local_file_search 传模式 *.md 并打开递归开关，工具会遍历全部子目录返回相对路径列表。模式匹配只作用于文件名不含路径，想按路径过滤要在返回结果里自己筛。搜索范围被限制在 data 根目录内，越界返回错误。",
+      "original_chars": 279,
+      "included_chars": 247,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": 0.865745,
+      "factors": {
+        "relevance": 0.029911,
+        "relevance_norm": 0.371972,
+        "recency": 0.515559,
+        "importance": 0.4
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 4,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "disabled",
+    "rerank": "disabled",
+    "vector_backend": "hashing",
+    "use_chunk": true,
+    "use_three_factor": false,
+    "chunk_count": 29,
+    "chunk_cache": {
+      "hits": 24,
+      "misses": 0
+    },
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "size": 51,
+      "hits": 29,
+      "misses": 0,
+      "disabled": 0
+    },
+    "query_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "hits": 1,
+      "misses": 0,
+      "disabled": 0
+    },
+    "latency_ms": 12.63
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 1850,
+  "truncated": true,
+  "errors": []
+}

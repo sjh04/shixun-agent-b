@@ -1,0 +1,109 @@
+{
+  "status": "success",
+  "query": "ModuleNotFoundError yaml 配置文件怎么修",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conversation_meta_yaml",
+      "memory_type": "conversation",
+      "title": "Conversation meta_yaml",
+      "path": "conversations/meta_yaml.md",
+      "content": "# Conversation meta_yaml\n\nSummary: 已定位为运行环境依赖缺失，处理方式是补齐缺少的包并复查配置。\n\nRelevant chunk:\nConversation meta_yaml\n\n已定位为运行环境依赖缺失，处理方式是补齐缺少的包并复查配置。\n\n已定位为运行环境依赖缺失，处理方式是补齐缺少的包并复查配置。\n\n```json\n{\n  \"change_type\": \"new\",\n  \"duplicate\": false,\n  \"conflict\": false,\n  \"similarity\": null,\n  \"method\": \"rule\",\n  \"notes\": []\n}\n```",
+      "original_chars": 681,
+      "included_chars": 309,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.95,
+      "factors": {
+        "relevance": 0.032787,
+        "relevance_norm": 1.0,
+        "recency": 1.0,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conversation_meta_command",
+      "memory_type": "conversation",
+      "title": "Conversation meta_command",
+      "path": "conversations/meta_command.md",
+      "content": "# Conversation meta_command\n\nSummary: 已确认完整检索评测需要使用专用环境运行消融脚本，并只选择完整配置行。\n\nRelevant chunk:\nConversation meta_command\n\n已确认完整检索评测需要使用专用环境运行消融脚本，并只选择完整配置行。\n\n已确认完整检索评测需要使用专用环境运行消融脚本，并只选择完整配置行。\n\n```json\n{\n  \"change_type\": \"new\",\n  \"duplicate\": false,\n  \"conflict\": false,\n  \"similarity\": null,\n  \"method\": \"rule\",\n  \"notes\": []\n}\n```",
+      "original_chars": 651,
+      "included_chars": 327,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.888578,
+      "factors": {
+        "relevance": 0.032258,
+        "relevance_norm": 0.923222,
+        "recency": 1.0,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conversation_meta_cuda",
+      "memory_type": "conversation",
+      "title": "Conversation meta_cuda",
+      "path": "conversations/meta_cuda.md",
+      "content": "# Conversation meta_cuda\n\nSummary: 已确认是资源不足导致的加载失败，处理方式是降低精度并限制模型占用。\n\nRelevant chunk:\nConversation meta_cuda\n\n已确认是资源不足导致的加载失败，处理方式是降低精度并限制模型占用。\n\n已确认是资源不足导致的加载失败，处理方式是降低精度并限制模型占用。\n\n```json\n{\n  \"change_type\": \"new\",\n  \"duplicate\": false,\n  \"conflict\": false,\n  \"similarity\": null,\n  \"method\": \"rule\",\n  \"notes\": []\n}\n```",
+      "original_chars": 639,
+      "included_chars": 318,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.571517,
+      "factors": {
+        "relevance": 0.015873,
+        "relevance_norm": 0.526897,
+        "recency": 1.0,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "disabled",
+    "rerank": "disabled",
+    "vector_backend": "hashing",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 5,
+    "chunk_cache": {
+      "hits": 0,
+      "misses": 5
+    },
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_off/memory/memory_retrieval_cache.sqlite3",
+      "size": 5,
+      "hits": 0,
+      "misses": 5,
+      "disabled": 0
+    },
+    "query_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_off/memory/memory_retrieval_cache.sqlite3",
+      "hits": 0,
+      "misses": 1,
+      "disabled": 0
+    },
+    "latency_ms": 131.981
+  },
+  "max_memory_chars": 6000,
+  "total_chars": 954,
+  "truncated": true,
+  "errors": []
+}

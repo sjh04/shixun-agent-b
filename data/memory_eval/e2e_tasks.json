@@ -3,7 +3,7 @@
   {"task_id": "e2e_02", "question": "我们项目里怎么才能真正关闭模型的思考输出？", "relevant_ids": ["mem_conv_c11"], "answer_keywords": ["enable_thinking"]},
   {"task_id": "e2e_03", "question": "记忆注入预算 max_memory_chars 默认是多少？", "relevant_ids": ["mem_conv_c10"], "answer_keywords": ["2000"]},
   {"task_id": "e2e_04", "question": "本项目模型加载应该用什么精度？", "relevant_ids": ["mem_g_qwen"], "answer_keywords": ["bfloat16"]},
-  {"task_id": "e2e_05", "question": "B5 的向量缓存文件叫什么名字？", "relevant_ids": ["mem_conv_c17"], "answer_keywords": ["memory_vector_cache"]},
+  {"task_id": "e2e_05", "question": "B5 的检索缓存数据库叫什么名字？", "relevant_ids": ["mem_conv_c17"], "answer_keywords": ["memory_retrieval_cache"]},
   {"task_id": "e2e_06", "question": "推理时显存 OOM，按我们项目的最新结论应该怎么处理？", "relevant_ids": ["mem_conv_c03"], "answer_keywords": ["bfloat16", "max_memory"]},
   {"task_id": "e2e_07", "question": "团队约定回答用什么语言、产物放在哪个目录？", "relevant_ids": ["mem_g_prefs"], "answer_keywords": ["中文", "outputs"]},
   {"task_id": "e2e_08", "question": "项目 conda 环境名和 Python 版本分别是什么？", "relevant_ids": ["mem_g_env"], "answer_keywords": ["agent", "3.10"]},

@@ -1,0 +1,19 @@
+{
+  "role": "assistant",
+  "content": "",
+  "tool_calls": [
+    {
+      "id": "call_001",
+      "name": "local_file_search",
+      "args": {
+        "query": "ToolMessage memory 注入 ReAct 循环",
+        "root_dir": "leader_demo/docs",
+        "file_types": [
+          ".txt",
+          ".md"
+        ],
+        "top_k": 3
+      }
+    }
+  ]
+}

@@ -1,0 +1,1 @@
+{"timestamp": "2026-07-13T04:23:06+02:00", "conversation_id": "demo_flow_file_reader", "execution_mode": "integrated", "status": "success", "llm_mode": "mock", "tool_rounds_used": 1, "llm_call_count": 2, "elapsed_ms": 423.353}

@@ -1,0 +1,2 @@
+{"timestamp": "2026-07-13T06:29:23+02:00", "conversation_id": "leader_demo_01_full_chain", "execution_mode": "integrated", "status": "success", "llm_mode": "prompt_json", "tool_rounds_used": 0, "llm_call_count": 1, "elapsed_ms": 17758.091}
+{"timestamp": "2026-07-13T06:40:14+02:00", "conversation_id": "leader_demo_01_full_chain", "execution_mode": "integrated", "status": "success", "llm_mode": "prompt_json", "tool_rounds_used": 0, "llm_call_count": 1, "elapsed_ms": 16349.0}

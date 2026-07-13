@@ -1,0 +1,20 @@
+{
+  "mode": "mock",
+  "backend": "mock",
+  "raw_text": "{\"content\": \"\", \"tool_calls\": [{\"id\": \"call_001\", \"name\": \"calculator\", \"args\": {\"expression\": \"(95 + 92 + 94 + 86 + 96) / 5\"}}]}",
+  "parsed_candidate": {
+    "content": "",
+    "tool_calls": [
+      {
+        "id": "call_001",
+        "name": "calculator",
+        "args": {
+          "expression": "(95 + 92 + 94 + 86 + 96) / 5"
+        }
+      }
+    ]
+  },
+  "status": "success",
+  "error": null,
+  "generated_at": "2026-07-13T06:38:02+02:00"
+}

@@ -1,0 +1,147 @@
+{
+  "status": "success",
+  "query": "调用内置工具有哪些使用规范？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_global_reflect_49987871dc43",
+      "memory_type": "global",
+      "title": "Reflection 49987871dc43",
+      "path": "global/reflect_49987871dc43.md",
+      "content": "# Reflection 49987871dc43\n\nSummary: 构建高效的数据处理工作流需严格遵循工具边界与输入规范：所有计算任务必须通过 calculator 以标准算式字符串形式提交，严禁自然语言描述；数据分析应利用 table_analyzer 进行单次单列统计，确保列名与表头完全一致；文件读取操作严格限定在 data 根目录下的文本文件范围内，越界请求将被拒绝；文件检索则依赖 local_file_search 工具，利用通配符匹配文件名并支持在 data 目录内递归搜索子目录。\n\nRelevant chunk:\nReflection 49987871dc43\n\n构建高效的数据处理工作流需严格遵循工具边界与输入规范：所有计算任务必须通过 calculator 以标准算式字符串形式提交，严禁自然语言描述；数据分析应利用 table_analyzer 进行单次单列统计，确保列名与表头完全一致；文件读取操作严格限定在 data 根目录下的文本文件范围内，越界请求将被拒绝；文件检索则依赖 local_file_search 工具，利用通配符匹配文件名并支持在 data 目录内递归搜索子目录。\n\n构建高效的数据处理工作流需严格遵循工具边界与输入规范：所有计算任务必须通过 calculator 以标准算式字符串形式提交，严禁自然语言描述；数据分析应利用 table_analyzer 进行单次单列统计，确保列名与表头完全一致；文件读取操作严格限定在 data 根目录下的文本文件范围内，越界请求将被拒绝；文件检索则依赖 local_file_search 工具，利用通配符匹配文件名并支持在 data 目录内递归搜索子目录。",
+      "original_chars": 709,
+      "included_chars": 723,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.97,
+      "factors": {
+        "relevance": 0.032018,
+        "relevance_norm": 1.0,
+        "recency": 0.999997,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_life_09",
+      "memory_type": "conversation",
+      "title": "calculator 用法",
+      "path": "conversations/life_09.md",
+      "content": "# calculator 用法\n\nSummary: calculator 只接收标准算式字符串，禁止传自然语言描述。\n\nRelevant chunk:\ncalculator 用法\n\ncalculator 只接收标准算式字符串，禁止传自然语言描述。\n\ncalculator 只接收标准算式字符串，禁止传自然语言描述。",
+      "original_chars": 67,
+      "included_chars": 157,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.959936,
+      "factors": {
+        "relevance": 0.030478,
+        "relevance_norm": 1.0,
+        "recency": 0.999364,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_life_10",
+      "memory_type": "conversation",
+      "title": "table_analyzer 限制",
+      "path": "conversations/life_10.md",
+      "content": "# table_analyzer 限制\n\nSummary: table_analyzer 一次调用只支持一个统计操作，列名须与表头完全一致。\n\nRelevant chunk:\ntable_analyzer 限制\n\ntable_analyzer 一次调用只支持一个统计操作，列名须与表头完全一致。\n\ntable_analyzer 一次调用只支持一个统计操作，列名须与表头完全一致。",
+      "original_chars": 79,
+      "included_chars": 189,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.950259,
+      "factors": {
+        "relevance": 0.032002,
+        "relevance_norm": 0.987901,
+        "recency": 0.99938,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_life_06",
+      "memory_type": "conversation",
+      "title": "加载耗时实测",
+      "path": "conversations/life_06.md",
+      "content": "# 加载耗时实测\n\nSummary: Qwen3.5-4B 模型加载约九十秒，进程内必须缓存复用，禁止重复加载。\n\nRelevant chunk:\n加载耗时实测\n\nQwen3.5-4B 模型加载约九十秒，进程内必须缓存复用，禁止重复加载。\n\nQwen3.5-4B 模型加载约九十秒，进程内必须缓存复用，禁止重复加载。",
+      "original_chars": 65,
+      "included_chars": 158,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.899932,
+      "factors": {
+        "relevance": 0.031258,
+        "relevance_norm": 0.925,
+        "recency": 0.999316,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_life_11",
+      "memory_type": "conversation",
+      "title": "file_reader 边界",
+      "path": "conversations/life_11.md",
+      "content": "# file_reader 边界\n\nSummary: file_reader 只能读取 data 根目录内的文本文件，越界请求被拒绝。\n\nRelevant chunk:\nfile_reader 边界\n\nfile_reader 只能读取 data 根目录内的文本文件，越界请求被拒绝。\n\nfile_reader 只能读取 data 根目录内的文本文件，越界请求被拒绝。",
+      "original_chars": 76,
+      "included_chars": 183,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": 0.773938,
+      "factors": {
+        "relevance": 0.029644,
+        "relevance_norm": 0.767497,
+        "recency": 0.999396,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "disabled",
+    "rerank": "disabled",
+    "vector_backend": "qwen",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 15,
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_lifecycle_qwen/corpus_reflect/memory_vector_cache.json",
+      "size": 15,
+      "hits": 15,
+      "misses": 0,
+      "disabled": 0
+    },
+    "latency_ms": 209.433
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 1410,
+  "truncated": false,
+  "errors": []
+}

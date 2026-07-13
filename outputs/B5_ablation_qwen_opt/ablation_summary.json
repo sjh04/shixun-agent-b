@@ -1,0 +1,66 @@
+{
+  "llm": "on",
+  "base_config": "/mnt/aisdata/sjh04/实训2/agent/configs/memory_eval_corpus.yaml",
+  "queries": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus_queries.json",
+  "rows": [
+    {
+      "name": "FULL",
+      "overrides": {
+        "mode": "hybrid",
+        "use_chunk": true,
+        "use_three_factor": true,
+        "use_hyde": true,
+        "use_rerank": true
+      },
+      "metrics": {
+        "query_count": 20,
+        "hit@1": 0.95,
+        "hit@3": 1.0,
+        "hit@5": 1.0,
+        "mrr": 0.975,
+        "ndcg@5": 0.9815464876785729,
+        "mean_latency_ms": 6392.8778
+      },
+      "diagnostics": {
+        "mode": "hybrid",
+        "hyde": "qwen",
+        "rerank": "qwen",
+        "vector_backend": "qwen",
+        "use_chunk": true,
+        "use_three_factor": true
+      },
+      "by_probe": {
+        "chunk_buried": {
+          "count": 2,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        },
+        "keyword_exact": {
+          "count": 4,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        },
+        "multi_relevant": {
+          "count": 2,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        },
+        "paraphrase": {
+          "count": 11,
+          "hit@1": 0.9090909090909091,
+          "hit@3": 1.0,
+          "mrr": 0.9545454545454546
+        },
+        "three_factor": {
+          "count": 1,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        }
+      }
+    }
+  ]
+}

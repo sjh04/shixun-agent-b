@@ -1,0 +1,147 @@
+{
+  "status": "success",
+  "query": "本项目模型加载应该用什么精度？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_g_qwen",
+      "memory_type": "global",
+      "title": "Qwen3.5-4B 加载配置",
+      "path": "global/mem_g_qwen.md",
+      "content": "# Qwen3.5-4B 加载配置\n\nSummary: 本地模型加载的精度、设备映射与安全选项。\n\nRelevant chunk:\nQwen3.5-4B 加载配置\n\n本地模型加载的精度、设备映射与安全选项。\n\n模型权重放在 models/Qwen3.5-4B，加载参数固定为：torch_dtype 用 bfloat16（这张卡上float16 偶发溢出警告），device_map 设 auto 让权重自动分配到空闲显卡，local_files_only设 true 保证离线可用，trust_remote_code 设 true。tokenizer 与模型同路径。加载一次约九十秒，进程内要缓存复用，不要重复加载。",
+      "original_chars": 316,
+      "included_chars": 309,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.937829,
+      "factors": {
+        "relevance": 0.032787,
+        "relevance_norm": 1.0,
+        "recency": 0.578294,
+        "importance": 0.8
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 8,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c11",
+      "memory_type": "conversation",
+      "title": "Qwen 生成参数调优记录",
+      "path": "conversations/mem_conv_c11.md",
+      "content": "# Qwen 生成参数调优记录\n\nSummary: 温度、生成长度等参数的完整调优过程与结论。\n\nRelevant chunk:\nfloat16 两种半精度：bfloat16 在这张卡上连续跑完整个测试集没有出现数值溢出警告，float16 在长文总结任务上偶尔出现，虽然没直接影响输出质量，但保险起见配置里锁定 bfloat16。显存占用两者几乎一样，没有理由冒险。\n\n另外记录一个容易踩的坑：换了 transformers 版本后 apply_chat_template 的默认行为可能变化，升级依赖后要重新核对模板渲染出来的完整 prompt 文本，我们在 outputs 里保留了 prompt_text 落盘就是为了这个。\n\n把以上参数固化进 configs/model.yaml 之后，连续跑了十次同一输入，十次输出完全一致，生成侧的可复现性问题到此收口。后续如果换模型或者换卡，按同样的测试流程重新过一遍这份清单即可，预计半小时能跑完。",
+      "original_chars": 1555,
+      "included_chars": 425,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.912185,
+      "factors": {
+        "relevance": 0.031514,
+        "relevance_norm": 0.943059,
+        "recency": 0.877374,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 2,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c03",
+      "memory_type": "conversation",
+      "title": "CUDA OOM 最新解决方案",
+      "path": "conversations/mem_conv_c03.md",
+      "content": "# CUDA OOM 最新解决方案\n\nSummary: 显存不足的现行处理办法：bfloat16 + max_memory 上限 + 减小生成长度。\n\nRelevant chunk:\nCUDA OOM 最新解决方案\n\n显存不足的现行处理办法：bfloat16 + max_memory 上限 + 减小生成长度。\n\n推理时报 CUDA out of memory 的最新结论：第一，加载用 bfloat16 而不是 float32，显存直接省一半；第二，给 from_pretrained 传 max_memory 把单卡上限压到 20GiB，留出生成期激活的余量；第三，把 max_new_tokens 从 2048 降到 1024。三条一起用之后再没有出现过 OOM。注意：五月份那次结论（用 float32 加小 batch）已经过时作废，不要再参考。",
+      "original_chars": 370,
+      "included_chars": 378,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.905425,
+      "factors": {
+        "relevance": 0.029762,
+        "relevance_norm": 0.916922,
+        "recency": 0.918869,
+        "importance": 0.8
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 8,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_tools",
+      "memory_type": "global",
+      "title": "工具使用规范",
+      "path": "global/mem_g_tools.md",
+      "content": "# 工具使用规范\n\nSummary: 五个内置工具的输入输出约定与常见误用。\n\nRelevant chunk:\n工具使用规范\n\n五个内置工具的输入输出约定与常见误用。\n\ncalculator 接收算式字符串返回数值，内部用高精度计算，不要传自然语言。file_reader 只能读 data 根目录内的文本文件，路径越界会被拒绝。table_analyzer 针对 CSV 表格，支持求和、平均值、最大最小值等操作，需要指定列名。local_file_search 支持通配符模式匹配文件名，可选递归子目录。format_converter 在 markdown、html、json 等格式间转换文本。所有工具返回统一的status/errors 结构，调用失败不会中断主流程。",
+      "original_chars": 358,
+      "included_chars": 339,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.768119,
+      "factors": {
+        "relevance": 0.029572,
+        "relevance_norm": 0.780863,
+        "recency": 0.634287,
+        "importance": 0.8
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 8,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c05",
+      "memory_type": "conversation",
+      "title": "全系统第一次联调记录",
+      "path": "conversations/mem_conv_c05.md",
+      "content": "# 全系统第一次联调记录\n\nSummary: B1–B5 第一次联调的排错过程与耗时实测。\n\nRelevant chunk:\n同学在跑训练任务，两张卡的显存各被占了一大半，我们的模型加载直接失败，报的还是一个容易误导人的设备映射错误而不是显存不足。等到晚上卡空出来才继续联调。这提醒我们演示前一定要先看 nvidia-smi 确认显存余量，共享服务器上这一步不能省。\n\n结论（重要）：正式跑 run_full_demo.py 全系统演示之前必须做三件事——第一，确认 outputs/full_demo目录存在且当前用户可写，否则最后的落盘环节会失败，前面几分钟全部白跑；第二，命令行参数 --llm_mode 必须显式设为 prompt_json，不传的话脚本会静默回退到 mock 模式，演示出来的答案是预置的假数据，评委一眼就能看穿；第三，先单独跑一次 b4_local_agent_llm.py 冒烟测试，确认显卡可用、模型能正常加载之后，再开始完整的全系统演示。这三条按顺序执行，缺一不可。\n\n之后又验证了保存路径。run_full_demo 跑完后 memory/conversations/conv_001.md 会被覆盖更新，memory_index.json 同步刷新对应条目的 updated_at 和摘要，这是预期行为。但重复演示前要想清楚是否接受覆盖：如果上一轮的对话记忆还要用来展示跨对话召回，就先把 conversation_id 换掉，避免把演示素材冲掉。",
+      "original_chars": 1956,
+      "included_chars": 643,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": 0.748047,
+      "factors": {
+        "relevance": 0.029199,
+        "relevance_norm": 0.740392,
+        "recency": 0.857335,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 2,
+      "importance": 7,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "qwen",
+    "rerank": "qwen",
+    "vector_backend": "qwen",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 29,
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_vector_cache.json",
+      "size": 62,
+      "hits": 29,
+      "misses": 0,
+      "disabled": 0
+    },
+    "latency_ms": 4488.471
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 2094,
+  "truncated": true,
+  "errors": []
+}

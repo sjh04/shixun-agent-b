@@ -1,0 +1,157 @@
+{
+  "mem_conversation_meta_yaml": {
+    "memory_id": "mem_conversation_meta_yaml",
+    "memory_type": "conversation",
+    "title": "Conversation meta_yaml",
+    "summary": "已定位为运行环境依赖缺失，处理方式是补齐缺少的包并复查配置。",
+    "summary_method": "none",
+    "path": "conversations/meta_yaml.md",
+    "conversation_id": "meta_yaml",
+    "importance": 5,
+    "importance_method": "heuristic",
+    "flagged": false,
+    "poison_gate": {
+      "flagged": false,
+      "action": "allow",
+      "reason": "disabled",
+      "method": "disabled",
+      "matches": []
+    },
+    "change_report": {
+      "change_type": "new",
+      "duplicate": false,
+      "conflict": false,
+      "similarity": null,
+      "method": "rule",
+      "notes": []
+    },
+    "created_at": "2026-07-13T04:09:53+02:00",
+    "updated_at": "2026-07-13T04:09:53+02:00",
+    "last_accessed_at": null,
+    "access_count": 0
+  },
+  "mem_conversation_meta_cuda": {
+    "memory_id": "mem_conversation_meta_cuda",
+    "memory_type": "conversation",
+    "title": "Conversation meta_cuda",
+    "summary": "已确认是资源不足导致的加载失败，处理方式是降低精度并限制模型占用。",
+    "summary_method": "none",
+    "path": "conversations/meta_cuda.md",
+    "conversation_id": "meta_cuda",
+    "importance": 5,
+    "importance_method": "heuristic",
+    "flagged": false,
+    "poison_gate": {
+      "flagged": false,
+      "action": "allow",
+      "reason": "disabled",
+      "method": "disabled",
+      "matches": []
+    },
+    "change_report": {
+      "change_type": "new",
+      "duplicate": false,
+      "conflict": false,
+      "similarity": null,
+      "method": "rule",
+      "notes": []
+    },
+    "created_at": "2026-07-13T04:09:53+02:00",
+    "updated_at": "2026-07-13T04:09:53+02:00",
+    "last_accessed_at": null,
+    "access_count": 0
+  },
+  "mem_conversation_meta_json": {
+    "memory_id": "mem_conversation_meta_json",
+    "memory_type": "conversation",
+    "title": "Conversation meta_json",
+    "summary": "已确认是结构化输出前面混入额外文本，处理方式是先截取有效对象再解析。",
+    "summary_method": "none",
+    "path": "conversations/meta_json.md",
+    "conversation_id": "meta_json",
+    "importance": 4,
+    "importance_method": "heuristic",
+    "flagged": false,
+    "poison_gate": {
+      "flagged": false,
+      "action": "allow",
+      "reason": "disabled",
+      "method": "disabled",
+      "matches": []
+    },
+    "change_report": {
+      "change_type": "new",
+      "duplicate": false,
+      "conflict": false,
+      "similarity": null,
+      "method": "rule",
+      "notes": []
+    },
+    "created_at": "2026-07-13T04:09:54+02:00",
+    "updated_at": "2026-07-13T04:09:54+02:00",
+    "last_accessed_at": null,
+    "access_count": 0
+  },
+  "mem_conversation_meta_command": {
+    "memory_id": "mem_conversation_meta_command",
+    "memory_type": "conversation",
+    "title": "Conversation meta_command",
+    "summary": "已确认完整检索评测需要使用专用环境运行消融脚本，并只选择完整配置行。",
+    "summary_method": "none",
+    "path": "conversations/meta_command.md",
+    "conversation_id": "meta_command",
+    "importance": 5,
+    "importance_method": "heuristic",
+    "flagged": false,
+    "poison_gate": {
+      "flagged": false,
+      "action": "allow",
+      "reason": "disabled",
+      "method": "disabled",
+      "matches": []
+    },
+    "change_report": {
+      "change_type": "new",
+      "duplicate": false,
+      "conflict": false,
+      "similarity": null,
+      "method": "rule",
+      "notes": []
+    },
+    "created_at": "2026-07-13T04:09:54+02:00",
+    "updated_at": "2026-07-13T04:09:54+02:00",
+    "last_accessed_at": null,
+    "access_count": 0
+  },
+  "mem_conversation_meta_tool": {
+    "memory_id": "mem_conversation_meta_tool",
+    "memory_type": "conversation",
+    "title": "Conversation meta_tool",
+    "summary": "已确认本地资料读取和路径搜索需要分别走两个不同的工具入口。",
+    "summary_method": "none",
+    "path": "conversations/meta_tool.md",
+    "conversation_id": "meta_tool",
+    "importance": 5,
+    "importance_method": "heuristic",
+    "flagged": false,
+    "poison_gate": {
+      "flagged": false,
+      "action": "allow",
+      "reason": "disabled",
+      "method": "disabled",
+      "matches": []
+    },
+    "change_report": {
+      "change_type": "new",
+      "duplicate": false,
+      "conflict": false,
+      "similarity": null,
+      "method": "rule",
+      "notes": []
+    },
+    "created_at": "2026-07-13T04:09:54+02:00",
+    "updated_at": "2026-07-13T04:09:54+02:00",
+    "last_accessed_at": null,
+    "access_count": 0
+  }
+}

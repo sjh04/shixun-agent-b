@@ -1,0 +1,12 @@
+{
+  "mode": "prompt_json",
+  "backend": "transformers",
+  "raw_text": "{\"content\":\"已成功将键值文本转换为 JSON 格式并保存到文件：\\n\\n```json\\n{\\n  \\\"name\\\": \\\"Leader Demo\\\",\\n  \\\"status\\\": \\\"ready\\\",\\n  \\\"module\\\": \\\"B1-B5\\\"\\n}\\n```\\n\\n文件路径：/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/07_batch_real/format_json/leader_demo.json\",\"tool_calls\":[]}\n",
+  "parsed_candidate": {
+    "content": "已成功将键值文本转换为 JSON 格式并保存到文件：\n\n```json\n{\n  \"name\": \"Leader Demo\",\n  \"status\": \"ready\",\n  \"module\": \"B1-B5\"\n}\n```\n\n文件路径：/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/07_batch_real/format_json/leader_demo.json",
+    "tool_calls": []
+  },
+  "status": "success",
+  "error": null,
+  "generated_at": "2026-07-13T06:49:18+02:00"
+}

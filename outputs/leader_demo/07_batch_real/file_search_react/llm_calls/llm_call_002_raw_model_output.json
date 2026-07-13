@@ -1,0 +1,12 @@
+{
+  "mode": "prompt_json",
+  "backend": "transformers",
+  "raw_text": "{\"content\":\"在 leader_demo/docs 目录中搜索到 1 个包含 ReAct 和 ToolMessage 相关内容：\\n\\n1. **docs/search_skill_demo.md** (匹配度 0.1097)\\n   - 片段内容：\\\"工具编排强调模型先决定调用哪个工具，再由运行时执行工具并把 ToolMessage 返回给模型。\\\"\\n   - 文件大小：291 字节\\n   - 修改时间：2026-06-24 18:05:43\\n\\n该文件描述了工具编排机制，其中 ToolMessage 是运行时执行工具后将结果返回给模型的格式。\"}\n",
+  "parsed_candidate": {
+    "content": "在 leader_demo/docs 目录中搜索到 1 个包含 ReAct 和 ToolMessage 相关内容：\n\n1. **docs/search_skill_demo.md** (匹配度 0.1097)\n   - 片段内容：\"工具编排强调模型先决定调用哪个工具，再由运行时执行工具并把 ToolMessage 返回给模型。\"\n   - 文件大小：291 字节\n   - 修改时间：2026-06-24 18:05:43\n\n该文件描述了工具编排机制，其中 ToolMessage 是运行时执行工具后将结果返回给模型的格式。",
+    "tool_calls": []
+  },
+  "status": "success",
+  "error": null,
+  "generated_at": "2026-07-13T06:48:58+02:00"
+}

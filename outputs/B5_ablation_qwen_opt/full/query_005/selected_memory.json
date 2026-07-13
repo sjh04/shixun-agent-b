@@ -1,0 +1,157 @@
+{
+  "status": "success",
+  "query": "报错 ModuleNotFoundError: No module named 'yaml' 怎么解决？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conv_c08",
+      "memory_type": "conversation",
+      "title": "ModuleNotFoundError yaml 解决办法",
+      "path": "conversations/mem_conv_c08.md",
+      "content": "# ModuleNotFoundError yaml 解决办法\n\nSummary: No module named yaml 报错的两个原因与修复。\n\nRelevant chunk:\nModuleNotFoundError yaml 解决办法\n\nNo module named yaml 报错的两个原因与修复。\n\n报 ModuleNotFoundError: No module named 'yaml' 有两个常见原因：一是包名装错，正确的安装命令是 pip install pyyaml，包名是 pyyaml 而导入名是 yaml，直接 pip install yaml 装到的是另一个废弃包；二是忘了激活 conda 环境，在 base 里跑了脚本。先 conda activate agent 再确认 pip list 里有 PyYAML。",
+      "original_chars": 380,
+      "included_chars": 374,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.908103,
+      "factors": {
+        "relevance": 0.032787,
+        "relevance_norm": 1.0,
+        "recency": 0.481027,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_env",
+      "memory_type": "global",
+      "title": "运行环境与依赖版本",
+      "path": "global/mem_g_env.md",
+      "content": "# 运行环境与依赖版本\n\nSummary: conda 环境 agent 的 Python 与关键依赖版本清单。\n\nRelevant chunk:\n运行环境与依赖版本\n\nconda 环境 agent 的 Python 与关键依赖版本清单。\n\n项目统一使用 conda 环境 agent：Python 3.10、torch 2.7.1+cu118、transformers 5.12、numpy 2.2、PyYAML 6.0。不安装 faiss 和 sentence-transformers，离线环境下模型local_files_only 加载。新同学入组先 conda activate agent 再跑 requirements.txt 核对版本。",
+      "original_chars": 310,
+      "included_chars": 326,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.75616,
+      "factors": {
+        "relevance": 0.032258,
+        "relevance_norm": 0.805405,
+        "recency": 0.418356,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c07",
+      "memory_type": "conversation",
+      "title": "markdown 转 html 的坑",
+      "path": "conversations/mem_conv_c07.md",
+      "content": "# markdown 转 html 的坑\n\nSummary: format_converter 做 markdown 到 html 转换的注意事项。\n\nRelevant chunk:\nmarkdown 转 html 的坑\n\nformat_converter 做 markdown 到 html 转换的注意事项。\n\nmarkdown 转 html 用 format_converter，目标格式参数必须显式传 html。两个坑：一是表格属于扩展语法，简单管道表格能转，嵌套表格会原样输出；二是行内 HTML 默认会被转义，需要保留标签时加 raw 选项。转出来的 html是文档片段不含 head，要完整页面得自己包一层。",
+      "original_chars": 305,
+      "included_chars": 310,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.590354,
+      "factors": {
+        "relevance": 0.027921,
+        "relevance_norm": 0.62045,
+        "recency": 0.539935,
+        "importance": 0.4
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 4,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_tools",
+      "memory_type": "global",
+      "title": "工具使用规范",
+      "path": "global/mem_g_tools.md",
+      "content": "# 工具使用规范\n\nSummary: 五个内置工具的输入输出约定与常见误用。\n\nRelevant chunk:\n工具使用规范\n\n五个内置工具的输入输出约定与常见误用。\n\ncalculator 接收算式字符串返回数值，内部用高精度计算，不要传自然语言。file_reader 只能读 data 根目录内的文本文件，路径越界会被拒绝。table_analyzer 针对 CSV 表格，支持求和、平均值、最大最小值等操作，需要指定列名。local_file_search 支持通配符模式匹配文件名，可选递归子目录。format_converter 在 markdown、html、json 等格式间转换文本。所有工具返回统一的status/errors 结构，调用失败不会中断主流程。",
+      "original_chars": 358,
+      "included_chars": 339,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.562148,
+      "factors": {
+        "relevance": 0.028382,
+        "relevance_norm": 0.541211,
+        "recency": 0.491797,
+        "importance": 0.8
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 8,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c16",
+      "memory_type": "conversation",
+      "title": "JSONDecodeError 修复",
+      "path": "conversations/mem_conv_c16.md",
+      "content": "# JSONDecodeError 修复\n\nSummary: Expecting value 报错的根因：输出混入日志前缀。\n\nRelevant chunk:\nJSONDecodeError 修复\n\nExpecting value 报错的根因：输出混入日志前缀。\n\njson.loads 报 JSONDecodeError: Expecting value: line 1 column 1 的根因是待解析文本开头混入了模型输出的说明文字或日志前缀，不是 JSON 本身坏了。修复：解析前先定位第一个左花括号、截取到匹配的右花括号再 loads；同时在 prompt 里禁止模型输出 JSON 以外的字符。空字符串也会报同样的错，要先判空给出更明确的错误信息。",
+      "original_chars": 349,
+      "included_chars": 330,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": 0.554483,
+      "factors": {
+        "relevance": 0.028083,
+        "relevance_norm": 0.545767,
+        "recency": 0.578688,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "qwen",
+    "rerank": "qwen",
+    "vector_backend": "qwen",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 29,
+    "chunk_cache": {
+      "hits": 24,
+      "misses": 0
+    },
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "size": 58,
+      "hits": 29,
+      "misses": 0,
+      "disabled": 0
+    },
+    "query_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "hits": 1,
+      "misses": 0,
+      "disabled": 0
+    },
+    "latency_ms": 3575.943
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 1679,
+  "truncated": true,
+  "errors": []
+}

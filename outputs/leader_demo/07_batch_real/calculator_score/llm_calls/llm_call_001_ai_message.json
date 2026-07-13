@@ -1,0 +1,13 @@
+{
+  "role": "assistant",
+  "content": "",
+  "tool_calls": [
+    {
+      "id": "call_001",
+      "name": "calculator",
+      "args": {
+        "expression": "(95 + 92 + 94 + 86 + 96) / 5"
+      }
+    }
+  ]
+}

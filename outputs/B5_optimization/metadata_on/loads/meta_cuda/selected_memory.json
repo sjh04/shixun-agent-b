@@ -1,0 +1,109 @@
+{
+  "status": "success",
+  "query": "OOM device_map max_memory",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conversation_meta_cuda",
+      "memory_type": "conversation",
+      "title": "Conversation meta_cuda",
+      "path": "conversations/meta_cuda.md",
+      "content": "# Conversation meta_cuda\n\nSummary: 已确认是资源不足导致的加载失败，处理方式是降低精度并限制模型占用。\n\nRelevant chunk:\nConversation meta_cuda\n\n已确认是资源不足导致的加载失败，处理方式是降低精度并限制模型占用。\n\nCUDA out of memory; read_json; CUDA; bfloat16; device_map; max_memory\n\nCUDA out of memory read_json CUDA bfloat16 device_map max_memory\n\nread_json CUDA bfloat16 device_map max_memory\n\nCUDA out of memory\n\nread_json\n\n已确认是资源不足导致的加载失败，处理方式是降低精度并限制模型占用。\n\n```json\n{\n  \"change_type\": \"new\",\n  \"duplicate\": false,\n  \"conflict\": false,\n  \"similarity\": null,\n  \"method\": \"rule\",\n  \"notes\": []\n}\n```",
+      "original_chars": 639,
+      "included_chars": 533,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.95,
+      "factors": {
+        "relevance": 0.032787,
+        "relevance_norm": 1.0,
+        "recency": 1.0,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conversation_meta_json",
+      "memory_type": "conversation",
+      "title": "Conversation meta_json",
+      "path": "conversations/meta_json.md",
+      "content": "# Conversation meta_json\n\nSummary: 已确认是结构化输出前面混入额外文本，处理方式是先截取有效对象再解析。\n\nRelevant chunk:\nConversation meta_json\n\n已确认是结构化输出前面混入额外文本，处理方式是先截取有效对象再解析。\n\nJSONDecodeError; file_reader\n\nJSONDecodeError file_reader\n\nfile_reader JSONDecodeError\n\nJSONDecodeError\n\nfile_reader\n\n已确认是结构化输出前面混入额外文本，处理方式是先截取有效对象再解析。\n\n```json\n{\n  \"change_type\": \"new\",\n  \"duplicate\": false,\n  \"conflict\": false,\n  \"similarity\": null,\n  \"method\": \"rule\",\n  \"notes\": []\n}\n```",
+      "original_chars": 564,
+      "included_chars": 439,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.661377,
+      "factors": {
+        "relevance": 0.016129,
+        "relevance_norm": 0.651721,
+        "recency": 1.0,
+        "importance": 0.4
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 4,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conversation_meta_tool",
+      "memory_type": "conversation",
+      "title": "Conversation meta_tool",
+      "path": "conversations/meta_tool.md",
+      "content": "# Conversation meta_tool\n\nSummary: 已确认本地资料读取和路径搜索需要分别走两个不同的工具入口。\n\nRelevant chunk:\nConversation meta_tool\n\n已确认本地资料读取和路径搜索需要分别走两个不同的工具入口。\n\nfile_reader; local_file_search\n\nfile_reader local_file_search\n\nfile_reader local_file_search\n\nfile_reader local_file_search\n\n已确认本地资料读取和路径搜索需要分别走两个不同的工具入口。\n\n```json\n{\n  \"change_type\": \"new\",\n  \"duplicate\": false,\n  \"conflict\": false,\n  \"similarity\": null,\n  \"method\": \"rule\",\n  \"notes\": []\n}\n```",
+      "original_chars": 560,
+      "included_chars": 431,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.307629,
+      "factors": {
+        "relevance": 0.015873,
+        "relevance_norm": 0.197036,
+        "recency": 1.0,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "disabled",
+    "rerank": "disabled",
+    "vector_backend": "hashing",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 7,
+    "chunk_cache": {
+      "hits": 5,
+      "misses": 0
+    },
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_on/memory/memory_retrieval_cache.sqlite3",
+      "size": 7,
+      "hits": 7,
+      "misses": 0,
+      "disabled": 0
+    },
+    "query_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_on/memory/memory_retrieval_cache.sqlite3",
+      "hits": 0,
+      "misses": 1,
+      "disabled": 0
+    },
+    "latency_ms": 24.661
+  },
+  "max_memory_chars": 6000,
+  "total_chars": 1403,
+  "truncated": true,
+  "errors": []
+}

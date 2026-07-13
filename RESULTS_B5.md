@@ -1,8 +1,8 @@
 # B5 记忆模块实验结果总览
 
 对应 proposal《B5 记忆文档存储与查找模块》6.2 节 RQ1–RQ6。所有实验可复现：
-语料与标注由 `code/build_b5_eval_corpus.py` 及 `data/memory_eval/*.json` 固化，
-跑批脚本见 `code/run_b5_*.py`（用法见 README 5.5–5.9 节），每次运行的配置开关
+语料与标注由 `code/evals/build_b5_eval_corpus.py` 及 `data/memory_eval/*.json` 固化，
+跑批脚本见 `code/evals/run_b5_*.py`（用法见 README 5.5–5.9 节），每次运行的配置开关
 与依赖版本快照自动写入各输出目录的 `memory_log.jsonl`。
 环境：Python 3.10 / torch 2.7.1+cu118 / transformers 5.12.1 / 本地 Qwen3.5-4B（bfloat16）。
 
@@ -20,9 +20,35 @@
 待人工环节：反思洞见 1–5 评分（材料在 `outputs/B5_lifecycle_qwen/lifecycle_eval.json`）、
 摘要关键点保留的人工抽检校准（token 自动口径系统性低估同义换写）。
 
+## 本轮优化回归（save/load 缓存与检索 metadata）
+
+本轮新增 `code/evals/run_b5_optimization_eval.py`，专门验证保存侧
+`retrieval_summary` / `retrieval_terms`、SQLite `query_vectors` 缓存、save-time
+prewarm 以及 memory 更新后的缓存失效。结果落盘在
+`outputs/B5_optimization/optimization_eval.{json,md}`。
+
+| 实验 | 设置 | Hit@1 | Hit@3 | MRR | 结论 |
+| --- | --- | --- | --- | --- | --- |
+| Metadata ablation | metadata off | 0.400 | 0.400 | 0.400 | 只看正文时，文件名/错误码/命令/工具名类问题召回不足 |
+| Metadata ablation | metadata on | 0.800 | 0.800 | 0.800 | 保存时抽取 trace/messages signals 后，检索显著提升 |
+
+缓存与更新一致性：
+
+- 第二次相同 query：`query_embedding_cache` 命中 1、miss 0；
+- save-time prewarm：保存后已预热 chunk 与 hashing 向量，首次 load 可直接命中；
+- memory 更新后：SQLite 计数从 `documents=5, chunks=7, vectors=7, query_vectors=1`
+  变为 `documents=5, chunks=8, vectors=8, query_vectors=2`，新文件 signals
+  `agent/configs/runtime.yaml` 进入索引，说明 source hash 与 query cache 均按新内容更新。
+
+同时重跑 RQ1：
+
+- `outputs/B5_ablation_hashing_opt/`：llm=off 完整矩阵，FULL = Hit@1 0.700 / Hit@3 0.950 / MRR 0.835；
+- `outputs/B5_ablation_qwen_opt/`：llm=on FULL，确认走 Qwen backend、HyDE、rerank，
+  FULL = Hit@1 0.950 / Hit@3 1.000 / MRR 0.975 / nDCG@5 0.982。
+
 ## RQ1 检索层消融（20 标注查询 × 24 记忆语料）
 
-Qwen 路径（`outputs/B5_ablation_qwen/`）：
+Qwen 路径（最新回归结果：`outputs/B5_ablation_qwen_opt/`；完整矩阵留档见旧目录）：
 
 | 配置 | Hit@1 | Hit@3 | Hit@5 | MRR | nDCG@5 |
 | --- | --- | --- | --- | --- | --- |
@@ -47,7 +73,7 @@ Qwen 路径（`outputs/B5_ablation_qwen/`）：
 2. **三因子的取舍是结构性的**：在纯主题查询上有意让"新且重要"的近似平局者胜出
    （Hit@1 0.95→0.85），换来冲突纠偏；**下游 rerank 把这部分损伤完全修复**
    （FULL 回到 0.95 且保留冲突纠偏），构成"三因子+rerank"的组合论证。
-3. **hashing 兜底 vs Qwen 向量**：hashing 路（`outputs/B5_ablation_hashing/`）FULL 仅
+3. **hashing 兜底 vs Qwen 向量**：hashing 路（最新回归结果：`outputs/B5_ablation_hashing_opt/`）FULL 仅
    0.700/0.950/0.835，改述类 0.45——语义召回是 Qwen embedding 的独有贡献；
    HyDE/rerank 在 llm off 时自动回退、零增益零损伤。
 4. 延迟：BM25 毫秒级；Qwen 向量冷启动 ~20s/查询（缓存后 ~350ms）；HyDE +~4s；

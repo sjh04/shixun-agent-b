@@ -1,0 +1,9 @@
+[
+  {
+    "role": "tool",
+    "tool_call_id": "call_001",
+    "name": "local_file_search",
+    "content": "{\"skill_name\":\"local_file_search\",\"status\":\"success\",\"input\":{\"query\":\"ToolMessage memory 注入 ReAct 循环\",\"root_dir\":\"leader_demo/docs\",\"file_types\":[\"md\",\"txt\"],\"top_k\":5},\"output\":{\"results\":[{\"path\":\"leader_demo/docs/retrieval_case.md\",\"score\":0.2107,\"snippet\":\"# 检索演示材料  本文件用于演示 `local_file_search` 与 memory 检索的区别。  ## 文件检索关键词  - 工具编排 - ReAct 循环 - ToolMessage - memory 注入  ## 核心事实...\",\"file_size_bytes\":600,\"mtime\":\"2026-07-13 05:24:36\"},{\"path\":\"leader_demo/docs/project_requirements.md\",\"score\":0.0833,\"snippet\":\"...内容回答，不能编造文件内容。 2. 能根据任务选择合适工具，例如计算、文件读取、文件搜索、表格分析和格式转换。 3. 能注入长期记忆，结合全局知识和历史对话给出回答。 4. 能保存本轮对话为 memory，供后续任务检索复用。 5. 工具调...\",\"file_size_bytes\":859,\"mtime\":\"2026-07-13 05:24:35\"}]},\"error\":null,\"latency_ms\":2.093}",
+    "status": "success"
+  }
+]

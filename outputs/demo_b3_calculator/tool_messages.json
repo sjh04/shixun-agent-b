@@ -1,0 +1,9 @@
+[
+  {
+    "role": "tool",
+    "tool_call_id": "call_demo_calculator",
+    "name": "calculator",
+    "content": "{\"skill_name\":\"calculator\",\"status\":\"success\",\"input\":{\"expression\":\"56*29+81\"},\"output\":{\"result\":1705},\"error\":null,\"latency_ms\":0.048}",
+    "status": "success"
+  }
+]

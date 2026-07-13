@@ -1,0 +1,157 @@
+{
+  "status": "success",
+  "query": "新同学入组配环境要装哪些版本的依赖？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_g_env",
+      "memory_type": "global",
+      "title": "运行环境与依赖版本",
+      "path": "global/mem_g_env.md",
+      "content": "# 运行环境与依赖版本\n\nSummary: conda 环境 agent 的 Python 与关键依赖版本清单。\n\nRelevant chunk:\n运行环境与依赖版本\n\nconda 环境 agent 的 Python 与关键依赖版本清单。\n\n项目统一使用 conda 环境 agent：Python 3.10、torch 2.7.1+cu118、transformers 5.12、numpy 2.2、PyYAML 6.0。不安装 faiss 和 sentence-transformers，离线环境下模型local_files_only 加载。新同学入组先 conda activate agent 再跑 requirements.txt 核对版本。",
+      "original_chars": 310,
+      "included_chars": 326,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.911836,
+      "factors": {
+        "relevance": 0.032787,
+        "relevance_norm": 1.0,
+        "recency": 0.418361,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c11",
+      "memory_type": "conversation",
+      "title": "Qwen 生成参数调优记录",
+      "path": "conversations/mem_conv_c11.md",
+      "content": "# Qwen 生成参数调优记录\n\nSummary: 温度、生成长度等参数的完整调优过程与结论。\n\nRelevant chunk:\nfloat16 两种半精度：bfloat16 在这张卡上连续跑完整个测试集没有出现数值溢出警告，float16 在长文总结任务上偶尔出现，虽然没直接影响输出质量，但保险起见配置里锁定 bfloat16。显存占用两者几乎一样，没有理由冒险。\n\n另外记录一个容易踩的坑：换了 transformers 版本后 apply_chat_template 的默认行为可能变化，升级依赖后要重新核对模板渲染出来的完整 prompt 文本，我们在 outputs 里保留了 prompt_text 落盘就是为了这个。\n\n把以上参数固化进 configs/model.yaml 之后，连续跑了十次同一输入，十次输出完全一致，生成侧的可复现性问题到此收口。后续如果换模型或者换卡，按同样的测试流程重新过一遍这份清单即可，预计半小时能跑完。",
+      "original_chars": 1555,
+      "included_chars": 425,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.495382,
+      "factors": {
+        "relevance": 0.032258,
+        "relevance_norm": 0.446692,
+        "recency": 0.680284,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 2,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c05",
+      "memory_type": "conversation",
+      "title": "全系统第一次联调记录",
+      "path": "conversations/mem_conv_c05.md",
+      "content": "# 全系统第一次联调记录\n\nSummary: B1–B5 第一次联调的排错过程与耗时实测。\n\nRelevant chunk:\n我将调用工具'。调整了 system prompt，明确要求禁止输出任何 JSON以外的字符，并在解析侧做了宽松提取。问题明显缓解但没有根除，大约二十次里还会出现一次，后续正式演示前需要多跑几次确认稳定性，或者考虑在解析失败时自动重试一轮。\n\n第三步排查记忆注入。B5 返回的 selected_memory.json 里 content 字段是完整的，检索本身没有问题，但 B1 注入 messages 时把 <memory> 标签放在了 system prompt 之前，导致模型在长上下文下偶尔完全忽略记忆内容，回答里引用不到历史结论。把注入位置调整到 system prompt 之后、用户输入之前，再测记忆引用就稳定了。这个顺序问题很隐蔽，值得写进接口文档。\n\n中间还遇到一个环境问题：服务器上另一个同学在跑训练任务，两张卡的显存各被占了一大半，我们的模型加载直接失败，报的还是一个容易误导人的设备映射错误而不是显存不足。等到晚上卡空出来才继续联调。这提醒我们演示前一定要先看 nvidia-smi 确认显存余量，共享服务器上这一步不能省。",
+      "original_chars": 1956,
+      "included_chars": 538,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.400877,
+      "factors": {
+        "relevance": 0.03125,
+        "relevance_norm": 0.330502,
+        "recency": 0.664746,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 1,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c16",
+      "memory_type": "conversation",
+      "title": "JSONDecodeError 修复",
+      "path": "conversations/mem_conv_c16.md",
+      "content": "# JSONDecodeError 修复\n\nSummary: Expecting value 报错的根因：输出混入日志前缀。\n\nRelevant chunk:\nJSONDecodeError 修复\n\nExpecting value 报错的根因：输出混入日志前缀。\n\njson.loads 报 JSONDecodeError: Expecting value: line 1 column 1 的根因是待解析文本开头混入了模型输出的说明文字或日志前缀，不是 JSON 本身坏了。修复：解析前先定位第一个左花括号、截取到匹配的右花括号再 loads；同时在 prompt 里禁止模型输出 JSON 以外的字符。空字符串也会报同样的错，要先判空给出更明确的错误信息。",
+      "original_chars": 349,
+      "included_chars": 330,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.338926,
+      "factors": {
+        "relevance": 0.029211,
+        "relevance_norm": 0.276321,
+        "recency": 0.578695,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c08",
+      "memory_type": "conversation",
+      "title": "ModuleNotFoundError yaml 解决办法",
+      "path": "conversations/mem_conv_c08.md",
+      "content": "# ModuleNotFoundError yaml 解决办法\n\nSummary: No module named yaml 报错的两个原因与修复。\n\nRelevant chunk:\nModuleNotFoundError yaml 解决办法\n\nNo module named yaml 报错的两个原因与修复。\n\n报 ModuleNotFoundError: No module named 'yaml' 有两个常见原因：一是包名装错，正确的安装命令是 pip install pyyaml，包名是 pyyaml 而导入名是 yaml，直接 pip install yaml 装到的是另一个废弃包；二是忘了激活 conda 环境，在 base 里跑了脚本。先 conda activate agent 再确认 pip list 里有 PyYAML。",
+      "original_chars": 380,
+      "included_chars": 374,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": 0.331669,
+      "factors": {
+        "relevance": 0.031025,
+        "relevance_norm": 0.279458,
+        "recency": 0.481034,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "fallback",
+    "rerank": "fallback",
+    "vector_backend": "hashing",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 29,
+    "chunk_cache": {
+      "hits": 24,
+      "misses": 0
+    },
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "size": 51,
+      "hits": 29,
+      "misses": 0,
+      "disabled": 0
+    },
+    "query_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "hits": 1,
+      "misses": 0,
+      "disabled": 0
+    },
+    "latency_ms": 12.869
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 1993,
+  "truncated": true,
+  "errors": []
+}

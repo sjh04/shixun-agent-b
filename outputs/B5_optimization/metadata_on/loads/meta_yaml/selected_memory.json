@@ -1,0 +1,109 @@
+{
+  "status": "success",
+  "query": "ModuleNotFoundError yaml 配置文件怎么修",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conversation_meta_yaml",
+      "memory_type": "conversation",
+      "title": "Conversation meta_yaml",
+      "path": "conversations/meta_yaml.md",
+      "content": "# Conversation meta_yaml\n\nSummary: 已定位为运行环境依赖缺失，处理方式是补齐缺少的包并复查配置。\n\nRelevant chunk:\nConversation meta_yaml\n\n已定位为运行环境依赖缺失，处理方式是补齐缺少的包并复查配置。\n\nModuleNotFoundError; exec_command; python3; PyYAML; agent/configs/model.yaml; python3 -m pip install PyYAML\n\nModuleNotFoundError exec_command python3 PyYAML agent/configs/model.yaml\n\nexec_command ModuleNotFoundError python3 PyYAML\n\nagent/configs/model.yaml\n\nModuleNotFoundError\n\npython3 -m pip install PyYAML\n\nexec_command\n\n已定位为运行环境依赖缺失，处理方式是补齐缺少的包并复查配置。",
+      "original_chars": 681,
+      "included_chars": 493,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.95,
+      "factors": {
+        "relevance": 0.032787,
+        "relevance_norm": 1.0,
+        "recency": 1.0,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conversation_meta_command",
+      "memory_type": "conversation",
+      "title": "Conversation meta_command",
+      "path": "conversations/meta_command.md",
+      "content": "# Conversation meta_command\n\nSummary: 已确认完整检索评测需要使用专用环境运行消融脚本，并只选择完整配置行。\n\nRelevant chunk:\nlation.py --llm on --only FULL\n\nexec_command\n\n已确认完整检索评测需要使用专用环境运行消融脚本，并只选择完整配置行。\n\n```json\n{\n  \"change_type\": \"new\",\n  \"duplicate\": false,\n  \"conflict\": false,\n  \"similarity\": null,\n  \"method\": \"rule\",\n  \"notes\": []\n}\n```",
+      "original_chars": 651,
+      "included_chars": 310,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.610122,
+      "factors": {
+        "relevance": 0.031258,
+        "relevance_norm": 0.575153,
+        "recency": 1.0,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 1,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conversation_meta_cuda",
+      "memory_type": "conversation",
+      "title": "Conversation meta_cuda",
+      "path": "conversations/meta_cuda.md",
+      "content": "# Conversation meta_cuda\n\nSummary: 已确认是资源不足导致的加载失败，处理方式是降低精度并限制模型占用。\n\nRelevant chunk:\nConversation meta_cuda\n\n已确认是资源不足导致的加载失败，处理方式是降低精度并限制模型占用。\n\nCUDA out of memory; read_json; CUDA; bfloat16; device_map; max_memory\n\nCUDA out of memory read_json CUDA bfloat16 device_map max_memory\n\nread_json CUDA bfloat16 device_map max_memory\n\nCUDA out of memory\n\nread_json\n\n已确认是资源不足导致的加载失败，处理方式是降低精度并限制模型占用。\n\n```json\n{\n  \"change_type\": \"new\",\n  \"duplicate\": false,\n  \"conflict\": false,\n  \"similarity\": null,\n  \"method\": \"rule\",\n  \"notes\": []\n}\n```",
+      "original_chars": 639,
+      "included_chars": 533,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.416217,
+      "factors": {
+        "relevance": 0.015385,
+        "relevance_norm": 0.332771,
+        "recency": 1.0,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "disabled",
+    "rerank": "disabled",
+    "vector_backend": "hashing",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 7,
+    "chunk_cache": {
+      "hits": 5,
+      "misses": 0
+    },
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_on/memory/memory_retrieval_cache.sqlite3",
+      "size": 7,
+      "hits": 7,
+      "misses": 0,
+      "disabled": 0
+    },
+    "query_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_on/memory/memory_retrieval_cache.sqlite3",
+      "hits": 0,
+      "misses": 1,
+      "disabled": 0
+    },
+    "latency_ms": 25.481
+  },
+  "max_memory_chars": 6000,
+  "total_chars": 1336,
+  "truncated": true,
+  "errors": []
+}

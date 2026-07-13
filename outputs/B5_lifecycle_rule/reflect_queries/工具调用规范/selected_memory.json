@@ -1,0 +1,147 @@
+{
+  "status": "success",
+  "query": "调用内置工具有哪些使用规范？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conv_life_12",
+      "memory_type": "conversation",
+      "title": "搜索工具用法",
+      "path": "conversations/life_12.md",
+      "content": "# 搜索工具用法\n\nSummary: local_file_search 用通配符匹配文件名，可选递归子目录，范围限 data 内。\n\nRelevant chunk:\n搜索工具用法\n\nlocal_file_search 用通配符匹配文件名，可选递归子目录，范围限 data 内。\n\nlocal_file_search 用通配符匹配文件名，可选递归子目录，范围限 data 内。",
+      "original_chars": 75,
+      "included_chars": 188,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.959942,
+      "factors": {
+        "relevance": 0.032787,
+        "relevance_norm": 1.0,
+        "recency": 0.999423,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_life_10",
+      "memory_type": "conversation",
+      "title": "table_analyzer 限制",
+      "path": "conversations/life_10.md",
+      "content": "# table_analyzer 限制\n\nSummary: table_analyzer 一次调用只支持一个统计操作，列名须与表头完全一致。\n\nRelevant chunk:\ntable_analyzer 限制\n\ntable_analyzer 一次调用只支持一个统计操作，列名须与表头完全一致。\n\ntable_analyzer 一次调用只支持一个统计操作，列名须与表头完全一致。",
+      "original_chars": 79,
+      "included_chars": 189,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.667374,
+      "factors": {
+        "relevance": 0.032258,
+        "relevance_norm": 0.634294,
+        "recency": 0.99939,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_life_05",
+      "memory_type": "conversation",
+      "title": "OOM 修复方案",
+      "path": "conversations/life_05.md",
+      "content": "# OOM 修复方案\n\nSummary: CUDA out of memory 用 bfloat16 加 max_memory 上限 20GiB 解决，float32 更占显存。\n\nRelevant chunk:\nOOM 修复方案\n\nCUDA out of memory 用 bfloat16 加 max_memory 上限 20GiB 解决，float32 更占显存。\n\nCUDA out of memory 用 bfloat16 加 max_memory 上限 20GiB 解决，float32 更占显存。",
+      "original_chars": 98,
+      "included_chars": 255,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.607471,
+      "factors": {
+        "relevance": 0.031025,
+        "relevance_norm": 0.559425,
+        "recency": 0.99931,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_life_06",
+      "memory_type": "conversation",
+      "title": "加载耗时实测",
+      "path": "conversations/life_06.md",
+      "content": "# 加载耗时实测\n\nSummary: Qwen3.5-4B 模型加载约九十秒，进程内必须缓存复用，禁止重复加载。\n\nRelevant chunk:\n加载耗时实测\n\nQwen3.5-4B 模型加载约九十秒，进程内必须缓存复用，禁止重复加载。\n\nQwen3.5-4B 模型加载约九十秒，进程内必须缓存复用，禁止重复加载。",
+      "original_chars": 65,
+      "included_chars": 158,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.526151,
+      "factors": {
+        "relevance": 0.03125,
+        "relevance_norm": 0.457773,
+        "recency": 0.999326,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_life_02",
+      "memory_type": "conversation",
+      "title": "RRF 融合参数",
+      "path": "conversations/life_02.md",
+      "content": "# RRF 融合参数\n\nSummary: 关键词与向量两路检索用 RRF 融合，rrf_k 取 60，候选上限 30 条。\n\nRelevant chunk:\nRRF 融合参数\n\n关键词与向量两路检索用 RRF 融合，rrf_k 取 60，候选上限 30 条。\n\n关键词与向量两路检索用 RRF 融合，rrf_k 取 60，候选上限 30 条。",
+      "original_chars": 70,
+      "included_chars": 171,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": 0.523256,
+      "factors": {
+        "relevance": 0.03031,
+        "relevance_norm": 0.454163,
+        "recency": 0.999262,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "disabled",
+    "rerank": "disabled",
+    "vector_backend": "hashing",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 14,
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_lifecycle_rule/corpus_reflect/memory_vector_cache.json",
+      "size": 14,
+      "hits": 14,
+      "misses": 0,
+      "disabled": 0
+    },
+    "latency_ms": 1.949
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 961,
+  "truncated": false,
+  "errors": []
+}

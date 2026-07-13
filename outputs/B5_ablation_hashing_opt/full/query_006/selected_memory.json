@@ -1,0 +1,157 @@
+{
+  "status": "success",
+  "query": "提示词里写了不要解释，模型还是先输出一大段推理，怎么才能真正关掉？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conv_c11",
+      "memory_type": "conversation",
+      "title": "Qwen 生成参数调优记录",
+      "path": "conversations/mem_conv_c11.md",
+      "content": "# Qwen 生成参数调优记录\n\nSummary: 温度、生成长度等参数的完整调优过程与结论。\n\nRelevant chunk:\n和 top_k 的各种组合，后来意识到在 do_sample 关闭的情况下这些参数根本不生效，写在配置里只会误导后来的人以为它们在起作用，全部从 model.yaml 里清掉了。配置文件里只保留真正生效的参数，这是这次调参的一个附带教训。\n\n关键发现（重要）：模型总在正式回答前输出一大段思考过程，各种在 prompt 里写'不要解释、直接给答案''禁止输出推理过程'都压不住，模型嘴上答应实际照旧。最终确认必须在 tokenizer.apply_chat_template 调用里显式传 enable_thinking=False，才能真正关闭 <think> 思考链输出；光靠提示词约束是没有用的，这是模板层的开关不是指令层的问题。同时保持 do_sample=False，同一输入的输出才能逐字符一致，后面的消融实验才有可复现的基础。\n\n顺带测了输入长度上限。max_input_tokens 设 4096，超长的记忆上下文会被 B1 侧截断后再进模型，所以 B5 压缩层的摘要质量直接决定 B4 能看到什么信息，这两层必须配合着调：压缩预算给太小，模型拿到的记忆残缺不全；给太大又挤占用户输入和工具结果的空间。目前 2000 字符的记忆预算配 4096 的输入上限是平衡点。\n\n还对比了 bfloat16 和 float16 两种半精度：bfloat16 在这张卡上连续跑完整个测试集没有出现数值溢出警告，float16 在长文总结任务上偶尔出现，虽然没直接影响输出质量，但保险起见配置里锁定 bfloat16。显存占用两者几乎一样，没有理由冒险。",
+      "original_chars": 1555,
+      "included_chars": 743,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.938028,
+      "factors": {
+        "relevance": 0.032787,
+        "relevance_norm": 1.0,
+        "recency": 0.680284,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 1,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c05",
+      "memory_type": "conversation",
+      "title": "全系统第一次联调记录",
+      "path": "conversations/mem_conv_c05.md",
+      "content": "# 全系统第一次联调记录\n\nSummary: B1–B5 第一次联调的排错过程与耗时实测。\n\nRelevant chunk:\n同学在跑训练任务，两张卡的显存各被占了一大半，我们的模型加载直接失败，报的还是一个容易误导人的设备映射错误而不是显存不足。等到晚上卡空出来才继续联调。这提醒我们演示前一定要先看 nvidia-smi 确认显存余量，共享服务器上这一步不能省。\n\n结论（重要）：正式跑 run_full_demo.py 全系统演示之前必须做三件事——第一，确认 outputs/full_demo目录存在且当前用户可写，否则最后的落盘环节会失败，前面几分钟全部白跑；第二，命令行参数 --llm_mode 必须显式设为 prompt_json，不传的话脚本会静默回退到 mock 模式，演示出来的答案是预置的假数据，评委一眼就能看穿；第三，先单独跑一次 b4_local_agent_llm.py 冒烟测试，确认显卡可用、模型能正常加载之后，再开始完整的全系统演示。这三条按顺序执行，缺一不可。\n\n之后又验证了保存路径。run_full_demo 跑完后 memory/conversations/conv_001.md 会被覆盖更新，memory_index.json 同步刷新对应条目的 updated_at 和摘要，这是预期行为。但重复演示前要想清楚是否接受覆盖：如果上一轮的对话记忆还要用来展示跨对话召回，就先把 conversation_id 换掉，避免把演示素材冲掉。",
+      "original_chars": 1956,
+      "included_chars": 643,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.742239,
+      "factors": {
+        "relevance": 0.031514,
+        "relevance_norm": 0.757205,
+        "recency": 0.664746,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 2,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c09",
+      "memory_type": "conversation",
+      "title": "系统提示词模板位置",
+      "path": "conversations/mem_conv_c09.md",
+      "content": "# 系统提示词模板位置\n\nSummary: system prompt 模板文件路径与替换方式。\n\nRelevant chunk:\n系统提示词模板位置\n\nsystem prompt 模板文件路径与替换方式。\n\n系统提示词模板放在 prompts/ 目录下，具体用哪个由 runtime_input.json 的 system_prompt_path 字段指定，路径相对输入文件所在目录解析。要换提示词不要直接改默认模板，复制一份改名后把 system_prompt_path 指过去，保证别人的演示不受影响。模板里的占位符由 B1 在注入时填充。",
+      "original_chars": 311,
+      "included_chars": 273,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.598235,
+      "factors": {
+        "relevance": 0.031514,
+        "relevance_norm": 0.62788,
+        "recency": 0.459311,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c16",
+      "memory_type": "conversation",
+      "title": "JSONDecodeError 修复",
+      "path": "conversations/mem_conv_c16.md",
+      "content": "# JSONDecodeError 修复\n\nSummary: Expecting value 报错的根因：输出混入日志前缀。\n\nRelevant chunk:\nJSONDecodeError 修复\n\nExpecting value 报错的根因：输出混入日志前缀。\n\njson.loads 报 JSONDecodeError: Expecting value: line 1 column 1 的根因是待解析文本开头混入了模型输出的说明文字或日志前缀，不是 JSON 本身坏了。修复：解析前先定位第一个左花括号、截取到匹配的右花括号再 loads；同时在 prompt 里禁止模型输出 JSON 以外的字符。空字符串也会报同样的错，要先判空给出更明确的错误信息。",
+      "original_chars": 349,
+      "included_chars": 330,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.566616,
+      "factors": {
+        "relevance": 0.029631,
+        "relevance_norm": 0.560933,
+        "recency": 0.578695,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_qwen",
+      "memory_type": "global",
+      "title": "Qwen3.5-4B 加载配置",
+      "path": "global/mem_g_qwen.md",
+      "content": "# Qwen3.5-4B 加载配置\n\nSummary: 本地模型加载的精度、设备映射与安全选项。\n\nRelevant chunk:\nQwen3.5-4B 加载配置\n\n本地模型加载的精度、设备映射与安全选项。\n\n模型权重放在 models/Qwen3.5-4B，加载参数固定为：torch_dtype 用 bfloat16（这张卡上float16 偶发溢出警告），device_map 设 auto 让权重自动分配到空闲显卡，local_files_only设 true 保证离线可用，trust_remote_code 设 true。tokenizer 与模型同路径。加载一次约九十秒，进程内要缓存复用，不要重复加载。",
+      "original_chars": 316,
+      "included_chars": 309,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": 0.411407,
+      "factors": {
+        "relevance": 0.026901,
+        "relevance_norm": 0.514259,
+        "recency": 0.448388,
+        "importance": 0.8
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 8,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "fallback",
+    "rerank": "fallback",
+    "vector_backend": "hashing",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 29,
+    "chunk_cache": {
+      "hits": 24,
+      "misses": 0
+    },
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "size": 51,
+      "hits": 29,
+      "misses": 0,
+      "disabled": 0
+    },
+    "query_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "hits": 1,
+      "misses": 0,
+      "disabled": 0
+    },
+    "latency_ms": 13.363
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 2298,
+  "truncated": true,
+  "errors": []
+}

@@ -1,0 +1,157 @@
+{
+  "status": "success",
+  "query": "json.loads 报 Expecting value: line 1 column 1 是什么问题？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conv_c16",
+      "memory_type": "conversation",
+      "title": "JSONDecodeError 修复",
+      "path": "conversations/mem_conv_c16.md",
+      "content": "# JSONDecodeError 修复\n\nSummary: Expecting value 报错的根因：输出混入日志前缀。\n\nRelevant chunk:\nJSONDecodeError 修复\n\nExpecting value 报错的根因：输出混入日志前缀。\n\njson.loads 报 JSONDecodeError: Expecting value: line 1 column 1 的根因是待解析文本开头混入了模型输出的说明文字或日志前缀，不是 JSON 本身坏了。修复：解析前先定位第一个左花括号、截取到匹配的右花括号再 loads；同时在 prompt 里禁止模型输出 JSON 以外的字符。空字符串也会报同样的错，要先判空给出更明确的错误信息。",
+      "original_chars": 349,
+      "included_chars": 330,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 1.0,
+      "factors": {
+        "relevance": 0.016393,
+        "relevance_norm": 1.0,
+        "recency": 0.578696,
+        "importance": 0.6
+      },
+      "retrieval_mode": "vector",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c05",
+      "memory_type": "conversation",
+      "title": "全系统第一次联调记录",
+      "path": "conversations/mem_conv_c05.md",
+      "content": "# 全系统第一次联调记录\n\nSummary: B1–B5 第一次联调的排错过程与耗时实测。\n\nRelevant chunk:\n全系统第一次联调记录\n\nB1–B5 第一次联调的排错过程与耗时实测。\n\n这次对话完整记录了 B1 到 B5 五个模块第一次联调的全过程，问题比预想的多，前后花了一个下午加一个晚上。最开始的现象是 B1 编排循环在第二轮工具调用后直接退出，终端没有任何报错信息，final_answer 也是空的，trace.json 里的 status 停在 running，看起来像是流程走到一半被静默吞掉了。为了定位问题，我们先把五个模块的日志级别全部调到最详细，重新跑了一遍，逐条对比每一轮的输入输出。\n\n第一步排查消息编排。把 trace.json 里的每轮 AIMessage 和 ToolMessage 打印出来对比，发现第二轮的工具参数 JSON 里混入了模型输出的前导说明文字，导致 B3 工具层解析失败，而这个异常被上层的兜底逻辑吞掉了，没有回传给 B1。给 B3 的参数解析加了 strip 处理和花括号定位之后，这个问题彻底消失。顺带给异常路径补了结构化错误返回，以后再出解析问题至少能在 trace 里看到 errors 记录，不会再出现无声失败。\n\n第二步是 B4 的输出格式。prompt_json 模式要求模型只输出一个 JSON 对象，但 4B 模型偶尔会在 JSON前面加一句中文解释，比如'好的，我将调用工具'。调整了 system prompt，明确要求禁止输出任何 JSON以外的字符，并在解析侧做了宽松提取。问题明显缓解但没有根除，大约二十次里还会出现一次，后续正式演示前需要多跑几次确认稳定性，或者考虑在解析失败时自动重试一轮。\n\n第三步排查记忆注入。B5 返回的 selected_memory.json 里 content 字段是完整的，检索本身没有问题，但 B1 注入 messages 时把 <memory> 标签放在了 system prompt 之前，导致模型在长上下文下偶尔完全忽略记忆内容，回答里引用不到历史结论。把注入位置调整到 system prompt 之后、用户输入之前，再测记忆引用就稳定了。这个顺序问题很隐蔽，值得写进接口文档。\n\n中间还遇到一个环境问题：服务器上另一个同学在跑训练任务，两张卡的显存各被占了一大半，我们的模型加载直接失败，报的还是一个容易误导人的设备映射错误而不是显存不足。等到晚上卡空出来才继续联调。这提醒我们演示前一定要先看 nvidia-smi 确认显存余量，共享服务器上这一步不能省。\n\n结论（重要）：正式跑 run_full_demo.py 全系统演示之前必须做三件事——第一，确认 outputs/full_demo目录存在且当前用户可写，否则最后的落盘环节会失败，前面几分钟全部白跑；第二，命令行参数 --llm_mode 必须显式设为 prompt_json，不传的话脚本会静默回退到 mock 模式，演示出来的答案是预置的假数据，评委一眼就能看穿；第三，先单独跑一次 b4_local_agent_llm.py 冒烟测试，确认显卡可用、模型能正常加载之后，再开始完整的全系统演示。这三条按顺序执行，缺一不可。\n\n之后又验证了保存路径。run_full_demo 跑完后 memory/conversations/conv_001.md 会被覆盖更新，memory_index.json 同步刷新对应条目的 updated_at 和摘要，这是预期行为。但重复演示前要想清楚是否接受覆盖：如果上一轮的对话记忆还要用来展示跨对话召回，就先把 conversation_id 换掉，避免把演示素材冲掉。\n\n关于耗时的实测数据：完整一轮联调（含模型加载）大约六分钟，其中模型加载约九十秒，两轮工具调用各三十秒左右，B5 记忆检索在缓存命中时不到一秒、冷启动重算向量时十几秒，剩下的时间花在落盘和报告生成。正式演示时建议提前把模型加载好放在后台，把观众等待时间压到两分钟以内。\n\n还有一个小插曲：中途 outputs 目录被之前的失败运行留下的半截文件占着，新一轮运行时 JSON 合并报了奇怪的键冲突。清空输出目录重跑后正常。结论是每次正式演示前先清一遍输出目录，或者给每次运行加时间戳子目录。\n\n最后把所有修复点整理进了各模块的 README 小节，B3 的解析补丁和 B1 的注入位置调整都已提交仓库。下次联调的重点是验证记忆跨对话复用的效果：第一轮对话沉淀的结论，第二轮换个问法还能不能被检索出来并影响回答。",
+      "original_chars": 1956,
+      "included_chars": 1911,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.941094,
+      "factors": {
+        "relevance": 0.016129,
+        "relevance_norm": 0.621551,
+        "recency": 0.664747,
+        "importance": 0.7
+      },
+      "retrieval_mode": "vector",
+      "chunk_index": 0,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c01",
+      "memory_type": "conversation",
+      "title": "计算器浮点精度问题",
+      "path": "conversations/mem_conv_c01.md",
+      "content": "# 计算器浮点精度问题\n\nSummary: 0.1 加 0.2 不等于 0.3 的原因与 calculator 的处理方式。\n\nRelevant chunk:\n计算器浮点精度问题\n\n0.1 加 0.2 不等于 0.3 的原因与 calculator 的处理方式。\n\n用户问为什么计算器算 0.1 + 0.2 得到 0.30000000000000004。原因是二进制浮点数无法精确表示十进制小数。calculator 工具内部已改用 Decimal 做十进制运算，对外返回结果前按需要的小数位四舍五入，所以通过工具计算不会再出现这类尾数。直接在 Python 里用 float 仍会有该现象，属于语言特性不是 bug。",
+      "original_chars": 319,
+      "included_chars": 309,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.884058,
+      "factors": {
+        "relevance": 0.015873,
+        "relevance_norm": 0.585234,
+        "recency": 0.565478,
+        "importance": 0.5
+      },
+      "retrieval_mode": "vector",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c08",
+      "memory_type": "conversation",
+      "title": "ModuleNotFoundError yaml 解决办法",
+      "path": "conversations/mem_conv_c08.md",
+      "content": "# ModuleNotFoundError yaml 解决办法\n\nSummary: No module named yaml 报错的两个原因与修复。\n\nRelevant chunk:\nModuleNotFoundError yaml 解决办法\n\nNo module named yaml 报错的两个原因与修复。\n\n报 ModuleNotFoundError: No module named 'yaml' 有两个常见原因：一是包名装错，正确的安装命令是 pip install pyyaml，包名是 pyyaml 而导入名是 yaml，直接 pip install yaml 装到的是另一个废弃包；二是忘了激活 conda 环境，在 base 里跑了脚本。先 conda activate agent 再确认 pip list 里有 PyYAML。",
+      "original_chars": 380,
+      "included_chars": 374,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.828804,
+      "factors": {
+        "relevance": 0.015625,
+        "relevance_norm": 0.502962,
+        "recency": 0.481034,
+        "importance": 0.6
+      },
+      "retrieval_mode": "vector",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c18",
+      "memory_type": "conversation",
+      "title": "示例表格字段说明",
+      "path": "conversations/mem_conv_c18.md",
+      "content": "# 示例表格字段说明\n\nSummary: data/tables 下演示 CSV 的列含义。\n\nRelevant chunk:\n示例表格字段说明\n\ndata/tables 下演示 CSV 的列含义。\n\ndata/tables 目录下的演示表格各列含义：name 是条目名称，category 是类别标签，amount 是数值金额（人民币），date 是发生日期 ISO 格式。表头首行固定，编码统一 UTF-8 无 BOM。做表格分析演示时用这份表，别再造新数据。",
+      "original_chars": 273,
+      "included_chars": 232,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": 0.775251,
+      "factors": {
+        "relevance": 0.015385,
+        "relevance_norm": 0.434802,
+        "recency": 0.428553,
+        "importance": 0.3
+      },
+      "retrieval_mode": "vector",
+      "chunk_index": 0,
+      "importance": 3,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "vector",
+    "hyde": "disabled",
+    "rerank": "disabled",
+    "vector_backend": "hashing",
+    "use_chunk": false,
+    "use_three_factor": false,
+    "chunk_count": 24,
+    "chunk_cache": {
+      "hits": 24,
+      "misses": 0
+    },
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "size": 46,
+      "hits": 24,
+      "misses": 0,
+      "disabled": 0
+    },
+    "query_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "hits": 1,
+      "misses": 0,
+      "disabled": 0
+    },
+    "latency_ms": 6.192
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 3156,
+  "truncated": true,
+  "errors": []
+}

@@ -1,0 +1,109 @@
+{
+  "status": "success",
+  "query": "Expecting value json.loads",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conversation_meta_command",
+      "memory_type": "conversation",
+      "title": "Conversation meta_command",
+      "path": "conversations/meta_command.md",
+      "content": "# Conversation meta_command\n\nSummary: 已确认完整检索评测需要使用专用环境运行消融脚本，并只选择完整配置行。\n\nRelevant chunk:\nlation.py --llm on --only FULL\n\nexec_command\n\n已确认完整检索评测需要使用专用环境运行消融脚本，并只选择完整配置行。\n\n```json\n{\n  \"change_type\": \"new\",\n  \"duplicate\": false,\n  \"conflict\": false,\n  \"similarity\": null,\n  \"method\": \"rule\",\n  \"notes\": []\n}\n```",
+      "original_chars": 651,
+      "included_chars": 310,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.95,
+      "factors": {
+        "relevance": 0.032522,
+        "relevance_norm": 1.0,
+        "recency": 1.0,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 1,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conversation_meta_yaml",
+      "memory_type": "conversation",
+      "title": "Conversation meta_yaml",
+      "path": "conversations/meta_yaml.md",
+      "content": "# Conversation meta_yaml\n\nSummary: 已定位为运行环境依赖缺失，处理方式是补齐缺少的包并复查配置。\n\nRelevant chunk:\nror\n\npython3 -m pip install PyYAML\n\nexec_command\n\n已定位为运行环境依赖缺失，处理方式是补齐缺少的包并复查配置。\n\n```json\n{\n  \"change_type\": \"new\",\n  \"duplicate\": false,\n  \"conflict\": false,\n  \"similarity\": null,\n  \"method\": \"rule\",\n  \"notes\": []\n}\n```",
+      "original_chars": 681,
+      "included_chars": 303,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.95,
+      "factors": {
+        "relevance": 0.031778,
+        "relevance_norm": 1.0,
+        "recency": 1.0,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 1,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conversation_meta_tool",
+      "memory_type": "conversation",
+      "title": "Conversation meta_tool",
+      "path": "conversations/meta_tool.md",
+      "content": "# Conversation meta_tool\n\nSummary: 已确认本地资料读取和路径搜索需要分别走两个不同的工具入口。\n\nRelevant chunk:\nConversation meta_tool\n\n已确认本地资料读取和路径搜索需要分别走两个不同的工具入口。\n\nfile_reader; local_file_search\n\nfile_reader local_file_search\n\nfile_reader local_file_search\n\nfile_reader local_file_search\n\n已确认本地资料读取和路径搜索需要分别走两个不同的工具入口。\n\n```json\n{\n  \"change_type\": \"new\",\n  \"duplicate\": false,\n  \"conflict\": false,\n  \"similarity\": null,\n  \"method\": \"rule\",\n  \"notes\": []\n}\n```",
+      "original_chars": 560,
+      "included_chars": 431,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.544379,
+      "factors": {
+        "relevance": 0.031746,
+        "relevance_norm": 0.492974,
+        "recency": 1.0,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "disabled",
+    "rerank": "disabled",
+    "vector_backend": "hashing",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 7,
+    "chunk_cache": {
+      "hits": 5,
+      "misses": 0
+    },
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_on/memory/memory_retrieval_cache.sqlite3",
+      "size": 7,
+      "hits": 7,
+      "misses": 0,
+      "disabled": 0
+    },
+    "query_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_on/memory/memory_retrieval_cache.sqlite3",
+      "hits": 0,
+      "misses": 1,
+      "disabled": 0
+    },
+    "latency_ms": 32.549
+  },
+  "max_memory_chars": 6000,
+  "total_chars": 1044,
+  "truncated": true,
+  "errors": []
+}

@@ -1,0 +1,14 @@
+{
+  "conversation_id": "leader_demo_batch_table_summary",
+  "user_input": "分析 leader_demo/tables/leader_results.csv，给出列名和 score 平均情况。",
+  "system_prompt_path": "/mnt/aisdata/sjh04/实训2/agent/prompts/local_tool_agent.txt",
+  "toolset": "basic_tools",
+  "max_turns": 3,
+  "use_global_memory": true,
+  "selected_memory_ids": [
+    "mem_leader_acceptance_policy",
+    "mem_leader_demo_constraints"
+  ],
+  "save_memory": "none",
+  "execution_mode": "integrated"
+}

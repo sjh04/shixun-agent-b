@@ -1,0 +1,475 @@
+{
+  "llm": "off",
+  "base_config": "/mnt/aisdata/sjh04/实训2/agent/configs/memory_eval_corpus.yaml",
+  "queries": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus_queries.json",
+  "rows": [
+    {
+      "name": "B0",
+      "overrides": {
+        "mode": "none"
+      },
+      "metrics": {
+        "query_count": 20,
+        "hit@1": 0.05,
+        "hit@3": 0.2,
+        "hit@5": 0.3,
+        "mrr": 0.13916666666666666,
+        "ndcg@5": 0.16275163576310608,
+        "mean_latency_ms": null
+      },
+      "diagnostics": {
+        "mode": "none",
+        "hyde": "disabled",
+        "rerank": null,
+        "vector_backend": null,
+        "use_chunk": null,
+        "use_three_factor": null
+      },
+      "by_probe": {
+        "chunk_buried": {
+          "count": 2,
+          "hit@1": 0.0,
+          "hit@3": 0.0,
+          "mrr": 0.0
+        },
+        "keyword_exact": {
+          "count": 4,
+          "hit@1": 0.0,
+          "hit@3": 0.0,
+          "mrr": 0.0
+        },
+        "multi_relevant": {
+          "count": 2,
+          "hit@1": 0.0,
+          "hit@3": 0.5,
+          "mrr": 0.25
+        },
+        "paraphrase": {
+          "count": 11,
+          "hit@1": 0.09090909090909091,
+          "hit@3": 0.2727272727272727,
+          "mrr": 0.20757575757575755
+        },
+        "three_factor": {
+          "count": 1,
+          "hit@1": 0.0,
+          "hit@3": 0.0,
+          "mrr": 0.0
+        }
+      }
+    },
+    {
+      "name": "KW",
+      "overrides": {
+        "mode": "keyword",
+        "use_chunk": false,
+        "use_three_factor": false,
+        "use_hyde": false,
+        "use_rerank": false
+      },
+      "metrics": {
+        "query_count": 20,
+        "hit@1": 0.8,
+        "hit@3": 0.9,
+        "hit@5": 1.0,
+        "mrr": 0.8724999999999999,
+        "ndcg@5": 0.9039694436225425,
+        "mean_latency_ms": 19.22405
+      },
+      "diagnostics": {
+        "mode": "keyword",
+        "hyde": "disabled",
+        "rerank": "disabled",
+        "vector_backend": null,
+        "use_chunk": false,
+        "use_three_factor": false
+      },
+      "by_probe": {
+        "chunk_buried": {
+          "count": 2,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        },
+        "keyword_exact": {
+          "count": 4,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        },
+        "multi_relevant": {
+          "count": 2,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        },
+        "paraphrase": {
+          "count": 11,
+          "hit@1": 0.7272727272727273,
+          "hit@3": 0.8181818181818182,
+          "mrr": 0.8136363636363636
+        },
+        "three_factor": {
+          "count": 1,
+          "hit@1": 0.0,
+          "hit@3": 1.0,
+          "mrr": 0.5
+        }
+      }
+    },
+    {
+      "name": "VEC",
+      "overrides": {
+        "mode": "vector",
+        "use_chunk": false,
+        "use_three_factor": false,
+        "use_hyde": false,
+        "use_rerank": false
+      },
+      "metrics": {
+        "query_count": 20,
+        "hit@1": 0.7,
+        "hit@3": 0.85,
+        "hit@5": 0.9,
+        "mrr": 0.7875,
+        "ndcg@5": 0.7928166900350706,
+        "mean_latency_ms": 13.767000000000001
+      },
+      "diagnostics": {
+        "mode": "vector",
+        "hyde": "disabled",
+        "rerank": "disabled",
+        "vector_backend": "hashing",
+        "use_chunk": false,
+        "use_three_factor": false
+      },
+      "by_probe": {
+        "chunk_buried": {
+          "count": 2,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        },
+        "keyword_exact": {
+          "count": 4,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        },
+        "multi_relevant": {
+          "count": 2,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        },
+        "paraphrase": {
+          "count": 11,
+          "hit@1": 0.5454545454545454,
+          "hit@3": 0.7272727272727273,
+          "mrr": 0.6590909090909091
+        },
+        "three_factor": {
+          "count": 1,
+          "hit@1": 0.0,
+          "hit@3": 1.0,
+          "mrr": 0.5
+        }
+      }
+    },
+    {
+      "name": "RRF",
+      "overrides": {
+        "mode": "hybrid",
+        "use_chunk": false,
+        "use_three_factor": false,
+        "use_hyde": false,
+        "use_rerank": false
+      },
+      "metrics": {
+        "query_count": 20,
+        "hit@1": 0.8,
+        "hit@3": 0.9,
+        "hit@5": 0.9,
+        "mrr": 0.8416666666666666,
+        "ndcg@5": 0.8331898867742552,
+        "mean_latency_ms": 10.918800000000001
+      },
+      "diagnostics": {
+        "mode": "hybrid",
+        "hyde": "disabled",
+        "rerank": "disabled",
+        "vector_backend": "hashing",
+        "use_chunk": false,
+        "use_three_factor": false
+      },
+      "by_probe": {
+        "chunk_buried": {
+          "count": 2,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        },
+        "keyword_exact": {
+          "count": 4,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        },
+        "multi_relevant": {
+          "count": 2,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        },
+        "paraphrase": {
+          "count": 11,
+          "hit@1": 0.7272727272727273,
+          "hit@3": 0.8181818181818182,
+          "mrr": 0.7575757575757577
+        },
+        "three_factor": {
+          "count": 1,
+          "hit@1": 0.0,
+          "hit@3": 1.0,
+          "mrr": 0.5
+        }
+      }
+    },
+    {
+      "name": "RRF_CHUNK",
+      "overrides": {
+        "mode": "hybrid",
+        "use_chunk": true,
+        "use_three_factor": false,
+        "use_hyde": false,
+        "use_rerank": false
+      },
+      "metrics": {
+        "query_count": 20,
+        "hit@1": 0.8,
+        "hit@3": 0.9,
+        "hit@5": 1.0,
+        "mrr": 0.8641666666666667,
+        "ndcg@5": 0.8740663550396519,
+        "mean_latency_ms": 32.2178
+      },
+      "diagnostics": {
+        "mode": "hybrid",
+        "hyde": "disabled",
+        "rerank": "disabled",
+        "vector_backend": "hashing",
+        "use_chunk": true,
+        "use_three_factor": false
+      },
+      "by_probe": {
+        "chunk_buried": {
+          "count": 2,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        },
+        "keyword_exact": {
+          "count": 4,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        },
+        "multi_relevant": {
+          "count": 2,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        },
+        "paraphrase": {
+          "count": 11,
+          "hit@1": 0.7272727272727273,
+          "hit@3": 0.8181818181818182,
+          "mrr": 0.7984848484848485
+        },
+        "three_factor": {
+          "count": 1,
+          "hit@1": 0.0,
+          "hit@3": 1.0,
+          "mrr": 0.5
+        }
+      }
+    },
+    {
+      "name": "HYDE",
+      "overrides": {
+        "mode": "hybrid",
+        "use_chunk": true,
+        "use_three_factor": false,
+        "use_hyde": true,
+        "use_rerank": false
+      },
+      "metrics": {
+        "query_count": 20,
+        "hit@1": 0.8,
+        "hit@3": 0.9,
+        "hit@5": 1.0,
+        "mrr": 0.8641666666666667,
+        "ndcg@5": 0.8740663550396519,
+        "mean_latency_ms": 13.30505
+      },
+      "diagnostics": {
+        "mode": "hybrid",
+        "hyde": "fallback",
+        "rerank": "disabled",
+        "vector_backend": "hashing",
+        "use_chunk": true,
+        "use_three_factor": false
+      },
+      "by_probe": {
+        "chunk_buried": {
+          "count": 2,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        },
+        "keyword_exact": {
+          "count": 4,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        },
+        "multi_relevant": {
+          "count": 2,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        },
+        "paraphrase": {
+          "count": 11,
+          "hit@1": 0.7272727272727273,
+          "hit@3": 0.8181818181818182,
+          "mrr": 0.7984848484848485
+        },
+        "three_factor": {
+          "count": 1,
+          "hit@1": 0.0,
+          "hit@3": 1.0,
+          "mrr": 0.5
+        }
+      }
+    },
+    {
+      "name": "THREE_F",
+      "overrides": {
+        "mode": "hybrid",
+        "use_chunk": true,
+        "use_three_factor": true,
+        "use_hyde": true,
+        "use_rerank": false
+      },
+      "metrics": {
+        "query_count": 20,
+        "hit@1": 0.7,
+        "hit@3": 0.95,
+        "hit@5": 1.0,
+        "mrr": 0.835,
+        "ndcg@5": 0.8730611182120007,
+        "mean_latency_ms": 13.3494
+      },
+      "diagnostics": {
+        "mode": "hybrid",
+        "hyde": "fallback",
+        "rerank": "disabled",
+        "vector_backend": "hashing",
+        "use_chunk": true,
+        "use_three_factor": true
+      },
+      "by_probe": {
+        "chunk_buried": {
+          "count": 2,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        },
+        "keyword_exact": {
+          "count": 4,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        },
+        "multi_relevant": {
+          "count": 2,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        },
+        "paraphrase": {
+          "count": 11,
+          "hit@1": 0.45454545454545453,
+          "hit@3": 0.9090909090909091,
+          "mrr": 0.7000000000000001
+        },
+        "three_factor": {
+          "count": 1,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        }
+      }
+    },
+    {
+      "name": "FULL",
+      "overrides": {
+        "mode": "hybrid",
+        "use_chunk": true,
+        "use_three_factor": true,
+        "use_hyde": true,
+        "use_rerank": true
+      },
+      "metrics": {
+        "query_count": 20,
+        "hit@1": 0.7,
+        "hit@3": 0.95,
+        "hit@5": 1.0,
+        "mrr": 0.835,
+        "ndcg@5": 0.8730611182120007,
+        "mean_latency_ms": 13.3262
+      },
+      "diagnostics": {
+        "mode": "hybrid",
+        "hyde": "fallback",
+        "rerank": "fallback",
+        "vector_backend": "hashing",
+        "use_chunk": true,
+        "use_three_factor": true
+      },
+      "by_probe": {
+        "chunk_buried": {
+          "count": 2,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        },
+        "keyword_exact": {
+          "count": 4,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        },
+        "multi_relevant": {
+          "count": 2,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        },
+        "paraphrase": {
+          "count": 11,
+          "hit@1": 0.45454545454545453,
+          "hit@3": 0.9090909090909091,
+          "mrr": 0.7000000000000001
+        },
+        "three_factor": {
+          "count": 1,
+          "hit@1": 1.0,
+          "hit@3": 1.0,
+          "mrr": 1.0
+        }
+      }
+    }
+  ]
+}

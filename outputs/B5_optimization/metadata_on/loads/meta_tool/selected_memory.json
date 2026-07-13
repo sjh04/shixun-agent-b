@@ -1,0 +1,109 @@
+{
+  "status": "success",
+  "query": "local_file_search file_reader 工具",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conversation_meta_tool",
+      "memory_type": "conversation",
+      "title": "Conversation meta_tool",
+      "path": "conversations/meta_tool.md",
+      "content": "# Conversation meta_tool\n\nSummary: 已确认本地资料读取和路径搜索需要分别走两个不同的工具入口。\n\nRelevant chunk:\nConversation meta_tool\n\n已确认本地资料读取和路径搜索需要分别走两个不同的工具入口。\n\nfile_reader; local_file_search\n\nfile_reader local_file_search\n\nfile_reader local_file_search\n\nfile_reader local_file_search\n\n已确认本地资料读取和路径搜索需要分别走两个不同的工具入口。\n\n```json\n{\n  \"change_type\": \"new\",\n  \"duplicate\": false,\n  \"conflict\": false,\n  \"similarity\": null,\n  \"method\": \"rule\",\n  \"notes\": []\n}\n```",
+      "original_chars": 560,
+      "included_chars": 431,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.95,
+      "factors": {
+        "relevance": 0.032787,
+        "relevance_norm": 1.0,
+        "recency": 1.0,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conversation_meta_json",
+      "memory_type": "conversation",
+      "title": "Conversation meta_json",
+      "path": "conversations/meta_json.md",
+      "content": "# Conversation meta_json\n\nSummary: 已确认是结构化输出前面混入额外文本，处理方式是先截取有效对象再解析。\n\nRelevant chunk:\nConversation meta_json\n\n已确认是结构化输出前面混入额外文本，处理方式是先截取有效对象再解析。\n\nJSONDecodeError; file_reader\n\nJSONDecodeError file_reader\n\nfile_reader JSONDecodeError\n\nJSONDecodeError\n\nfile_reader\n\n已确认是结构化输出前面混入额外文本，处理方式是先截取有效对象再解析。\n\n```json\n{\n  \"change_type\": \"new\",\n  \"duplicate\": false,\n  \"conflict\": false,\n  \"similarity\": null,\n  \"method\": \"rule\",\n  \"notes\": []\n}\n```",
+      "original_chars": 564,
+      "included_chars": 439,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.419818,
+      "factors": {
+        "relevance": 0.032258,
+        "relevance_norm": 0.349772,
+        "recency": 1.0,
+        "importance": 0.4
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 4,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conversation_meta_yaml",
+      "memory_type": "conversation",
+      "title": "Conversation meta_yaml",
+      "path": "conversations/meta_yaml.md",
+      "content": "# Conversation meta_yaml\n\nSummary: 已定位为运行环境依赖缺失，处理方式是补齐缺少的包并复查配置。\n\nRelevant chunk:\nConversation meta_yaml\n\n已定位为运行环境依赖缺失，处理方式是补齐缺少的包并复查配置。\n\nModuleNotFoundError; exec_command; python3; PyYAML; agent/configs/model.yaml; python3 -m pip install PyYAML\n\nModuleNotFoundError exec_command python3 PyYAML agent/configs/model.yaml\n\nexec_command ModuleNotFoundError python3 PyYAML\n\nagent/configs/model.yaml\n\nModuleNotFoundError\n\npython3 -m pip install PyYAML\n\nexec_command\n\n已定位为运行环境依赖缺失，处理方式是补齐缺少的包并复查配置。",
+      "original_chars": 681,
+      "included_chars": 493,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.15,
+      "factors": {
+        "relevance": 0.015873,
+        "relevance_norm": 0.0,
+        "recency": 1.0,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "disabled",
+    "rerank": "disabled",
+    "vector_backend": "hashing",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 7,
+    "chunk_cache": {
+      "hits": 5,
+      "misses": 0
+    },
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_on/memory/memory_retrieval_cache.sqlite3",
+      "size": 7,
+      "hits": 7,
+      "misses": 0,
+      "disabled": 0
+    },
+    "query_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_on/memory/memory_retrieval_cache.sqlite3",
+      "hits": 0,
+      "misses": 1,
+      "disabled": 0
+    },
+    "latency_ms": 25.882
+  },
+  "max_memory_chars": 6000,
+  "total_chars": 1363,
+  "truncated": true,
+  "errors": []
+}

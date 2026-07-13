@@ -1,0 +1,284 @@
+{
+  "mem_conversation_meta_yaml": {
+    "memory_id": "mem_conversation_meta_yaml",
+    "memory_type": "conversation",
+    "title": "Conversation meta_yaml",
+    "summary": "更新后的结论：PyYAML 已安装时无需 pip；如果报 ImportError，请检查 agent/configs/runtime.yaml。",
+    "summary_method": "none",
+    "retrieval_summary": "ImportError; ModuleNotFoundError; PyYAML; exec_command; python3; agent/configs/runtime.yaml; agent/configs/model.yaml; python3 -m pip install PyYAML",
+    "retrieval_terms": {
+      "tags": [
+        "ImportError",
+        "ModuleNotFoundError",
+        "PyYAML",
+        "exec_command",
+        "python3",
+        "agent/configs/runtime.yaml",
+        "agent/configs/model.yaml"
+      ],
+      "entities": [
+        "PyYAML",
+        "ImportError",
+        "exec_command",
+        "ModuleNotFoundError",
+        "python3"
+      ],
+      "files": [
+        "agent/configs/runtime.yaml",
+        "agent/configs/model.yaml"
+      ],
+      "errors": [
+        "ImportError",
+        "ModuleNotFoundError"
+      ],
+      "commands": [
+        "python3 -m pip install PyYAML"
+      ],
+      "tool_names": [
+        "exec_command"
+      ]
+    },
+    "path": "conversations/meta_yaml.md",
+    "conversation_id": "meta_yaml",
+    "importance": 5,
+    "importance_method": "heuristic",
+    "flagged": false,
+    "poison_gate": {
+      "flagged": false,
+      "action": "allow",
+      "reason": "disabled",
+      "method": "disabled",
+      "matches": []
+    },
+    "change_report": {
+      "change_type": "supplement",
+      "duplicate": false,
+      "conflict": false,
+      "conflict_reason": "low_overlap",
+      "similarity": 0.041292,
+      "method": "rule",
+      "rule_change_type": "supplement",
+      "judge_reason": null,
+      "notes": [
+        "new content merged into memory document"
+      ]
+    },
+    "created_at": "2026-07-13T04:09:54+02:00",
+    "updated_at": "2026-07-13T04:09:55+02:00",
+    "last_accessed_at": null,
+    "access_count": 0
+  },
+  "mem_conversation_meta_cuda": {
+    "memory_id": "mem_conversation_meta_cuda",
+    "memory_type": "conversation",
+    "title": "Conversation meta_cuda",
+    "summary": "已确认是资源不足导致的加载失败，处理方式是降低精度并限制模型占用。",
+    "summary_method": "none",
+    "retrieval_summary": "CUDA out of memory; read_json; CUDA; bfloat16; device_map; max_memory",
+    "retrieval_terms": {
+      "tags": [
+        "CUDA out of memory",
+        "read_json",
+        "CUDA",
+        "bfloat16",
+        "device_map",
+        "max_memory"
+      ],
+      "entities": [
+        "read_json",
+        "CUDA",
+        "bfloat16",
+        "device_map",
+        "max_memory"
+      ],
+      "files": [],
+      "errors": [
+        "CUDA out of memory"
+      ],
+      "commands": [],
+      "tool_names": [
+        "read_json"
+      ]
+    },
+    "path": "conversations/meta_cuda.md",
+    "conversation_id": "meta_cuda",
+    "importance": 5,
+    "importance_method": "heuristic",
+    "flagged": false,
+    "poison_gate": {
+      "flagged": false,
+      "action": "allow",
+      "reason": "disabled",
+      "method": "disabled",
+      "matches": []
+    },
+    "change_report": {
+      "change_type": "new",
+      "duplicate": false,
+      "conflict": false,
+      "similarity": null,
+      "method": "rule",
+      "notes": []
+    },
+    "created_at": "2026-07-13T04:09:54+02:00",
+    "updated_at": "2026-07-13T04:09:54+02:00",
+    "last_accessed_at": null,
+    "access_count": 0
+  },
+  "mem_conversation_meta_json": {
+    "memory_id": "mem_conversation_meta_json",
+    "memory_type": "conversation",
+    "title": "Conversation meta_json",
+    "summary": "已确认是结构化输出前面混入额外文本，处理方式是先截取有效对象再解析。",
+    "summary_method": "none",
+    "retrieval_summary": "JSONDecodeError; file_reader",
+    "retrieval_terms": {
+      "tags": [
+        "JSONDecodeError",
+        "file_reader"
+      ],
+      "entities": [
+        "file_reader",
+        "JSONDecodeError"
+      ],
+      "files": [],
+      "errors": [
+        "JSONDecodeError"
+      ],
+      "commands": [],
+      "tool_names": [
+        "file_reader"
+      ]
+    },
+    "path": "conversations/meta_json.md",
+    "conversation_id": "meta_json",
+    "importance": 4,
+    "importance_method": "heuristic",
+    "flagged": false,
+    "poison_gate": {
+      "flagged": false,
+      "action": "allow",
+      "reason": "disabled",
+      "method": "disabled",
+      "matches": []
+    },
+    "change_report": {
+      "change_type": "new",
+      "duplicate": false,
+      "conflict": false,
+      "similarity": null,
+      "method": "rule",
+      "notes": []
+    },
+    "created_at": "2026-07-13T04:09:54+02:00",
+    "updated_at": "2026-07-13T04:09:54+02:00",
+    "last_accessed_at": null,
+    "access_count": 0
+  },
+  "mem_conversation_meta_command": {
+    "memory_id": "mem_conversation_meta_command",
+    "memory_type": "conversation",
+    "title": "Conversation meta_command",
+    "summary": "已确认完整检索评测需要使用专用环境运行消融脚本，并只选择完整配置行。",
+    "summary_method": "none",
+    "retrieval_summary": "exec_command; miniconda3; run_b5_ablation; FULL; run_b5_ablation.py; python run_b5_ablation.py --llm on --only FULL",
+    "retrieval_terms": {
+      "tags": [
+        "exec_command",
+        "miniconda3",
+        "run_b5_ablation",
+        "FULL",
+        "run_b5_ablation.py"
+      ],
+      "entities": [
+        "exec_command",
+        "miniconda3",
+        "run_b5_ablation",
+        "FULL"
+      ],
+      "files": [
+        "run_b5_ablation.py"
+      ],
+      "errors": [],
+      "commands": [
+        "python run_b5_ablation.py --llm on --only FULL"
+      ],
+      "tool_names": [
+        "exec_command"
+      ]
+    },
+    "path": "conversations/meta_command.md",
+    "conversation_id": "meta_command",
+    "importance": 5,
+    "importance_method": "heuristic",
+    "flagged": false,
+    "poison_gate": {
+      "flagged": false,
+      "action": "allow",
+      "reason": "disabled",
+      "method": "disabled",
+      "matches": []
+    },
+    "change_report": {
+      "change_type": "new",
+      "duplicate": false,
+      "conflict": false,
+      "similarity": null,
+      "method": "rule",
+      "notes": []
+    },
+    "created_at": "2026-07-13T04:09:55+02:00",
+    "updated_at": "2026-07-13T04:09:55+02:00",
+    "last_accessed_at": null,
+    "access_count": 0
+  },
+  "mem_conversation_meta_tool": {
+    "memory_id": "mem_conversation_meta_tool",
+    "memory_type": "conversation",
+    "title": "Conversation meta_tool",
+    "summary": "已确认本地资料读取和路径搜索需要分别走两个不同的工具入口。",
+    "summary_method": "none",
+    "retrieval_summary": "file_reader; local_file_search",
+    "retrieval_terms": {
+      "tags": [
+        "file_reader",
+        "local_file_search"
+      ],
+      "entities": [
+        "file_reader",
+        "local_file_search"
+      ],
+      "files": [],
+      "errors": [],
+      "commands": [],
+      "tool_names": [
+        "file_reader",
+        "local_file_search"
+      ]
+    },
+    "path": "conversations/meta_tool.md",
+    "conversation_id": "meta_tool",
+    "importance": 5,
+    "importance_method": "heuristic",
+    "flagged": false,
+    "poison_gate": {
+      "flagged": false,
+      "action": "allow",
+      "reason": "disabled",
+      "method": "disabled",
+      "matches": []
+    },
+    "change_report": {
+      "change_type": "new",
+      "duplicate": false,
+      "conflict": false,
+      "similarity": null,
+      "method": "rule",
+      "notes": []
+    },
+    "created_at": "2026-07-13T04:09:55+02:00",
+    "updated_at": "2026-07-13T04:09:55+02:00",
+    "last_accessed_at": null,
+    "access_count": 0
+  }
+}

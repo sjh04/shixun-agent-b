@@ -1,0 +1,12 @@
+{
+  "mode": "mock",
+  "backend": "mock",
+  "raw_text": "{\"content\": \"三条中文要点如下：\\n1. {\\\"formatted_text\\\": \\\"{\\\\n  \\\\\\\"role\\\\\\\": \\\\\\\"team_leader\\\\\\\",\\\\n  \\\\\\\"system\\\\\\\": \\\\\\\"local_agent\\\\\\\",\\\\n  \\\\\\\"status\\\\\\\": \\\\\\\"ready\\\\\\\",\\\\n  \\\\\\\"focus\\\\\\\": \\\\\\\"B1-B5 complete demo\\\\\\\"\\\\n}\\\", \\\"generated_file_path\\\": \\\"/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/05_format_converter/leader_demo.json\\\"}\\n2. 工具结果未提供更多可提取内容\\n3. 工具结果未提供更多可提取内容\", \"tool_calls\": []}",
+  "parsed_candidate": {
+    "content": "三条中文要点如下：\n1. {\"formatted_text\": \"{\\n  \\\"role\\\": \\\"team_leader\\\",\\n  \\\"system\\\": \\\"local_agent\\\",\\n  \\\"status\\\": \\\"ready\\\",\\n  \\\"focus\\\": \\\"B1-B5 complete demo\\\"\\n}\", \"generated_file_path\": \"/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/05_format_converter/leader_demo.json\"}\n2. 工具结果未提供更多可提取内容\n3. 工具结果未提供更多可提取内容",
+    "tool_calls": []
+  },
+  "status": "success",
+  "error": null,
+  "generated_at": "2026-07-13T05:26:05+02:00"
+}

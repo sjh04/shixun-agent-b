@@ -1,0 +1,18 @@
+{
+  "toolset": "basic_tools",
+  "total_calls": 1,
+  "total_success": 1,
+  "total_error": 0,
+  "overall_failure_rate": 0.0,
+  "tools": {
+    "table_analyzer": {
+      "count": 1,
+      "success": 1,
+      "error": 0,
+      "cache_hits": 0,
+      "failure_rate": 0.0,
+      "avg_latency_ms": 1.314,
+      "max_latency_ms": 1.314
+    }
+  }
+}

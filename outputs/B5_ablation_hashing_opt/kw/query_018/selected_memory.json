@@ -1,0 +1,157 @@
+{
+  "status": "success",
+  "query": "git 出现 detached HEAD 状态怎么恢复到分支？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conv_c15",
+      "memory_type": "conversation",
+      "title": "git detached HEAD 恢复",
+      "path": "conversations/mem_conv_c15.md",
+      "content": "# git detached HEAD 恢复\n\nSummary: 检出历史提交后回到分支的操作。\n\nRelevant chunk:\ngit detached HEAD 恢复\n\n检出历史提交后回到分支的操作。\n\ngit 提示 detached HEAD 是因为直接 checkout 了某个提交号。想保留当前修改就用 git switch -c 新分支名 把工作现场变成新分支；不需要保留就 git switch main直接回主分支。提交在游离状态下做的 commit 不会丢，reflog 里能找回。",
+      "original_chars": 300,
+      "included_chars": 251,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 1.0,
+      "factors": {
+        "relevance": 0.016393,
+        "relevance_norm": 1.0,
+        "recency": 0.43857,
+        "importance": 0.4
+      },
+      "retrieval_mode": "keyword",
+      "chunk_index": 0,
+      "importance": 4,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c01",
+      "memory_type": "conversation",
+      "title": "计算器浮点精度问题",
+      "path": "conversations/mem_conv_c01.md",
+      "content": "# 计算器浮点精度问题\n\nSummary: 0.1 加 0.2 不等于 0.3 的原因与 calculator 的处理方式。\n\nRelevant chunk:\n计算器浮点精度问题\n\n0.1 加 0.2 不等于 0.3 的原因与 calculator 的处理方式。\n\n用户问为什么计算器算 0.1 + 0.2 得到 0.30000000000000004。原因是二进制浮点数无法精确表示十进制小数。calculator 工具内部已改用 Decimal 做十进制运算，对外返回结果前按需要的小数位四舍五入，所以通过工具计算不会再出现这类尾数。直接在 Python 里用 float 仍会有该现象，属于语言特性不是 bug。",
+      "original_chars": 319,
+      "included_chars": 309,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.93702,
+      "factors": {
+        "relevance": 0.016129,
+        "relevance_norm": 0.13895,
+        "recency": 0.565479,
+        "importance": 0.5
+      },
+      "retrieval_mode": "keyword",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c11",
+      "memory_type": "conversation",
+      "title": "Qwen 生成参数调优记录",
+      "path": "conversations/mem_conv_c11.md",
+      "content": "# Qwen 生成参数调优记录\n\nSummary: 温度、生成长度等参数的完整调优过程与结论。\n\nRelevant chunk:\nQwen 生成参数调优记录\n\n温度、生成长度等参数的完整调优过程与结论。\n\n这轮对话专门调 Qwen3.5-4B 的生成参数，目标是让 B4 的输出既稳定又可复现，把全部尝试过程记录下来供后面的同学参考。测试方法是固定五个典型任务输入（两个工具调用、两个纯问答、一个长文总结），每改一个参数就把五个输入各跑三遍，统计 JSON 格式错误率、答案长度和端到端延迟。\n\n先试温度。temperature 从默认的 0.7 降到 0.3 再降到 0，工具调用输出的 JSON 格式错误率从大约五分之一降到二十分之一再降到几乎为零。原因很直观：采样温度越高，模型越容易在结构化输出里夹带自由发挥的文字。结论是决策类调用一律用贪心解码，不给采样留口子。创作类任务如果以后有需求再单独开温度，和决策链路隔离。\n\n然后是 max_new_tokens。一开始给了 2048，观察输出发现模型经常把工具返回的结果原样复述一遍，再加一段车轱辘话总结，白白浪费生成配额还拖慢响应。截到 1024 之后，五个测试输入都没有出现答案被截断的情况，平均延迟降了接近一半。再往下压到 512 时长文总结任务开始截尾，所以 1024 是当前任务集下的合理值。\n\n中间试过 top_p 和 top_k 的各种组合，后来意识到在 do_sample 关闭的情况下这些参数根本不生效，写在配置里只会误导后来的人以为它们在起作用，全部从 model.yaml 里清掉了。配置文件里只保留真正生效的参数，这是这次调参的一个附带教训。\n\n关键发现（重要）：模型总在正式回答前输出一大段思考过程，各种在 prompt 里写'不要解释、直接给答案''禁止输出推理过程'都压不住，模型嘴上答应实际照旧。最终确认必须在 tokenizer.apply_chat_template 调用里显式传 enable_thinking=False，才能真正关闭 <think> 思考链输出；光靠提示词约束是没有用的，这是模板层的开关不是指令层的问题。同时保持 do_sample=False，同一输入的输出才能逐字符一致，后面的消融实验才有可复现的基础。\n\n顺带测了输入长度上限。max_input_tokens 设 4096，超长的记忆上下文会被 B1 侧截断后再进模型，所以 B5 压缩层的摘要质量直接决定 B4 能看到什么信息，这两层必须配合着调：压缩预算给太小，模型拿到的记忆残缺不全；给太大又挤占用户输入和工具结果的空间。目前 2000 字符的记忆预算配 4096 的输入上限是平衡点。\n\n还对比了 bfloat16 和 float16 两种半精度：bfloat16 在这张卡上连续跑完整个测试集没有出现数值溢出警告，float16 在长文总结任务上偶尔出现，虽然没直接影响输出质量，但保险起见配置里锁定 bfloat16。显存占用两者几乎一样，没有理由冒险。\n\n另外记录一个容易踩的坑：换了 transformers 版本后 apply_chat_template 的默认行为可能变化，升级依赖后要重新核对模板渲染出来的完整 prompt 文本，我们在 outputs 里保留了 prompt_text 落盘就是为了这个。\n\n把以上参数固化进 configs/model.yaml 之后，连续跑了十次同一输入，十次输出完全一致，生成侧的可复现性问题到此收口。后续如果换模型或者换卡，按同样的测试流程重新过一遍这份清单即可，预计半小时能跑完。",
+      "original_chars": 1555,
+      "included_chars": 1511,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.876039,
+      "factors": {
+        "relevance": 0.015873,
+        "relevance_norm": 0.133049,
+        "recency": 0.680285,
+        "importance": 0.7
+      },
+      "retrieval_mode": "keyword",
+      "chunk_index": 0,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c03",
+      "memory_type": "conversation",
+      "title": "CUDA OOM 最新解决方案",
+      "path": "conversations/mem_conv_c03.md",
+      "content": "# CUDA OOM 最新解决方案\n\nSummary: 显存不足的现行处理办法：bfloat16 + max_memory 上限 + 减小生成长度。\n\nRelevant chunk:\nCUDA OOM 最新解决方案\n\n显存不足的现行处理办法：bfloat16 + max_memory 上限 + 减小生成长度。\n\n推理时报 CUDA out of memory 的最新结论：第一，加载用 bfloat16 而不是 float32，显存直接省一半；第二，给 from_pretrained 传 max_memory 把单卡上限压到 20GiB，留出生成期激活的余量；第三，把 max_new_tokens 从 2048 降到 1024。三条一起用之后再没有出现过 OOM。注意：五月份那次结论（用 float32 加小 batch）已经过时作废，不要再参考。",
+      "original_chars": 370,
+      "included_chars": 378,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.816964,
+      "factors": {
+        "relevance": 0.015625,
+        "relevance_norm": 0.100022,
+        "recency": 0.712458,
+        "importance": 0.8
+      },
+      "retrieval_mode": "keyword",
+      "chunk_index": 0,
+      "importance": 8,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c04",
+      "memory_type": "conversation",
+      "title": "CUDA out of memory 排查记录（旧）",
+      "path": "conversations/mem_conv_c04.md",
+      "content": "# CUDA out of memory 排查记录（旧）\n\nSummary: 早期一次显存不足 CUDA out of memory 的排查，结论后来被推翻。\n\nRelevant chunk:\nCUDA out of memory 排查记录（旧）\n\n早期一次显存不足 CUDA out of memory 的排查，结论后来被推翻。\n\n显卡内存不够、推理报 CUDA out of memory 的排查记录。当时的现象是加载即崩溃，报错出现在 from_pretrained 阶段。临时结论：把 torch_dtype 改成 float32 并把 batch 压到 1，勉强能跑但极慢；实在不行重启机器碰运气。（注：这是早期笔记，后来发现 float32 反而更占显存，本结论已被六月末的新方案取代，仅留档。）",
+      "original_chars": 347,
+      "included_chars": 354,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": 0.759707,
+      "factors": {
+        "relevance": 0.015385,
+        "relevance_norm": 0.093031,
+        "recency": 0.195361,
+        "importance": 0.3
+      },
+      "retrieval_mode": "keyword",
+      "chunk_index": 0,
+      "importance": 3,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "keyword",
+    "hyde": "disabled",
+    "rerank": "disabled",
+    "vector_backend": null,
+    "use_chunk": false,
+    "use_three_factor": false,
+    "chunk_count": 24,
+    "chunk_cache": {
+      "hits": 24,
+      "misses": 0
+    },
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "size": 44,
+      "hits": 0,
+      "misses": 0,
+      "disabled": 0
+    },
+    "query_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "hits": 0,
+      "misses": 0,
+      "disabled": 0
+    },
+    "latency_ms": 6.19
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 2803,
+  "truncated": true,
+  "errors": []
+}

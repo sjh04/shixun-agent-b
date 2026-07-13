@@ -1,0 +1,133 @@
+{
+  "status": "success",
+  "query": "在 leader_demo/docs 目录搜索 ReAct 和 ToolMessage 相关内容。",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conversation_leader_demo_01_full_chain",
+      "memory_type": "conversation",
+      "title": "Conversation leader_demo_01_full_chain",
+      "path": "conversations/leader_demo_01_full_chain.md",
+      "content": "# Conversation leader_demo_01_full_chain\n\nSummary: 1. 读取本地文档：通过 file_reader 工具读取 leader_demo/docs/project_requirements.md 等真实文件，确保回答基于文件实际内容而非编造。\\n2. 执行完整链路：演示 B1-B5 系统链路，包括记忆检索、压缩、投毒拦截、生命周期管理等核心能力。\\n3. 验证 Agent 能力：通过端到端任务（如记忆依赖问答）证明系统能正确读取、理解并基于真实文件内容回答问题。\n\nRelevant chunk:\nle_search table_analyzer format_converter\n\nleader_demo/docs/project_requirements.md docs/agent_intro.txt final_answer.md\n\n1. 读取本地文档：通过 file_reader 工具读取 leader_demo/docs/project_requirements.md 等真实文件，确保回答基于文件实际内容而非编造。\\n2. 执行完整链路：演示 B1-B5 系统链路，包括记忆检索、压缩、投毒拦截、生命周期管理等核心能力。\\n3. 验证 Agent 能力：通过端到端任务（如记忆依赖问答）证明系统能正确读取、理解并基于真实文件内容回答问题。\n\n三条中文要点如下：\n1. # 本地 Agent 项目验收需求\n2. 验收演示需要证明系统具备以下能力：\n3. 1. 能读取本地文档并基于真实文件内容回答，不能编造文件内容",
+      "original_chars": 4725,
+      "included_chars": 690,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.95,
+      "factors": {
+        "relevance": 0.032266,
+        "relevance_norm": 1.0,
+        "recency": 0.999998,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 3,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_leader_prev_tool_call",
+      "memory_type": "conversation",
+      "title": "历史工具调用演示",
+      "path": "conversations/demo_previous_tool_call.md",
+      "content": "# 历史工具调用演示\n\nSummary: 历史演示中系统完成 file_reader 工具调用，并形成 assistant(tool_calls) → tool → assistant(final) 消息闭环。\n\nRelevant chunk:\n历史工具调用演示\n\n历史演示中系统完成 file_reader 工具调用，并形成 assistant(tool_calls) → tool → assistant(final) 消息闭环。\n\nfile_reader docs/agent_intro.txt tool_calls ToolMessage messages ReAct loop final answer\n\n上一次演示中，系统成功完成了 `file_reader` 工具调用：B4 先输出 `tool_calls`，B3 调用 B2 的 `file_reader` 读取 `docs/agent_intro.txt`，B1 将 ToolMessage 写回 messages，随后 B4 生成最终中文总结。",
+      "original_chars": 603,
+      "included_chars": 458,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.495173,
+      "factors": {
+        "relevance": 0.030303,
+        "relevance_norm": 0.406466,
+        "recency": 0.999998,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_leader_acceptance_policy",
+      "memory_type": "global",
+      "title": "验收演示全局规则",
+      "path": "global/agent_acceptance_policy.md",
+      "content": "# 验收演示全局规则\n\nSummary: 组长验收演示时应优先体现 B1-B5 系统链路和完整 Agent 能力。\n\nRelevant chunk:\n验收演示全局规则\n\n组长验收演示时应优先体现 B1-B5 系统链路和完整 Agent 能力。\n\nleader demo acceptance B1 B2 B3 B4 B5 tools_schema tool_calls ToolMessage memory final_answer",
+      "original_chars": 284,
+      "included_chars": 216,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.401137,
+      "factors": {
+        "relevance": 0.014925,
+        "relevance_norm": 0.263922,
+        "recency": 0.999994,
+        "importance": 0.9
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 9,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_leader_demo_constraints",
+      "memory_type": "global",
+      "title": "现场演示约束",
+      "path": "global/demo_constraints.md",
+      "content": "# 现场演示约束\n\nSummary: 默认演示优先使用稳定低风险的五个 basic_tools；代码执行和复合 Skill 作为进阶原型说明。\n\nRelevant chunk:\n现场演示约束\n\n默认演示优先使用稳定低风险的五个 basic_tools；代码执行和复合 Skill 作为进阶原型说明。\n\ncalculator file_reader local_file_search table_analyzer format_converter code_executor composite basic_tools safe demo",
+      "original_chars": 302,
+      "included_chars": 269,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.290605,
+      "factors": {
+        "relevance": 0.014706,
+        "relevance_norm": 0.138256,
+        "recency": 0.999998,
+        "importance": 0.8
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 8,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "disabled",
+    "rerank": "disabled",
+    "vector_backend": "hashing",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 9,
+    "chunk_cache": {
+      "hits": 5,
+      "misses": 0
+    },
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/leader_demo/memory/memory_retrieval_cache.sqlite3",
+      "size": 9,
+      "hits": 9,
+      "misses": 0,
+      "disabled": 0
+    },
+    "query_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/leader_demo/memory/memory_retrieval_cache.sqlite3",
+      "hits": 1,
+      "misses": 0,
+      "disabled": 0
+    },
+    "latency_ms": 2.508
+  },
+  "max_memory_chars": 1800,
+  "total_chars": 1633,
+  "truncated": true,
+  "errors": []
+}

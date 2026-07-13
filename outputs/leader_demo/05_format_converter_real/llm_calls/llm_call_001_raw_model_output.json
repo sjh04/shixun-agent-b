@@ -1,0 +1,22 @@
+{
+  "mode": "prompt_json",
+  "backend": "transformers",
+  "raw_text": "{\"content\":\"\",\"tool_calls\":[{\"id\":\"call_001\",\"name\":\"format_converter\",\"args\":{\"text\":\"role: team_leader\\\\nsystem: local_agent\\\\nstatus: ready\\\\nfocus: B1-B5 complete demo\",\"target_format\":\"json\",\"output_filename\":\"agent_config.json\"}}]}\n",
+  "parsed_candidate": {
+    "content": "",
+    "tool_calls": [
+      {
+        "id": "call_001",
+        "name": "format_converter",
+        "args": {
+          "text": "role: team_leader\\nsystem: local_agent\\nstatus: ready\\nfocus: B1-B5 complete demo",
+          "target_format": "json",
+          "output_filename": "agent_config.json"
+        }
+      }
+    ]
+  },
+  "status": "success",
+  "error": null,
+  "generated_at": "2026-07-13T06:45:38+02:00"
+}

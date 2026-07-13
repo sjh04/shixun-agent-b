@@ -1,0 +1,206 @@
+{
+  "metrics": {
+    "task_count": 10,
+    "success_rate_mem_off": 0.0,
+    "success_rate_mem_on": 1.0,
+    "retrieval_hit_rate": 1.0,
+    "delta_success_rate": 1.0
+  },
+  "records": [
+    {
+      "task_id": "e2e_01",
+      "question": "跑 run_full_demo 全系统演示之前必须确认哪些事情？",
+      "answer_keywords": [
+        "prompt_json"
+      ],
+      "retrieval_hit": true,
+      "ranked_ids": [
+        "mem_conv_c05",
+        "mem_g_arch",
+        "mem_g_env",
+        "mem_g_tools",
+        "mem_g_qwen"
+      ],
+      "success_mem_off": false,
+      "success_mem_on": true,
+      "answer_mem_off": "确认本地 Agent 系统已正确安装、依赖库齐全、配置文件路径无误，并具备运行权限。",
+      "answer_mem_on": "在正式运行 `run_full_demo.py` 前，必须按顺序确认并执行以下三件事：\n\n1.  **检查显存余量**：运行 `nvidia-smi` 确认显卡可用，避免加载模型失败。\n2.  **验证输出目录**：确保 `outputs/full_demo` 目录存在且当前用户有写入权限，防止落盘失败。\n3.  **设置关键参数**：命令行必须显式添加 `--llm_mode prompt_json`，否则脚本会回退到 mock 模式导致演示数据为假。\n\n此外，建议先单独运行 `b4_local_agent_llm.py` 进行冒烟测试，确认模型加载正常后再启动全系统演示。"
+    },
+    {
+      "task_id": "e2e_02",
+      "question": "我们项目里怎么才能真正关闭模型的思考输出？",
+      "answer_keywords": [
+        "enable_thinking"
+      ],
+      "retrieval_hit": true,
+      "ranked_ids": [
+        "mem_conv_c11",
+        "mem_conv_c03",
+        "mem_conv_c09",
+        "mem_conv_c05",
+        "mem_conv_c10"
+      ],
+      "success_mem_off": false,
+      "success_mem_on": true,
+      "answer_mem_off": "通过设置 `temperature=0` 或 `top_p=0` 参数，并禁用 `stream` 模式即可关闭思考输出。",
+      "answer_mem_on": "必须在 `tokenizer.apply_chat_template` 调用中显式传入 `enable_thinking=False`。仅靠提示词约束无效。"
+    },
+    {
+      "task_id": "e2e_03",
+      "question": "记忆注入预算 max_memory_chars 默认是多少？",
+      "answer_keywords": [
+        "2000"
+      ],
+      "retrieval_hit": true,
+      "ranked_ids": [
+        "mem_conv_c10",
+        "mem_g_schema",
+        "mem_conv_c11",
+        "mem_conv_c05",
+        "mem_g_tools"
+      ],
+      "success_mem_off": false,
+      "success_mem_on": true,
+      "answer_mem_off": "默认是 1000000。",
+      "answer_mem_on": "默认是 2000 字符。"
+    },
+    {
+      "task_id": "e2e_04",
+      "question": "本项目模型加载应该用什么精度？",
+      "answer_keywords": [
+        "bfloat16"
+      ],
+      "retrieval_hit": true,
+      "ranked_ids": [
+        "mem_g_qwen",
+        "mem_conv_c11",
+        "mem_conv_c03",
+        "mem_g_tools",
+        "mem_conv_c05"
+      ],
+      "success_mem_off": false,
+      "success_mem_on": true,
+      "answer_mem_off": "不知道",
+      "answer_mem_on": "bfloat16"
+    },
+    {
+      "task_id": "e2e_05",
+      "question": "B5 的向量缓存文件叫什么名字？",
+      "answer_keywords": [
+        "memory_vector_cache"
+      ],
+      "retrieval_hit": true,
+      "ranked_ids": [
+        "mem_conv_c17",
+        "mem_g_arch",
+        "mem_g_schema",
+        "mem_conv_c18",
+        "mem_g_tools"
+      ],
+      "success_mem_off": false,
+      "success_mem_on": true,
+      "answer_mem_off": "不知道",
+      "answer_mem_on": "memory_vector_cache.json"
+    },
+    {
+      "task_id": "e2e_06",
+      "question": "推理时显存 OOM，按我们项目的最新结论应该怎么处理？",
+      "answer_keywords": [
+        "bfloat16",
+        "max_memory"
+      ],
+      "retrieval_hit": true,
+      "ranked_ids": [
+        "mem_conv_c03",
+        "mem_conv_c05",
+        "mem_conv_c11",
+        "mem_conv_c04",
+        "mem_g_qwen"
+      ],
+      "success_mem_off": false,
+      "success_mem_on": true,
+      "answer_mem_off": "请提供项目的最新结论或相关文档，以便我给出具体处理建议。",
+      "answer_mem_on": "显存 OOM 请按以下三条方案同时处理：\n1. 加载精度改为 **bfloat16**（替代 float32 或 float16）。\n2. 在 `from_pretrained` 中设置 **`max_memory` 上限为 20GiB**。\n3. 将生成参数 **`max_new_tokens` 从 2048 降至 1024**。"
+    },
+    {
+      "task_id": "e2e_07",
+      "question": "团队约定回答用什么语言、产物放在哪个目录？",
+      "answer_keywords": [
+        "中文",
+        "outputs"
+      ],
+      "retrieval_hit": true,
+      "ranked_ids": [
+        "mem_g_prefs",
+        "mem_conv_c05",
+        "mem_conv_c18",
+        "mem_g_tools",
+        "mem_conv_c09"
+      ],
+      "success_mem_off": false,
+      "success_mem_on": true,
+      "answer_mem_off": "团队约定回答使用中文，产物放在 `output` 目录。",
+      "answer_mem_on": "回答语言：中文。\n产物目录：outputs/ 下按模块分子目录。"
+    },
+    {
+      "task_id": "e2e_08",
+      "question": "项目 conda 环境名和 Python 版本分别是什么？",
+      "answer_keywords": [
+        "agent",
+        "3.10"
+      ],
+      "retrieval_hit": true,
+      "ranked_ids": [
+        "mem_g_env",
+        "mem_conv_c08",
+        "mem_conv_c09",
+        "mem_g_tools",
+        "mem_conv_c06"
+      ],
+      "success_mem_off": false,
+      "success_mem_on": true,
+      "answer_mem_off": "不知道",
+      "answer_mem_on": "环境名：agent；Python 版本：3.10"
+    },
+    {
+      "task_id": "e2e_09",
+      "question": "selected_memory.json 里永远不能删改的三个字段是哪三个？",
+      "answer_keywords": [
+        "memory_id",
+        "memory_type",
+        "content"
+      ],
+      "retrieval_hit": true,
+      "ranked_ids": [
+        "mem_g_schema",
+        "mem_conv_c17",
+        "mem_conv_c09",
+        "mem_g_tools",
+        "mem_conv_c18"
+      ],
+      "success_mem_off": false,
+      "success_mem_on": true,
+      "answer_mem_off": "不知道",
+      "answer_mem_on": "memory_id、memory_type、content。"
+    },
+    {
+      "task_id": "e2e_10",
+      "question": "演示表格里 amount 列的金额是什么货币单位？",
+      "answer_keywords": [
+        "人民币"
+      ],
+      "retrieval_hit": true,
+      "ranked_ids": [
+        "mem_conv_c18",
+        "mem_g_prefs",
+        "mem_conv_c02",
+        "mem_g_tools",
+        "mem_g_schema"
+      ],
+      "success_mem_off": false,
+      "success_mem_on": true,
+      "answer_mem_off": "不知道",
+      "answer_mem_on": "人民币"
+    }
+  ]
+}

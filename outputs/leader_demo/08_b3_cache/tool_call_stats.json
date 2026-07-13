@@ -1,0 +1,18 @@
+{
+  "toolset": "basic_tools",
+  "total_calls": 3,
+  "total_success": 3,
+  "total_error": 0,
+  "overall_failure_rate": 0.0,
+  "tools": {
+    "calculator": {
+      "count": 3,
+      "success": 3,
+      "error": 0,
+      "cache_hits": 1,
+      "failure_rate": 0.0,
+      "avg_latency_ms": 0.037,
+      "max_latency_ms": 0.045
+    }
+  }
+}

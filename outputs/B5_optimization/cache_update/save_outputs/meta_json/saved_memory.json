@@ -1,0 +1,50 @@
+{
+  "status": "success",
+  "memory_id": "mem_conversation_meta_json",
+  "memory_type": "conversation",
+  "conversation_id": "meta_json",
+  "title": "Conversation meta_json",
+  "summary": "已确认是结构化输出前面混入额外文本，处理方式是先截取有效对象再解析。",
+  "summary_method": "none",
+  "importance": 4,
+  "importance_method": "heuristic",
+  "retrieval_cache": {
+    "status": "success",
+    "chunk_cache": {
+      "hits": 0,
+      "misses": 1
+    },
+    "vector_backend": "hashing",
+    "embedding_cache": {
+      "embedding_cache_hits": 0,
+      "embedding_cache_misses": 1,
+      "embedding_cache_disabled": 0
+    }
+  },
+  "path": "conversations/meta_json.md",
+  "index_path": "memory_index.json",
+  "created_at": "2026-07-13T04:09:54+02:00",
+  "updated_at": "2026-07-13T04:09:54+02:00",
+  "change_report": {
+    "change_type": "new",
+    "duplicate": false,
+    "conflict": false,
+    "similarity": null,
+    "method": "rule",
+    "notes": []
+  },
+  "poison_gate": {
+    "flagged": false,
+    "action": "allow",
+    "reason": "disabled",
+    "method": "disabled",
+    "matches": []
+  },
+  "reflection": null,
+  "evicted": [],
+  "source_paths": {
+    "messages": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/cache_update/inputs/meta_json/messages.json",
+    "trace": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/cache_update/inputs/meta_json/trace.json",
+    "answer": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/cache_update/inputs/meta_json/answer.md"
+  }
+}

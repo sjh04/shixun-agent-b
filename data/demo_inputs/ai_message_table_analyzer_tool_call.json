@@ -1,0 +1,15 @@
+{
+  "role": "assistant",
+  "content": "",
+  "tool_calls": [
+    {
+      "id": "call_demo_table",
+      "name": "table_analyzer",
+      "args": {
+        "path": "tables/results.csv",
+        "max_rows_preview": 5,
+        "describe": true
+      }
+    }
+  ]
+}

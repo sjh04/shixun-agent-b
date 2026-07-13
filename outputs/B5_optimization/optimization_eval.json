@@ -1,0 +1,490 @@
+{
+  "status": "success",
+  "metadata_ablation": {
+    "metadata_on": {
+      "metrics": {
+        "query_count": 5,
+        "hit@1": 0.8,
+        "hit@3": 0.8,
+        "mrr": 0.8,
+        "mean_latency_ms": 33.5532
+      },
+      "records": [
+        {
+          "query": "ModuleNotFoundError yaml 配置文件怎么修",
+          "probe": "error_file",
+          "relevant_id": "mem_conversation_meta_yaml",
+          "ranked_ids": [
+            "mem_conversation_meta_yaml",
+            "mem_conversation_meta_command",
+            "mem_conversation_meta_cuda"
+          ],
+          "first_rank": 1,
+          "hit@1": true,
+          "hit@3": true,
+          "retrieval": {
+            "mode": "hybrid",
+            "hyde": "disabled",
+            "rerank": "disabled",
+            "vector_backend": "hashing",
+            "use_chunk": true,
+            "use_three_factor": true,
+            "chunk_count": 7,
+            "chunk_cache": {
+              "hits": 5,
+              "misses": 0
+            },
+            "embedding_cache": {
+              "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_on/memory/memory_retrieval_cache.sqlite3",
+              "size": 7,
+              "hits": 7,
+              "misses": 0,
+              "disabled": 0
+            },
+            "query_embedding_cache": {
+              "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_on/memory/memory_retrieval_cache.sqlite3",
+              "hits": 0,
+              "misses": 1,
+              "disabled": 0
+            },
+            "latency_ms": 25.481
+          }
+        },
+        {
+          "query": "OOM device_map max_memory",
+          "probe": "error_config",
+          "relevant_id": "mem_conversation_meta_cuda",
+          "ranked_ids": [
+            "mem_conversation_meta_cuda",
+            "mem_conversation_meta_json",
+            "mem_conversation_meta_tool"
+          ],
+          "first_rank": 1,
+          "hit@1": true,
+          "hit@3": true,
+          "retrieval": {
+            "mode": "hybrid",
+            "hyde": "disabled",
+            "rerank": "disabled",
+            "vector_backend": "hashing",
+            "use_chunk": true,
+            "use_three_factor": true,
+            "chunk_count": 7,
+            "chunk_cache": {
+              "hits": 5,
+              "misses": 0
+            },
+            "embedding_cache": {
+              "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_on/memory/memory_retrieval_cache.sqlite3",
+              "size": 7,
+              "hits": 7,
+              "misses": 0,
+              "disabled": 0
+            },
+            "query_embedding_cache": {
+              "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_on/memory/memory_retrieval_cache.sqlite3",
+              "hits": 0,
+              "misses": 1,
+              "disabled": 0
+            },
+            "latency_ms": 24.661
+          }
+        },
+        {
+          "query": "Expecting value json.loads",
+          "probe": "error_code",
+          "relevant_id": "mem_conversation_meta_json",
+          "ranked_ids": [
+            "mem_conversation_meta_command",
+            "mem_conversation_meta_yaml",
+            "mem_conversation_meta_tool"
+          ],
+          "first_rank": null,
+          "hit@1": false,
+          "hit@3": false,
+          "retrieval": {
+            "mode": "hybrid",
+            "hyde": "disabled",
+            "rerank": "disabled",
+            "vector_backend": "hashing",
+            "use_chunk": true,
+            "use_three_factor": true,
+            "chunk_count": 7,
+            "chunk_cache": {
+              "hits": 5,
+              "misses": 0
+            },
+            "embedding_cache": {
+              "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_on/memory/memory_retrieval_cache.sqlite3",
+              "size": 7,
+              "hits": 7,
+              "misses": 0,
+              "disabled": 0
+            },
+            "query_embedding_cache": {
+              "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_on/memory/memory_retrieval_cache.sqlite3",
+              "hits": 0,
+              "misses": 1,
+              "disabled": 0
+            },
+            "latency_ms": 32.549
+          }
+        },
+        {
+          "query": "run_b5_ablation llm on FULL 命令",
+          "probe": "command",
+          "relevant_id": "mem_conversation_meta_command",
+          "ranked_ids": [
+            "mem_conversation_meta_command",
+            "mem_conversation_meta_tool"
+          ],
+          "first_rank": 1,
+          "hit@1": true,
+          "hit@3": true,
+          "retrieval": {
+            "mode": "hybrid",
+            "hyde": "disabled",
+            "rerank": "disabled",
+            "vector_backend": "hashing",
+            "use_chunk": true,
+            "use_three_factor": true,
+            "chunk_count": 7,
+            "chunk_cache": {
+              "hits": 5,
+              "misses": 0
+            },
+            "embedding_cache": {
+              "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_on/memory/memory_retrieval_cache.sqlite3",
+              "size": 7,
+              "hits": 7,
+              "misses": 0,
+              "disabled": 0
+            },
+            "query_embedding_cache": {
+              "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_on/memory/memory_retrieval_cache.sqlite3",
+              "hits": 0,
+              "misses": 1,
+              "disabled": 0
+            },
+            "latency_ms": 59.193
+          }
+        },
+        {
+          "query": "local_file_search file_reader 工具",
+          "probe": "tool_name",
+          "relevant_id": "mem_conversation_meta_tool",
+          "ranked_ids": [
+            "mem_conversation_meta_tool",
+            "mem_conversation_meta_json",
+            "mem_conversation_meta_yaml"
+          ],
+          "first_rank": 1,
+          "hit@1": true,
+          "hit@3": true,
+          "retrieval": {
+            "mode": "hybrid",
+            "hyde": "disabled",
+            "rerank": "disabled",
+            "vector_backend": "hashing",
+            "use_chunk": true,
+            "use_three_factor": true,
+            "chunk_count": 7,
+            "chunk_cache": {
+              "hits": 5,
+              "misses": 0
+            },
+            "embedding_cache": {
+              "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_on/memory/memory_retrieval_cache.sqlite3",
+              "size": 7,
+              "hits": 7,
+              "misses": 0,
+              "disabled": 0
+            },
+            "query_embedding_cache": {
+              "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_on/memory/memory_retrieval_cache.sqlite3",
+              "hits": 0,
+              "misses": 1,
+              "disabled": 0
+            },
+            "latency_ms": 25.882
+          }
+        }
+      ],
+      "sqlite_counts": {
+        "documents": 5,
+        "chunks": 7,
+        "vectors": 7,
+        "query_vectors": 5
+      }
+    },
+    "metadata_off": {
+      "metrics": {
+        "query_count": 5,
+        "hit@1": 0.4,
+        "hit@3": 0.4,
+        "mrr": 0.4,
+        "mean_latency_ms": 59.1884
+      },
+      "records": [
+        {
+          "query": "ModuleNotFoundError yaml 配置文件怎么修",
+          "probe": "error_file",
+          "relevant_id": "mem_conversation_meta_yaml",
+          "ranked_ids": [
+            "mem_conversation_meta_yaml",
+            "mem_conversation_meta_command",
+            "mem_conversation_meta_cuda"
+          ],
+          "first_rank": 1,
+          "hit@1": true,
+          "hit@3": true,
+          "retrieval": {
+            "mode": "hybrid",
+            "hyde": "disabled",
+            "rerank": "disabled",
+            "vector_backend": "hashing",
+            "use_chunk": true,
+            "use_three_factor": true,
+            "chunk_count": 5,
+            "chunk_cache": {
+              "hits": 0,
+              "misses": 5
+            },
+            "embedding_cache": {
+              "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_off/memory/memory_retrieval_cache.sqlite3",
+              "size": 5,
+              "hits": 0,
+              "misses": 5,
+              "disabled": 0
+            },
+            "query_embedding_cache": {
+              "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_off/memory/memory_retrieval_cache.sqlite3",
+              "hits": 0,
+              "misses": 1,
+              "disabled": 0
+            },
+            "latency_ms": 131.981
+          }
+        },
+        {
+          "query": "OOM device_map max_memory",
+          "probe": "error_config",
+          "relevant_id": "mem_conversation_meta_cuda",
+          "ranked_ids": [
+            "mem_conversation_meta_json",
+            "mem_conversation_meta_command",
+            "mem_conversation_meta_tool"
+          ],
+          "first_rank": null,
+          "hit@1": false,
+          "hit@3": false,
+          "retrieval": {
+            "mode": "hybrid",
+            "hyde": "disabled",
+            "rerank": "disabled",
+            "vector_backend": "hashing",
+            "use_chunk": true,
+            "use_three_factor": true,
+            "chunk_count": 5,
+            "chunk_cache": {
+              "hits": 5,
+              "misses": 0
+            },
+            "embedding_cache": {
+              "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_off/memory/memory_retrieval_cache.sqlite3",
+              "size": 5,
+              "hits": 5,
+              "misses": 0,
+              "disabled": 0
+            },
+            "query_embedding_cache": {
+              "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_off/memory/memory_retrieval_cache.sqlite3",
+              "hits": 0,
+              "misses": 1,
+              "disabled": 0
+            },
+            "latency_ms": 82.433
+          }
+        },
+        {
+          "query": "Expecting value json.loads",
+          "probe": "error_code",
+          "relevant_id": "mem_conversation_meta_json",
+          "ranked_ids": [
+            "mem_conversation_meta_command",
+            "mem_conversation_meta_tool",
+            "mem_conversation_meta_yaml"
+          ],
+          "first_rank": null,
+          "hit@1": false,
+          "hit@3": false,
+          "retrieval": {
+            "mode": "hybrid",
+            "hyde": "disabled",
+            "rerank": "disabled",
+            "vector_backend": "hashing",
+            "use_chunk": true,
+            "use_three_factor": true,
+            "chunk_count": 5,
+            "chunk_cache": {
+              "hits": 5,
+              "misses": 0
+            },
+            "embedding_cache": {
+              "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_off/memory/memory_retrieval_cache.sqlite3",
+              "size": 5,
+              "hits": 5,
+              "misses": 0,
+              "disabled": 0
+            },
+            "query_embedding_cache": {
+              "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_off/memory/memory_retrieval_cache.sqlite3",
+              "hits": 0,
+              "misses": 1,
+              "disabled": 0
+            },
+            "latency_ms": 23.034
+          }
+        },
+        {
+          "query": "run_b5_ablation llm on FULL 命令",
+          "probe": "command",
+          "relevant_id": "mem_conversation_meta_command",
+          "ranked_ids": [
+            "mem_conversation_meta_tool"
+          ],
+          "first_rank": null,
+          "hit@1": false,
+          "hit@3": false,
+          "retrieval": {
+            "mode": "hybrid",
+            "hyde": "disabled",
+            "rerank": "disabled",
+            "vector_backend": "hashing",
+            "use_chunk": true,
+            "use_three_factor": true,
+            "chunk_count": 5,
+            "chunk_cache": {
+              "hits": 5,
+              "misses": 0
+            },
+            "embedding_cache": {
+              "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_off/memory/memory_retrieval_cache.sqlite3",
+              "size": 5,
+              "hits": 5,
+              "misses": 0,
+              "disabled": 0
+            },
+            "query_embedding_cache": {
+              "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_off/memory/memory_retrieval_cache.sqlite3",
+              "hits": 0,
+              "misses": 1,
+              "disabled": 0
+            },
+            "latency_ms": 36.0
+          }
+        },
+        {
+          "query": "local_file_search file_reader 工具",
+          "probe": "tool_name",
+          "relevant_id": "mem_conversation_meta_tool",
+          "ranked_ids": [
+            "mem_conversation_meta_tool"
+          ],
+          "first_rank": 1,
+          "hit@1": true,
+          "hit@3": true,
+          "retrieval": {
+            "mode": "hybrid",
+            "hyde": "disabled",
+            "rerank": "disabled",
+            "vector_backend": "hashing",
+            "use_chunk": true,
+            "use_three_factor": true,
+            "chunk_count": 5,
+            "chunk_cache": {
+              "hits": 5,
+              "misses": 0
+            },
+            "embedding_cache": {
+              "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_off/memory/memory_retrieval_cache.sqlite3",
+              "size": 5,
+              "hits": 5,
+              "misses": 0,
+              "disabled": 0
+            },
+            "query_embedding_cache": {
+              "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_off/memory/memory_retrieval_cache.sqlite3",
+              "hits": 0,
+              "misses": 1,
+              "disabled": 0
+            },
+            "latency_ms": 22.494
+          }
+        }
+      ],
+      "sqlite_counts": {
+        "documents": 5,
+        "chunks": 5,
+        "vectors": 5,
+        "query_vectors": 5
+      }
+    }
+  },
+  "cache_update": {
+    "first_load_query_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/cache_update/memory/memory_retrieval_cache.sqlite3",
+      "hits": 0,
+      "misses": 1,
+      "disabled": 0
+    },
+    "second_load_query_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/cache_update/memory/memory_retrieval_cache.sqlite3",
+      "hits": 1,
+      "misses": 0,
+      "disabled": 0
+    },
+    "first_load_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/cache_update/memory/memory_retrieval_cache.sqlite3",
+      "size": 7,
+      "hits": 7,
+      "misses": 0,
+      "disabled": 0
+    },
+    "prewarm_after_save": {
+      "status": "success",
+      "chunk_cache": {
+        "hits": 0,
+        "misses": 1
+      },
+      "vector_backend": "hashing",
+      "embedding_cache": {
+        "embedding_cache_hits": 0,
+        "embedding_cache_misses": 2,
+        "embedding_cache_disabled": 0
+      }
+    },
+    "before_update_counts": {
+      "documents": 5,
+      "chunks": 7,
+      "vectors": 7,
+      "query_vectors": 1
+    },
+    "after_update_counts": {
+      "documents": 5,
+      "chunks": 8,
+      "vectors": 8,
+      "query_vectors": 2
+    },
+    "updated_ranked_ids": [
+      "mem_conversation_meta_yaml",
+      "mem_conversation_meta_command",
+      "mem_conversation_meta_cuda"
+    ],
+    "updated_retrieval_summary": "ImportError; ModuleNotFoundError; PyYAML; exec_command; python3; agent/configs/runtime.yaml; agent/configs/model.yaml; python3 -m pip install PyYAML",
+    "updated_files": [
+      "agent/configs/runtime.yaml",
+      "agent/configs/model.yaml"
+    ]
+  }
+}

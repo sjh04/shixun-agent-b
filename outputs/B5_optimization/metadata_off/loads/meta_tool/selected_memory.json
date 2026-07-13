@@ -1,0 +1,61 @@
+{
+  "status": "success",
+  "query": "local_file_search file_reader 工具",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conversation_meta_tool",
+      "memory_type": "conversation",
+      "title": "Conversation meta_tool",
+      "path": "conversations/meta_tool.md",
+      "content": "# Conversation meta_tool\n\nSummary: 已确认本地资料读取和路径搜索需要分别走两个不同的工具入口。\n\nRelevant chunk:\nConversation meta_tool\n\n已确认本地资料读取和路径搜索需要分别走两个不同的工具入口。\n\n已确认本地资料读取和路径搜索需要分别走两个不同的工具入口。\n\n```json\n{\n  \"change_type\": \"new\",\n  \"duplicate\": false,\n  \"conflict\": false,\n  \"similarity\": null,\n  \"method\": \"rule\",\n  \"notes\": []\n}\n```",
+      "original_chars": 560,
+      "included_chars": 306,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.95,
+      "factors": {
+        "relevance": 0.032787,
+        "relevance_norm": 1.0,
+        "recency": 1.0,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "disabled",
+    "rerank": "disabled",
+    "vector_backend": "hashing",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 5,
+    "chunk_cache": {
+      "hits": 5,
+      "misses": 0
+    },
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_off/memory/memory_retrieval_cache.sqlite3",
+      "size": 5,
+      "hits": 5,
+      "misses": 0,
+      "disabled": 0
+    },
+    "query_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_optimization/metadata_off/memory/memory_retrieval_cache.sqlite3",
+      "hits": 0,
+      "misses": 1,
+      "disabled": 0
+    },
+    "latency_ms": 22.494
+  },
+  "max_memory_chars": 6000,
+  "total_chars": 306,
+  "truncated": true,
+  "errors": []
+}

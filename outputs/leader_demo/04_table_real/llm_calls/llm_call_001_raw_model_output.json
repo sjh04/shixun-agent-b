@@ -1,0 +1,22 @@
+{
+  "mode": "prompt_json",
+  "backend": "transformers",
+  "raw_text": "{\"tool_calls\":[{\"name\":\"table_analyzer\",\"args\":{\"path\":\"leader_demo/tables/leader_results.csv\",\"max_rows_preview\":10,\"describe\":true}}]}\n",
+  "parsed_candidate": {
+    "content": "",
+    "tool_calls": [
+      {
+        "id": "call_001",
+        "name": "table_analyzer",
+        "args": {
+          "path": "leader_demo/tables/leader_results.csv",
+          "max_rows_preview": 10,
+          "describe": true
+        }
+      }
+    ]
+  },
+  "status": "success",
+  "error": null,
+  "generated_at": "2026-07-13T06:44:57+02:00"
+}

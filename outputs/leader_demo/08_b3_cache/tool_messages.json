@@ -1,0 +1,23 @@
+[
+  {
+    "role": "tool",
+    "tool_call_id": "call_001",
+    "name": "calculator",
+    "content": "{\"skill_name\":\"calculator\",\"status\":\"success\",\"input\":{\"expression\":\"2 + 3 * 4\"},\"output\":{\"result\":14},\"error\":null,\"latency_ms\":0.045}",
+    "status": "success"
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_002",
+    "name": "calculator",
+    "content": "{\"skill_name\":\"calculator\",\"status\":\"success\",\"input\":{\"expression\":\"2 + 3 * 4\"},\"output\":{\"result\":14},\"error\":null,\"latency_ms\":0.045}",
+    "status": "success"
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_003",
+    "name": "calculator",
+    "content": "{\"skill_name\":\"calculator\",\"status\":\"success\",\"input\":{\"expression\":\"10 / 2\"},\"output\":{\"result\":5.0},\"error\":null,\"latency_ms\":0.02}",
+    "status": "success"
+  }
+]

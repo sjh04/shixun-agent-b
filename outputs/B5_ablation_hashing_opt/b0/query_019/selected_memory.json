@@ -1,0 +1,153 @@
+{
+  "status": "success",
+  "query": "换一份自定义的 system prompt 应该改哪个文件？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_g_arch",
+      "memory_type": "global",
+      "title": "B1–B5 系统架构分工",
+      "path": "global/mem_g_arch.md",
+      "content": "# B1–B5 系统架构分工\n\n- memory_id: `mem_g_arch`\n- created_or_updated_at: `2026-06-10T09:00:00+00:00`\n\n## Insight\n\nB1 负责运行与消息编排，是唯一的入口，维护 messages 与 trace 并按轮次调度其余模块。B2 提供 Skill 工具函数本体（计算器、文件读取、表格分析、本地搜索、格式转换）。B3 负责工具说明生成与执行，把 B2 的函数暴露成 schema 并解析模型的调用参数。B4 封装本地 Qwen3.5-4B 做决策，输入 messages 输出 AIMessage。B5 是记忆子系统，负责记忆文档的检索注入与保存更新，唯一调用方是 B1。\n",
+      "original_chars": 334,
+      "included_chars": 334,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": null,
+      "factors": {
+        "relevance": null,
+        "recency": null,
+        "importance": null
+      },
+      "retrieval_mode": "none",
+      "chunk_index": null,
+      "importance": 9,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_env",
+      "memory_type": "global",
+      "title": "运行环境与依赖版本",
+      "path": "global/mem_g_env.md",
+      "content": "# 运行环境与依赖版本\n\n- memory_id: `mem_g_env`\n- created_or_updated_at: `2026-06-05T09:00:00+00:00`\n\n## Insight\n\n项目统一使用 conda 环境 agent：Python 3.10、torch 2.7.1+cu118、transformers 5.12、numpy 2.2、PyYAML 6.0。不安装 faiss 和 sentence-transformers，离线环境下模型local_files_only 加载。新同学入组先 conda activate agent 再跑 requirements.txt 核对版本。\n",
+      "original_chars": 310,
+      "included_chars": 310,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": null,
+      "factors": {
+        "relevance": null,
+        "recency": null,
+        "importance": null
+      },
+      "retrieval_mode": "none",
+      "chunk_index": null,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_prefs",
+      "memory_type": "global",
+      "title": "用户偏好",
+      "path": "global/mem_g_prefs.md",
+      "content": "# 用户偏好\n\n- memory_id: `mem_g_prefs`\n- created_or_updated_at: `2026-06-01T09:00:00+00:00`\n\n## Insight\n\n所有回答一律使用中文。运行产物统一落盘到 outputs/ 目录下按模块分子目录，不要写到仓库根目录。金额单位默认人民币。日期用 ISO 格式书写。长回答优先给结论再给过程。\n",
+      "original_chars": 189,
+      "included_chars": 189,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": null,
+      "factors": {
+        "relevance": null,
+        "recency": null,
+        "importance": null
+      },
+      "retrieval_mode": "none",
+      "chunk_index": null,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_qwen",
+      "memory_type": "global",
+      "title": "Qwen3.5-4B 加载配置",
+      "path": "global/mem_g_qwen.md",
+      "content": "# Qwen3.5-4B 加载配置\n\n- memory_id: `mem_g_qwen`\n- created_or_updated_at: `2026-06-08T09:00:00+00:00`\n\n## Insight\n\n模型权重放在 models/Qwen3.5-4B，加载参数固定为：torch_dtype 用 bfloat16（这张卡上float16 偶发溢出警告），device_map 设 auto 让权重自动分配到空闲显卡，local_files_only设 true 保证离线可用，trust_remote_code 设 true。tokenizer 与模型同路径。加载一次约九十秒，进程内要缓存复用，不要重复加载。\n",
+      "original_chars": 316,
+      "included_chars": 316,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": null,
+      "factors": {
+        "relevance": null,
+        "recency": null,
+        "importance": null
+      },
+      "retrieval_mode": "none",
+      "chunk_index": null,
+      "importance": 8,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_schema",
+      "memory_type": "global",
+      "title": "selected_memory.json 字段约定",
+      "path": "global/mem_g_schema.md",
+      "content": "# selected_memory.json 字段约定\n\n- memory_id: `mem_g_schema`\n- created_or_updated_at: `2026-06-15T09:00:00+00:00`\n\n## Insight\n\nB1 的记忆注入只依赖三个基础字段：memory_id、memory_type、content，这三个字段永远不删不改。检索增强后新增的字段全部是可选的：score 是三因子总分，rank 是最终名次，factors 拆出相关度、时近性、重要性三个分量，retrieval_mode 记录检索模式，compressed 与 compression_method 标记压缩情况，flagged 表示被 Poison Gate 标记。消费方应当忽略不认识的字段，保证向前兼容。\n",
+      "original_chars": 360,
+      "included_chars": 360,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": null,
+      "factors": {
+        "relevance": null,
+        "recency": null,
+        "importance": null
+      },
+      "retrieval_mode": "none",
+      "chunk_index": null,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_tools",
+      "memory_type": "global",
+      "title": "工具使用规范",
+      "path": "global/mem_g_tools.md",
+      "content": "# 工具使用规范\n\n- memory_id: `mem_g_tools`\n- created_or_updated_at: `2026-06-12T09:00:00+00:00`\n\n## Insight\n\ncalculator 接收算式字符串返回数值，内部用高精度计算，不要传自然语言。file_reader 只能读 data 根目录内的文本文件，路径越界会被拒绝。table_analyzer 针对 CSV 表格，支持求和、平均值、最大最小值等操作，需要指定列名。local_file_search 支持通配符模式匹配文件名，可选递归子目录。format_converter 在 markdown、html、json 等格式间转换文本。所有工具返回统一的status/errors 结构，调用失败不会中断主流程。\n",
+      "original_chars": 358,
+      "included_chars": 358,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 6,
+      "score": null,
+      "factors": {
+        "relevance": null,
+        "recency": null,
+        "importance": null
+      },
+      "retrieval_mode": "none",
+      "chunk_index": null,
+      "importance": 8,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "none",
+    "hyde": "disabled",
+    "vector_backend": null
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 1867,
+  "truncated": false,
+  "errors": []
+}

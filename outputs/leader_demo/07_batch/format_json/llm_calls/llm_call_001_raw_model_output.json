@@ -1,0 +1,22 @@
+{
+  "mode": "mock",
+  "backend": "mock",
+  "raw_text": "{\"content\": \"\", \"tool_calls\": [{\"id\": \"call_001\", \"name\": \"format_converter\", \"args\": {\"text\": \"name: Leader Demo\\nstatus: ready\\nmodule: B1-B5\", \"target_format\": \"json\", \"output_filename\": \"leader_demo.json\"}}]}",
+  "parsed_candidate": {
+    "content": "",
+    "tool_calls": [
+      {
+        "id": "call_001",
+        "name": "format_converter",
+        "args": {
+          "text": "name: Leader Demo\nstatus: ready\nmodule: B1-B5",
+          "target_format": "json",
+          "output_filename": "leader_demo.json"
+        }
+      }
+    ]
+  },
+  "status": "success",
+  "error": null,
+  "generated_at": "2026-07-13T05:26:51+02:00"
+}

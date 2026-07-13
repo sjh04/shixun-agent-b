@@ -1,0 +1,157 @@
+{
+  "status": "success",
+  "query": "显卡内存不够、推理时报 CUDA out of memory 该怎么处理？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conv_c04",
+      "memory_type": "conversation",
+      "title": "CUDA out of memory 排查记录（旧）",
+      "path": "conversations/mem_conv_c04.md",
+      "content": "# CUDA out of memory 排查记录（旧）\n\nSummary: 早期一次显存不足 CUDA out of memory 的排查，结论后来被推翻。\n\nRelevant chunk:\nCUDA out of memory 排查记录（旧）\n\n早期一次显存不足 CUDA out of memory 的排查，结论后来被推翻。\n\n显卡内存不够、推理报 CUDA out of memory 的排查记录。当时的现象是加载即崩溃，报错出现在 from_pretrained 阶段。临时结论：把 torch_dtype 改成 float32 并把 batch 压到 1，勉强能跑但极慢；实在不行重启机器碰运气。（注：这是早期笔记，后来发现 float32 反而更占显存，本结论已被六月末的新方案取代，仅留档。）",
+      "original_chars": 347,
+      "included_chars": 354,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 1.0,
+      "factors": {
+        "relevance": 0.032787,
+        "relevance_norm": 1.0,
+        "recency": 0.19536,
+        "importance": 0.3
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 3,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c03",
+      "memory_type": "conversation",
+      "title": "CUDA OOM 最新解决方案",
+      "path": "conversations/mem_conv_c03.md",
+      "content": "# CUDA OOM 最新解决方案\n\nSummary: 显存不足的现行处理办法：bfloat16 + max_memory 上限 + 减小生成长度。\n\nRelevant chunk:\nCUDA OOM 最新解决方案\n\n显存不足的现行处理办法：bfloat16 + max_memory 上限 + 减小生成长度。\n\n推理时报 CUDA out of memory 的最新结论：第一，加载用 bfloat16 而不是 float32，显存直接省一半；第二，给 from_pretrained 传 max_memory 把单卡上限压到 20GiB，留出生成期激活的余量；第三，把 max_new_tokens 从 2048 降到 1024。三条一起用之后再没有出现过 OOM。注意：五月份那次结论（用 float32 加小 batch）已经过时作废，不要再参考。",
+      "original_chars": 370,
+      "included_chars": 378,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.975164,
+      "factors": {
+        "relevance": 0.032258,
+        "relevance_norm": 0.919825,
+        "recency": 0.712458,
+        "importance": 0.8
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 8,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c05",
+      "memory_type": "conversation",
+      "title": "全系统第一次联调记录",
+      "path": "conversations/mem_conv_c05.md",
+      "content": "# 全系统第一次联调记录\n\nSummary: B1–B5 第一次联调的排错过程与耗时实测。\n\nRelevant chunk:\n同学在跑训练任务，两张卡的显存各被占了一大半，我们的模型加载直接失败，报的还是一个容易误导人的设备映射错误而不是显存不足。等到晚上卡空出来才继续联调。这提醒我们演示前一定要先看 nvidia-smi 确认显存余量，共享服务器上这一步不能省。\n\n结论（重要）：正式跑 run_full_demo.py 全系统演示之前必须做三件事——第一，确认 outputs/full_demo目录存在且当前用户可写，否则最后的落盘环节会失败，前面几分钟全部白跑；第二，命令行参数 --llm_mode 必须显式设为 prompt_json，不传的话脚本会静默回退到 mock 模式，演示出来的答案是预置的假数据，评委一眼就能看穿；第三，先单独跑一次 b4_local_agent_llm.py 冒烟测试，确认显卡可用、模型能正常加载之后，再开始完整的全系统演示。这三条按顺序执行，缺一不可。\n\n之后又验证了保存路径。run_full_demo 跑完后 memory/conversations/conv_001.md 会被覆盖更新，memory_index.json 同步刷新对应条目的 updated_at 和摘要，这是预期行为。但重复演示前要想清楚是否接受覆盖：如果上一轮的对话记忆还要用来展示跨对话召回，就先把 conversation_id 换掉，避免把演示素材冲掉。",
+      "original_chars": 1956,
+      "included_chars": 643,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.928179,
+      "factors": {
+        "relevance": 0.031258,
+        "relevance_norm": 0.524676,
+        "recency": 0.664747,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 2,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c10",
+      "memory_type": "conversation",
+      "title": "记忆截断问题",
+      "path": "conversations/mem_conv_c10.md",
+      "content": "# 记忆截断问题\n\nSummary: max_memory_chars 预算与超长记忆的压缩策略。\n\nRelevant chunk:\n记忆截断问题\n\nmax_memory_chars 预算与超长记忆的压缩策略。\n\n记忆内容太长被截断的处理：注入预算由 memory.yaml 的 max_memory_chars 控制，默认 2000 字符，多条记忆按名次先后瓜分预算。单条超预算时不再从中间硬切，而是调用压缩层生成摘要，保关键信息弃细节；模型不可用时退化为抽取式摘要。如果发现注入的记忆缺了关键内容，优先调大 max_memory_chars 而不是关压缩。",
+      "original_chars": 313,
+      "included_chars": 280,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.927821,
+      "factors": {
+        "relevance": 0.03125,
+        "relevance_norm": 0.46558,
+        "recency": 0.503784,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c01",
+      "memory_type": "conversation",
+      "title": "计算器浮点精度问题",
+      "path": "conversations/mem_conv_c01.md",
+      "content": "# 计算器浮点精度问题\n\nSummary: 0.1 加 0.2 不等于 0.3 的原因与 calculator 的处理方式。\n\nRelevant chunk:\n计算器浮点精度问题\n\n0.1 加 0.2 不等于 0.3 的原因与 calculator 的处理方式。\n\n用户问为什么计算器算 0.1 + 0.2 得到 0.30000000000000004。原因是二进制浮点数无法精确表示十进制小数。calculator 工具内部已改用 Decimal 做十进制运算，对外返回结果前按需要的小数位四舍五入，所以通过工具计算不会再出现这类尾数。直接在 Python 里用 float 仍会有该现象，属于语言特性不是 bug。",
+      "original_chars": 319,
+      "included_chars": 309,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": 0.886293,
+      "factors": {
+        "relevance": 0.030366,
+        "relevance_norm": 0.343147,
+        "recency": 0.565478,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "disabled",
+    "rerank": "disabled",
+    "vector_backend": "hashing",
+    "use_chunk": true,
+    "use_three_factor": false,
+    "chunk_count": 29,
+    "chunk_cache": {
+      "hits": 24,
+      "misses": 0
+    },
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "size": 51,
+      "hits": 29,
+      "misses": 0,
+      "disabled": 0
+    },
+    "query_embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_retrieval_cache.sqlite3",
+      "hits": 1,
+      "misses": 0,
+      "disabled": 0
+    },
+    "latency_ms": 19.022
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 1964,
+  "truncated": true,
+  "errors": []
+}

@@ -1,0 +1,162 @@
+{
+  "llm": "on",
+  "evict": {
+    "initial_count": 30,
+    "max_memories": 20,
+    "final_count": 20,
+    "capacity_ok": true,
+    "evicted_count": 10,
+    "protected_violations": [],
+    "kendall_tau_vs_oracle": 1.0,
+    "set_match_with_oracle": true,
+    "evicted_order": [
+      "mem_evict_22",
+      "mem_evict_27",
+      "mem_evict_18",
+      "mem_evict_04",
+      "mem_evict_09",
+      "mem_evict_07",
+      "mem_evict_21",
+      "mem_evict_15",
+      "mem_evict_12",
+      "mem_evict_06"
+    ],
+    "oracle_order": [
+      "mem_evict_22",
+      "mem_evict_27",
+      "mem_evict_18",
+      "mem_evict_04",
+      "mem_evict_09",
+      "mem_evict_07",
+      "mem_evict_21",
+      "mem_evict_15",
+      "mem_evict_12",
+      "mem_evict_06"
+    ]
+  },
+  "reflect": {
+    "clusters": 3,
+    "reflections_generated": 3,
+    "insight_hit_rate": 1.0,
+    "hits": [
+      {
+        "topic": "检索调参",
+        "query": "记忆检索层的参数应该怎么配置？",
+        "ranked": [
+          "mem_conv_life_04",
+          "mem_conv_life_03",
+          "mem_conv_life_02",
+          "mem_global_reflect_e3d7d6804059",
+          "mem_conv_life_07"
+        ],
+        "insight_hit": true
+      },
+      {
+        "topic": "显存与加载",
+        "query": "模型显存和加载方面有哪些经验教训？",
+        "ranked": [
+          "mem_conv_life_08",
+          "mem_conv_life_06",
+          "mem_global_reflect_477b69d2c157",
+          "mem_conv_life_07",
+          "mem_conv_life_05"
+        ],
+        "insight_hit": true
+      },
+      {
+        "topic": "工具调用规范",
+        "query": "调用内置工具有哪些使用规范？",
+        "ranked": [
+          "mem_global_reflect_49987871dc43",
+          "mem_conv_life_09",
+          "mem_conv_life_10",
+          "mem_conv_life_06",
+          "mem_conv_life_11"
+        ],
+        "insight_hit": true
+      }
+    ],
+    "reflections": [
+      {
+        "after_cluster": "检索调参",
+        "reflection": {
+          "memory_id": "mem_global_reflect_e3d7d6804059",
+          "path": "global/reflect_e3d7d6804059.md",
+          "method": "qwen_reflection",
+          "cluster": {
+            "method": "embedding_greedy",
+            "backend": "qwen",
+            "candidate_count": 4,
+            "cluster_count": 1,
+            "cluster_size": 4,
+            "threshold": 0.35,
+            "source_memory_ids": [
+              "mem_conv_life_01",
+              "mem_conv_life_02",
+              "mem_conv_life_03",
+              "mem_conv_life_04"
+            ]
+          }
+        }
+      },
+      {
+        "after_cluster": "显存与加载",
+        "reflection": {
+          "memory_id": "mem_global_reflect_477b69d2c157",
+          "path": "global/reflect_477b69d2c157.md",
+          "method": "qwen_reflection",
+          "cluster": {
+            "method": "embedding_greedy",
+            "backend": "qwen",
+            "candidate_count": 4,
+            "cluster_count": 1,
+            "cluster_size": 4,
+            "threshold": 0.35,
+            "source_memory_ids": [
+              "mem_conv_life_05",
+              "mem_conv_life_06",
+              "mem_conv_life_07",
+              "mem_conv_life_08"
+            ]
+          }
+        }
+      },
+      {
+        "after_cluster": "工具调用规范",
+        "reflection": {
+          "memory_id": "mem_global_reflect_49987871dc43",
+          "path": "global/reflect_49987871dc43.md",
+          "method": "qwen_reflection",
+          "cluster": {
+            "method": "embedding_greedy",
+            "backend": "qwen",
+            "candidate_count": 4,
+            "cluster_count": 1,
+            "cluster_size": 4,
+            "threshold": 0.35,
+            "source_memory_ids": [
+              "mem_conv_life_09",
+              "mem_conv_life_10",
+              "mem_conv_life_11",
+              "mem_conv_life_12"
+            ]
+          }
+        }
+      }
+    ],
+    "insight_documents_for_manual_scoring": [
+      {
+        "after_cluster": "检索调参",
+        "text": "# Reflection e3d7d6804059\n\n- memory_id: `mem_global_reflect_e3d7d6804059`\n- created_or_updated_at: `2026-07-02T03:51:26+02:00`\n- source_count: `4`\n- compression_method: `qwen_reflection`\n\n## Cluster\n\n```json\n{\n  \"method\": \"embedding_greedy\",\n  \"backend\": \"qwen\",\n  \"candidate_count\": 4,\n  \"cluster_count\": 1,\n  \"cluster_size\": 4,\n  \"threshold\": 0.35,\n  \"source_memory_ids\": [\n    \"mem_conv_life_01\",\n    \"mem_conv_life_02\",\n    \"mem_conv_life_03\",\n    \"mem_conv_life_04\"\n  ]\n}\n```\n\n## Insight\n\n系统采用混合检索架构，以 BM25 处理文本特征（k1=1.5, b=0.75，中文按字符 bigram 切词）与向量检索并行，通过 RRF 融合（rrf_k=60）合并结果并限制候选上限为 30 条。长记忆数据按 700 字符切块、120 字符重叠，检索后回溯原记忆上下文。最终仅对相关性前 10 名候选执行三因子重排，确保仅返回 top 5 条记忆，实现高效精准的长上下文检索。\n"
+      },
+      {
+        "after_cluster": "显存与加载",
+        "text": "# Reflection 477b69d2c157\n\n- memory_id: `mem_global_reflect_477b69d2c157`\n- created_or_updated_at: `2026-07-02T03:51:44+02:00`\n- source_count: `4`\n- compression_method: `qwen_reflection`\n\n## Cluster\n\n```json\n{\n  \"method\": \"embedding_greedy\",\n  \"backend\": \"qwen\",\n  \"candidate_count\": 4,\n  \"cluster_count\": 1,\n  \"cluster_size\": 4,\n  \"threshold\": 0.35,\n  \"source_memory_ids\": [\n    \"mem_conv_life_05\",\n    \"mem_conv_life_06\",\n    \"mem_conv_life_07\",\n    \"mem_conv_life_08\"\n  ]\n}\n```\n\n## Insight\n\n为优化 Qwen3.5-4B 模型在共享服务器上的部署效率，已确立以 bfloat16 精度为核心的显存管理策略。该精度相比 float32 显著降低显存占用，且在长文推理中彻底杜绝了 float16 偶发的溢出风险，同时配合将 `max_memory` 严格限制在 20GiB 以内，有效防止 OOM 崩溃。针对约 90 秒的模型加载耗时，必须强制实施进程内缓存复用机制，严禁重复加载。此外，养成任务启动前通过 `nvidia-smi` 检查显存余量的习惯，是保障多用户协作环境稳定运行的关键前置步骤。\n"
+      },
+      {
+        "after_cluster": "工具调用规范",
+        "text": "# Reflection 49987871dc43\n\n- memory_id: `mem_global_reflect_49987871dc43`\n- created_or_updated_at: `2026-07-02T03:51:53+02:00`\n- source_count: `4`\n- compression_method: `qwen_reflection`\n\n## Cluster\n\n```json\n{\n  \"method\": \"embedding_greedy\",\n  \"backend\": \"qwen\",\n  \"candidate_count\": 4,\n  \"cluster_count\": 1,\n  \"cluster_size\": 4,\n  \"threshold\": 0.35,\n  \"source_memory_ids\": [\n    \"mem_conv_life_09\",\n    \"mem_conv_life_10\",\n    \"mem_conv_life_11\",\n    \"mem_conv_life_12\"\n  ]\n}\n```\n\n## Insight\n\n构建高效的数据处理工作流需严格遵循工具边界与输入规范：所有计算任务必须通过 calculator 以标准算式字符串形式提交，严禁自然语言描述；数据分析应利用 table_analyzer 进行单次单列统计，确保列名与表头完全一致；文件读取操作严格限定在 data 根目录下的文本文件范围内，越界请求将被拒绝；文件检索则依赖 local_file_search 工具，利用通配符匹配文件名并支持在 data 目录内递归搜索子目录。\n"
+      }
+    ]
+  }
+}

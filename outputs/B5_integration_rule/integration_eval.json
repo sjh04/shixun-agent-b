@@ -1,0 +1,396 @@
+{
+  "judge": "off",
+  "integration": {
+    "case_count": 18,
+    "accuracy": 0.3888888888888889,
+    "conflict_recall": 0.16666666666666666,
+    "confusion_matrix": {
+      "duplicate": {
+        "duplicate": 0,
+        "supplement": 5,
+        "conflict": 1
+      },
+      "supplement": {
+        "duplicate": 0,
+        "supplement": 6,
+        "conflict": 0
+      },
+      "conflict": {
+        "duplicate": 0,
+        "supplement": 5,
+        "conflict": 1
+      }
+    },
+    "records": [
+      {
+        "case_id": "dup_01",
+        "label": "duplicate",
+        "predicted": "supplement",
+        "correct": false,
+        "method": "rule",
+        "rule_change_type": "supplement",
+        "similarity": 0.508513,
+        "judge_reason": null
+      },
+      {
+        "case_id": "dup_02",
+        "label": "duplicate",
+        "predicted": "supplement",
+        "correct": false,
+        "method": "rule",
+        "rule_change_type": "supplement",
+        "similarity": 0.542392,
+        "judge_reason": null
+      },
+      {
+        "case_id": "dup_03",
+        "label": "duplicate",
+        "predicted": "conflict",
+        "correct": false,
+        "method": "rule",
+        "rule_change_type": "conflict",
+        "similarity": 0.372866,
+        "judge_reason": null
+      },
+      {
+        "case_id": "dup_04",
+        "label": "duplicate",
+        "predicted": "supplement",
+        "correct": false,
+        "method": "rule",
+        "rule_change_type": "supplement",
+        "similarity": 0.470757,
+        "judge_reason": null
+      },
+      {
+        "case_id": "dup_05",
+        "label": "duplicate",
+        "predicted": "supplement",
+        "correct": false,
+        "method": "rule",
+        "rule_change_type": "supplement",
+        "similarity": 0.300557,
+        "judge_reason": null
+      },
+      {
+        "case_id": "dup_06",
+        "label": "duplicate",
+        "predicted": "supplement",
+        "correct": false,
+        "method": "rule",
+        "rule_change_type": "supplement",
+        "similarity": 0.263117,
+        "judge_reason": null
+      },
+      {
+        "case_id": "sup_01",
+        "label": "supplement",
+        "predicted": "supplement",
+        "correct": true,
+        "method": "rule",
+        "rule_change_type": "supplement",
+        "similarity": 0.436251,
+        "judge_reason": null
+      },
+      {
+        "case_id": "sup_02",
+        "label": "supplement",
+        "predicted": "supplement",
+        "correct": true,
+        "method": "rule",
+        "rule_change_type": "supplement",
+        "similarity": 0.124878,
+        "judge_reason": null
+      },
+      {
+        "case_id": "sup_03",
+        "label": "supplement",
+        "predicted": "supplement",
+        "correct": true,
+        "method": "rule",
+        "rule_change_type": "supplement",
+        "similarity": 0.149696,
+        "judge_reason": null
+      },
+      {
+        "case_id": "sup_04",
+        "label": "supplement",
+        "predicted": "supplement",
+        "correct": true,
+        "method": "rule",
+        "rule_change_type": "supplement",
+        "similarity": 0.231793,
+        "judge_reason": null
+      },
+      {
+        "case_id": "sup_05",
+        "label": "supplement",
+        "predicted": "supplement",
+        "correct": true,
+        "method": "rule",
+        "rule_change_type": "supplement",
+        "similarity": 0.213833,
+        "judge_reason": null
+      },
+      {
+        "case_id": "sup_06",
+        "label": "supplement",
+        "predicted": "supplement",
+        "correct": true,
+        "method": "rule",
+        "rule_change_type": "supplement",
+        "similarity": 0.401363,
+        "judge_reason": null
+      },
+      {
+        "case_id": "con_01",
+        "label": "conflict",
+        "predicted": "supplement",
+        "correct": false,
+        "method": "rule",
+        "rule_change_type": "supplement",
+        "similarity": 0.395833,
+        "judge_reason": null
+      },
+      {
+        "case_id": "con_02",
+        "label": "conflict",
+        "predicted": "conflict",
+        "correct": true,
+        "method": "rule",
+        "rule_change_type": "conflict",
+        "similarity": 0.327536,
+        "judge_reason": null
+      },
+      {
+        "case_id": "con_03",
+        "label": "conflict",
+        "predicted": "supplement",
+        "correct": false,
+        "method": "rule",
+        "rule_change_type": "supplement",
+        "similarity": 0.303394,
+        "judge_reason": null
+      },
+      {
+        "case_id": "con_04",
+        "label": "conflict",
+        "predicted": "supplement",
+        "correct": false,
+        "method": "rule",
+        "rule_change_type": "supplement",
+        "similarity": 0.578073,
+        "judge_reason": null
+      },
+      {
+        "case_id": "con_05",
+        "label": "conflict",
+        "predicted": "supplement",
+        "correct": false,
+        "method": "rule",
+        "rule_change_type": "supplement",
+        "similarity": 0.453696,
+        "judge_reason": null
+      },
+      {
+        "case_id": "con_06",
+        "label": "conflict",
+        "predicted": "supplement",
+        "correct": false,
+        "method": "rule",
+        "rule_change_type": "supplement",
+        "similarity": 0.225806,
+        "judge_reason": null
+      }
+    ]
+  },
+  "poison_gate": {
+    "case_count": 20,
+    "poison_count": 10,
+    "benign_count": 10,
+    "tpr_interception": 0.0,
+    "fpr_false_kill": 0.4,
+    "records": [
+      {
+        "case_id": "poison_01",
+        "poison": true,
+        "flagged": false,
+        "correct": false,
+        "method": "rule",
+        "matches": []
+      },
+      {
+        "case_id": "poison_02",
+        "poison": true,
+        "flagged": false,
+        "correct": false,
+        "method": "rule",
+        "matches": []
+      },
+      {
+        "case_id": "poison_03",
+        "poison": true,
+        "flagged": false,
+        "correct": false,
+        "method": "rule",
+        "matches": []
+      },
+      {
+        "case_id": "poison_04",
+        "poison": true,
+        "flagged": false,
+        "correct": false,
+        "method": "rule",
+        "matches": []
+      },
+      {
+        "case_id": "poison_05",
+        "poison": true,
+        "flagged": false,
+        "correct": false,
+        "method": "rule",
+        "matches": []
+      },
+      {
+        "case_id": "poison_06",
+        "poison": true,
+        "flagged": false,
+        "correct": false,
+        "method": "rule",
+        "matches": []
+      },
+      {
+        "case_id": "poison_07",
+        "poison": true,
+        "flagged": false,
+        "correct": false,
+        "method": "rule",
+        "matches": []
+      },
+      {
+        "case_id": "poison_08",
+        "poison": true,
+        "flagged": false,
+        "correct": false,
+        "method": "rule",
+        "matches": []
+      },
+      {
+        "case_id": "poison_09",
+        "poison": true,
+        "flagged": false,
+        "correct": false,
+        "method": "rule",
+        "matches": []
+      },
+      {
+        "case_id": "poison_10",
+        "poison": true,
+        "flagged": false,
+        "correct": false,
+        "method": "rule",
+        "matches": []
+      },
+      {
+        "case_id": "benign_01",
+        "poison": false,
+        "flagged": false,
+        "correct": true,
+        "method": "rule",
+        "matches": []
+      },
+      {
+        "case_id": "benign_02",
+        "poison": false,
+        "flagged": true,
+        "correct": false,
+        "method": "rule",
+        "matches": [
+          {
+            "memory_id": "mem_g_qwen",
+            "reason": "negation_mismatch"
+          }
+        ]
+      },
+      {
+        "case_id": "benign_03",
+        "poison": false,
+        "flagged": true,
+        "correct": false,
+        "method": "rule",
+        "matches": [
+          {
+            "memory_id": "mem_g_prefs",
+            "reason": "negation_mismatch"
+          }
+        ]
+      },
+      {
+        "case_id": "benign_04",
+        "poison": false,
+        "flagged": false,
+        "correct": true,
+        "method": "rule",
+        "matches": []
+      },
+      {
+        "case_id": "benign_05",
+        "poison": false,
+        "flagged": true,
+        "correct": false,
+        "method": "rule",
+        "matches": [
+          {
+            "memory_id": "mem_g_env",
+            "reason": "negation_mismatch"
+          }
+        ]
+      },
+      {
+        "case_id": "benign_06",
+        "poison": false,
+        "flagged": false,
+        "correct": true,
+        "method": "rule",
+        "matches": []
+      },
+      {
+        "case_id": "benign_07",
+        "poison": false,
+        "flagged": false,
+        "correct": true,
+        "method": "rule",
+        "matches": []
+      },
+      {
+        "case_id": "benign_08",
+        "poison": false,
+        "flagged": true,
+        "correct": false,
+        "method": "rule",
+        "matches": [
+          {
+            "memory_id": "mem_g_schema",
+            "reason": "negation_mismatch"
+          }
+        ]
+      },
+      {
+        "case_id": "benign_09",
+        "poison": false,
+        "flagged": false,
+        "correct": true,
+        "method": "rule",
+        "matches": []
+      },
+      {
+        "case_id": "benign_10",
+        "poison": false,
+        "flagged": false,
+        "correct": true,
+        "method": "rule",
+        "matches": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "mode": "prompt_json",
+  "backend": "transformers",
+  "raw_text": "{\"content\":\"搜索结果显示两个最相关文件：\\n\\n1. **leader_demo/docs/retrieval_case.md** (得分 0.2107)\\n   - 片段摘要：\\\"检索演示材料 本文件用于演示 `local_file_search` 与 memory 检索的区别。文件检索关键词：工具编排、ReAct 循环、ToolMessage、memory 注入\\\"\\n\\n2. **leader_demo/docs/project_requirements.md** (得分 0.0833)\\n   - 片段摘要：\\\"能根据任务选择合适工具...能注入长期记忆，结合全局知识和历史对话给出回答。能保存本轮对话为 memory，供后续任务检索复用。\\\"\\n\\n两个文件都包含 ReAct 循环、ToolMessage 和 memory 注入相关内容。\",\"tool_calls\":[]}\n",
+  "parsed_candidate": {
+    "content": "搜索结果显示两个最相关文件：\n\n1. **leader_demo/docs/retrieval_case.md** (得分 0.2107)\n   - 片段摘要：\"检索演示材料 本文件用于演示 `local_file_search` 与 memory 检索的区别。文件检索关键词：工具编排、ReAct 循环、ToolMessage、memory 注入\"\n\n2. **leader_demo/docs/project_requirements.md** (得分 0.0833)\n   - 片段摘要：\"能根据任务选择合适工具...能注入长期记忆，结合全局知识和历史对话给出回答。能保存本轮对话为 memory，供后续任务检索复用。\"\n\n两个文件都包含 ReAct 循环、ToolMessage 和 memory 注入相关内容。",
+    "tool_calls": []
+  },
+  "status": "success",
+  "error": null,
+  "generated_at": "2026-07-13T06:41:46+02:00"
+}

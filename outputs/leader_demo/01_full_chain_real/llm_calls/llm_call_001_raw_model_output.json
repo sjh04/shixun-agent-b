@@ -1,0 +1,12 @@
+{
+  "mode": "prompt_json",
+  "backend": "transformers",
+  "raw_text": "{\"content\":\"1. 读取本地文档：通过 file_reader 工具读取 leader_demo/docs/project_requirements.md 等真实文件，确保回答基于文件实际内容而非编造。\\\\n2. 执行完整链路：演示 B1-B5 系统链路，包括记忆检索、压缩、投毒拦截、生命周期管理等核心能力。\\\\n3. 验证 Agent 能力：通过端到端任务（如记忆依赖问答）证明系统能正确读取、理解并基于真实文件内容回答问题。\",\"tool_calls\":[]}\n",
+  "parsed_candidate": {
+    "content": "1. 读取本地文档：通过 file_reader 工具读取 leader_demo/docs/project_requirements.md 等真实文件，确保回答基于文件实际内容而非编造。\\n2. 执行完整链路：演示 B1-B5 系统链路，包括记忆检索、压缩、投毒拦截、生命周期管理等核心能力。\\n3. 验证 Agent 能力：通过端到端任务（如记忆依赖问答）证明系统能正确读取、理解并基于真实文件内容回答问题。",
+    "tool_calls": []
+  },
+  "status": "success",
+  "error": null,
+  "generated_at": "2026-07-13T06:39:58+02:00"
+}

@@ -1,0 +1,147 @@
+{
+  "status": "success",
+  "query": "模型显存和加载方面有哪些经验教训？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conv_life_08",
+      "memory_type": "conversation",
+      "title": "显存检查习惯",
+      "path": "conversations/life_08.md",
+      "content": "# 显存检查习惯\n\nSummary: 共享服务器启动任务前先 nvidia-smi 看显存余量，避免挤崩别人的训练。\n\nRelevant chunk:\n显存检查习惯\n\n共享服务器启动任务前先 nvidia-smi 看显存余量，避免挤崩别人的训练。\n\n共享服务器启动任务前先 nvidia-smi 看显存余量，避免挤崩别人的训练。",
+      "original_chars": 67,
+      "included_chars": 164,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.959935,
+      "factors": {
+        "relevance": 0.032018,
+        "relevance_norm": 1.0,
+        "recency": 0.999348,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_life_06",
+      "memory_type": "conversation",
+      "title": "加载耗时实测",
+      "path": "conversations/life_06.md",
+      "content": "# 加载耗时实测\n\nSummary: Qwen3.5-4B 模型加载约九十秒，进程内必须缓存复用，禁止重复加载。\n\nRelevant chunk:\n加载耗时实测\n\nQwen3.5-4B 模型加载约九十秒，进程内必须缓存复用，禁止重复加载。\n\nQwen3.5-4B 模型加载约九十秒，进程内必须缓存复用，禁止重复加载。",
+      "original_chars": 65,
+      "included_chars": 158,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.959932,
+      "factors": {
+        "relevance": 0.032522,
+        "relevance_norm": 1.0,
+        "recency": 0.999316,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_global_reflect_477b69d2c157",
+      "memory_type": "global",
+      "title": "Reflection 477b69d2c157",
+      "path": "global/reflect_477b69d2c157.md",
+      "content": "# Reflection 477b69d2c157\n\nSummary: 为优化 Qwen3.5-4B 模型在共享服务器上的部署效率，已确立以 bfloat16 精度为核心的显存管理策略。该精度相比 float32 显著降低显存占用，且在长文推理中彻底杜绝了 float16 偶发的溢出风险，同时配合将 `max_memory` 严格限制在 20GiB 以内，有效防止 OOM 崩溃。针对约 90 秒的模型加载耗时，必须强制实施进程内缓存复用机制，严禁重复加载。此外，养成任务启动前通过 `nvidia-smi` 检查显存余量的习惯，是保障多用户协作环境稳定运行的关键前置步骤。\n\nRelevant chunk:\nReflection 477b69d2c157\n\n为优化 Qwen3.5-4B 模型在共享服务器上的部署效率，已确立以 bfloat16 精度为核心的显存管理策略。该精度相比 float32 显著降低显存占用，且在长文推理中彻底杜绝了 float16 偶发的溢出风险，同时配合将 `max_memory` 严格限制在 20GiB 以内，有效防止 OOM 崩溃。针对约 90 秒的模型加载耗时，必须强制实施进程内缓存复用机制，严禁重复加载。此外，养成任务启动前通过 `nvidia-smi` 检查显存余量的习惯，是保障多用户协作环境稳定运行的关键前置步骤。\n\n为优化 Qwen3.5-4B 模型在共享服务器上的部署效率，已确立以 bfloat16 精度为核心的显存管理策略。该精度相比 float32 显著降低显存占用，且在长文推理中彻底杜绝了 float16 偶发的溢出风险，同时配合将 `max_memory` 严格限制在 20GiB 以内，有效防止 OOM 崩溃。针对约 90 秒的模型加载耗时，必须强制实施进程内缓存复用机制，严禁重复加载。此外，养成任务启动前通过 `nvidia-smi` 检查显存余量的习惯，是保障多用户协作环境稳定运行的关键前置步骤。",
+      "original_chars": 747,
+      "included_chars": 837,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.946507,
+      "factors": {
+        "relevance": 0.031754,
+        "relevance_norm": 0.970635,
+        "recency": 0.999995,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_life_07",
+      "memory_type": "conversation",
+      "title": "精度选型",
+      "path": "conversations/life_07.md",
+      "content": "# 精度选型\n\nSummary: bfloat16 全程无溢出警告，float16 在长文任务偶发溢出，配置锁定 bfloat16。\n\nRelevant chunk:\n精度选型\n\nbfloat16 全程无溢出警告，float16 在长文任务偶发溢出，配置锁定 bfloat16。\n\nbfloat16 全程无溢出警告，float16 在长文任务偶发溢出，配置锁定 bfloat16。",
+      "original_chars": 75,
+      "included_chars": 190,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.80981,
+      "factors": {
+        "relevance": 0.031258,
+        "relevance_norm": 0.812347,
+        "recency": 0.999332,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_life_05",
+      "memory_type": "conversation",
+      "title": "OOM 修复方案",
+      "path": "conversations/life_05.md",
+      "content": "# OOM 修复方案\n\nSummary: CUDA out of memory 用 bfloat16 加 max_memory 上限 20GiB 解决，float32 更占显存。\n\nRelevant chunk:\nOOM 修复方案\n\nCUDA out of memory 用 bfloat16 加 max_memory 上限 20GiB 解决，float32 更占显存。\n\nCUDA out of memory 用 bfloat16 加 max_memory 上限 20GiB 解决，float32 更占显存。",
+      "original_chars": 98,
+      "included_chars": 255,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": 0.653874,
+      "factors": {
+        "relevance": 0.031258,
+        "relevance_norm": 0.61743,
+        "recency": 0.9993,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "disabled",
+    "rerank": "disabled",
+    "vector_backend": "qwen",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 15,
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_lifecycle_qwen/corpus_reflect/memory_vector_cache.json",
+      "size": 15,
+      "hits": 15,
+      "misses": 0,
+      "disabled": 0
+    },
+    "latency_ms": 208.341
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 1604,
+  "truncated": false,
+  "errors": []
+}

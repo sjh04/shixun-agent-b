@@ -1,0 +1,139 @@
+{
+  "llm": "off",
+  "evict": {
+    "initial_count": 30,
+    "max_memories": 20,
+    "final_count": 20,
+    "capacity_ok": true,
+    "evicted_count": 10,
+    "protected_violations": [],
+    "kendall_tau_vs_oracle": 1.0,
+    "set_match_with_oracle": true,
+    "evicted_order": [
+      "mem_evict_22",
+      "mem_evict_27",
+      "mem_evict_18",
+      "mem_evict_04",
+      "mem_evict_09",
+      "mem_evict_07",
+      "mem_evict_21",
+      "mem_evict_15",
+      "mem_evict_12",
+      "mem_evict_06"
+    ],
+    "oracle_order": [
+      "mem_evict_22",
+      "mem_evict_27",
+      "mem_evict_18",
+      "mem_evict_04",
+      "mem_evict_09",
+      "mem_evict_07",
+      "mem_evict_21",
+      "mem_evict_15",
+      "mem_evict_12",
+      "mem_evict_06"
+    ]
+  },
+  "reflect": {
+    "clusters": 3,
+    "reflections_generated": 2,
+    "insight_hit_rate": 0.6666666666666666,
+    "hits": [
+      {
+        "topic": "检索调参",
+        "query": "记忆检索层的参数应该怎么配置？",
+        "ranked": [
+          "mem_global_reflect_8468e610943c",
+          "mem_conv_life_03",
+          "mem_conv_life_04",
+          "mem_conv_life_07",
+          "mem_conv_life_08"
+        ],
+        "insight_hit": true
+      },
+      {
+        "topic": "显存与加载",
+        "query": "模型显存和加载方面有哪些经验教训？",
+        "ranked": [
+          "mem_global_reflect_b5294122ae36",
+          "mem_conv_life_06",
+          "mem_conv_life_05",
+          "mem_conv_life_08",
+          "mem_conv_life_01"
+        ],
+        "insight_hit": true
+      },
+      {
+        "topic": "工具调用规范",
+        "query": "调用内置工具有哪些使用规范？",
+        "ranked": [
+          "mem_conv_life_12",
+          "mem_conv_life_10",
+          "mem_conv_life_05",
+          "mem_conv_life_06",
+          "mem_conv_life_02"
+        ],
+        "insight_hit": false
+      }
+    ],
+    "reflections": [
+      {
+        "after_cluster": "检索调参",
+        "reflection": {
+          "memory_id": "mem_global_reflect_8468e610943c",
+          "path": "global/reflect_8468e610943c.md",
+          "method": "cluster_join",
+          "cluster": {
+            "method": "embedding_greedy",
+            "backend": "hashing",
+            "candidate_count": 4,
+            "cluster_count": 1,
+            "cluster_size": 4,
+            "threshold": 0.05,
+            "source_memory_ids": [
+              "mem_conv_life_01",
+              "mem_conv_life_02",
+              "mem_conv_life_03",
+              "mem_conv_life_04"
+            ]
+          }
+        }
+      },
+      {
+        "after_cluster": "显存与加载",
+        "reflection": {
+          "memory_id": "mem_global_reflect_b5294122ae36",
+          "path": "global/reflect_b5294122ae36.md",
+          "method": "cluster_join",
+          "cluster": {
+            "method": "embedding_greedy",
+            "backend": "hashing",
+            "candidate_count": 4,
+            "cluster_count": 2,
+            "cluster_size": 3,
+            "threshold": 0.05,
+            "source_memory_ids": [
+              "mem_conv_life_05",
+              "mem_conv_life_06",
+              "mem_conv_life_08"
+            ]
+          }
+        }
+      },
+      {
+        "after_cluster": "工具调用规范",
+        "reflection": null
+      }
+    ],
+    "insight_documents_for_manual_scoring": [
+      {
+        "after_cluster": "检索调参",
+        "text": "# Reflection 8468e610943c\n\n- memory_id: `mem_global_reflect_8468e610943c`\n- created_or_updated_at: `2026-07-02T03:49:06+02:00`\n- source_count: `4`\n- compression_method: `cluster_join`\n\n## Cluster\n\n```json\n{\n  \"method\": \"embedding_greedy\",\n  \"backend\": \"hashing\",\n  \"candidate_count\": 4,\n  \"cluster_count\": 1,\n  \"cluster_size\": 4,\n  \"threshold\": 0.05,\n  \"source_memory_ids\": [\n    \"mem_conv_life_01\",\n    \"mem_conv_life_02\",\n    \"mem_conv_life_03\",\n    \"mem_conv_life_04\"\n  ]\n}\n```\n\n## Insight\n\n- BM25 参数结论\nBM25 关键词打分取 k1=1.5、b=0.75，中文按字符 bigram 切词。\n- RRF 融合参数\n关键词与向量两路检索用 RRF 融合，rrf_k 取 60，候选上限 30 条。\n- chunk 切块参数\n长记忆按 700 字符切块、重叠 120 字符，chunk 粒度检索后回溯原记忆。\n- top_k 与门控\n检索最终返回 top 5 条记忆，三因子重排只在相关度前 10 名候选内生效。\n"
+      },
+      {
+        "after_cluster": "显存与加载",
+        "text": "# Reflection b5294122ae36\n\n- memory_id: `mem_global_reflect_b5294122ae36`\n- created_or_updated_at: `2026-07-02T03:49:06+02:00`\n- source_count: `3`\n- compression_method: `cluster_join`\n\n## Cluster\n\n```json\n{\n  \"method\": \"embedding_greedy\",\n  \"backend\": \"hashing\",\n  \"candidate_count\": 4,\n  \"cluster_count\": 2,\n  \"cluster_size\": 3,\n  \"threshold\": 0.05,\n  \"source_memory_ids\": [\n    \"mem_conv_life_05\",\n    \"mem_conv_life_06\",\n    \"mem_conv_life_08\"\n  ]\n}\n```\n\n## Insight\n\n- OOM 修复方案\nCUDA out of memory 用 bfloat16 加 max_memory 上限 20GiB 解决，float32 更占显存。\n- 加载耗时实测\nQwen3.5-4B 模型加载约九十秒，进程内必须缓存复用，禁止重复加载。\n- 显存检查习惯\n共享服务器启动任务前先 nvidia-smi 看显存余量，避免挤崩别人的训练。\n"
+      }
+    ]
+  }
+}

@@ -1,0 +1,147 @@
+{
+  "status": "success",
+  "query": "演示表格里 amount 列的金额是什么货币单位？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conv_c18",
+      "memory_type": "conversation",
+      "title": "示例表格字段说明",
+      "path": "conversations/mem_conv_c18.md",
+      "content": "# 示例表格字段说明\n\nSummary: data/tables 下演示 CSV 的列含义。\n\nRelevant chunk:\n示例表格字段说明\n\ndata/tables 下演示 CSV 的列含义。\n\ndata/tables 目录下的演示表格各列含义：name 是条目名称，category 是类别标签，amount 是数值金额（人民币），date 是发生日期 ISO 格式。表头首行固定，编码统一 UTF-8 无 BOM。做表格分析演示时用这份表，别再造新数据。",
+      "original_chars": 273,
+      "included_chars": 232,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.88527,
+      "factors": {
+        "relevance": 0.032787,
+        "relevance_norm": 1.0,
+        "recency": 0.552704,
+        "importance": 0.3
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 3,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_prefs",
+      "memory_type": "global",
+      "title": "用户偏好",
+      "path": "global/mem_g_prefs.md",
+      "content": "# 用户偏好\n\nSummary: 回答语言、产物目录与格式方面的固定偏好。\n\nRelevant chunk:\n用户偏好\n\n回答语言、产物目录与格式方面的固定偏好。\n\n所有回答一律使用中文。运行产物统一落盘到 outputs/ 目录下按模块分子目录，不要写到仓库根目录。金额单位默认人民币。日期用 ISO 格式书写。长回答优先给结论再给过程。",
+      "original_chars": 189,
+      "included_chars": 170,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.766781,
+      "factors": {
+        "relevance": 0.032258,
+        "relevance_norm": 0.821985,
+        "recency": 0.49193,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_c02",
+      "memory_type": "conversation",
+      "title": "CSV 列平均值统计",
+      "path": "conversations/mem_conv_c02.md",
+      "content": "# CSV 列平均值统计\n\nSummary: 用 table_analyzer 统计 CSV 某列平均值的正确姿势。\n\nRelevant chunk:\nCSV 列平均值统计\n\n用 table_analyzer 统计 CSV 某列平均值的正确姿势。\n\n统计 CSV 某一列的平均值要用 table_analyzer 工具：传入表格路径、操作类型 mean、以及目标列名。列名必须与表头完全一致，含空格时要原样传入。数值列里混有空值时工具会自动跳过空值再求平均，行为与 Excel 一致。求和用 sum、最大最小用 max/min，同一次调用只支持一个操作。",
+      "original_chars": 296,
+      "included_chars": 277,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.715986,
+      "factors": {
+        "relevance": 0.031746,
+        "relevance_norm": 0.737009,
+        "recency": 0.763789,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_tools",
+      "memory_type": "global",
+      "title": "工具使用规范",
+      "path": "global/mem_g_tools.md",
+      "content": "# 工具使用规范\n\nSummary: 五个内置工具的输入输出约定与常见误用。\n\nRelevant chunk:\n工具使用规范\n\n五个内置工具的输入输出约定与常见误用。\n\ncalculator 接收算式字符串返回数值，内部用高精度计算，不要传自然语言。file_reader 只能读 data 根目录内的文本文件，路径越界会被拒绝。table_analyzer 针对 CSV 表格，支持求和、平均值、最大最小值等操作，需要指定列名。local_file_search 支持通配符模式匹配文件名，可选递归子目录。format_converter 在 markdown、html、json 等格式间转换文本。所有工具返回统一的status/errors 结构，调用失败不会中断主流程。",
+      "original_chars": 358,
+      "included_chars": 339,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.658895,
+      "factors": {
+        "relevance": 0.03101,
+        "relevance_norm": 0.644334,
+        "recency": 0.63428,
+        "importance": 0.8
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 8,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_g_schema",
+      "memory_type": "global",
+      "title": "selected_memory.json 字段约定",
+      "path": "global/mem_g_schema.md",
+      "content": "# selected_memory.json 字段约定\n\nSummary: B5 返回给 B1 的记忆注入 JSON 的字段契约。\n\nRelevant chunk:\nselected_memory.json 字段约定\n\nB5 返回给 B1 的记忆注入 JSON 的字段契约。\n\nB1 的记忆注入只依赖三个基础字段：memory_id、memory_type、content，这三个字段永远不删不改。检索增强后新增的字段全部是可选的：score 是三因子总分，rank 是最终名次，factors 拆出相关度、时近性、重要性三个分量，retrieval_mode 记录检索模式，compressed 与 compression_method 标记压缩情况，flagged 表示被 Poison Gate 标记。消费方应当忽略不认识的字段，保证向前兼容。",
+      "original_chars": 360,
+      "included_chars": 375,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": 0.642191,
+      "factors": {
+        "relevance": 0.028205,
+        "relevance_norm": 0.630263,
+        "recency": 0.679804,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 7,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "qwen",
+    "rerank": "qwen",
+    "vector_backend": "qwen",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 29,
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/data/memory_eval/corpus/memory_vector_cache.json",
+      "size": 62,
+      "hits": 29,
+      "misses": 0,
+      "disabled": 0
+    },
+    "latency_ms": 3363.427
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 1393,
+  "truncated": true,
+  "errors": []
+}

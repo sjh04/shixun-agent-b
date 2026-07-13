@@ -1,0 +1,147 @@
+{
+  "status": "success",
+  "query": "记忆检索层的参数应该怎么配置？",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_global_reflect_8468e610943c",
+      "memory_type": "global",
+      "title": "Reflection 8468e610943c",
+      "path": "global/reflect_8468e610943c.md",
+      "content": "# Reflection 8468e610943c\n\nSummary: - BM25 参数结论\nBM25 关键词打分取 k1=1.5、b=0.75，中文按字符 bigram 切词。\n- RRF 融合参数\n关键词与向量两路检索用 RRF 融合，rrf_k 取 60，候选上限 30 条。\n- chunk 切块参数\n长记忆按 700 字符切块、重叠 120 字符，chunk 粒度检索后回溯原记忆。\n- top_k 与门控\n检索最终返回 top 5 条记忆，三因子重排只在相关度前 10 名候选内生效。\n\nRelevant chunk:\nReflection 8468e610943c\n\n- BM25 参数结论\nBM25 关键词打分取 k1=1.5、b=0.75，中文按字符 bigram 切词。\n- RRF 融合参数\n关键词与向量两路检索用 RRF 融合，rrf_k 取 60，候选上限 30 条。\n- chunk 切块参数\n长记忆按 700 字符切块、重叠 120 字符，chunk 粒度检索后回溯原记忆。\n- top_k 与门控\n检索最终返回 top 5 条记忆，三因子重排只在相关度前 10 名候选内生效。\n\n- BM25 参数结论\nBM25 关键词打分取 k1=1.5、b=0.75，中文按字符 bigram 切词。\n- RRF 融合参数\n关键词与向量两路检索用 RRF 融合，rrf_k 取 60，候选上限 30 条。\n- chunk 切块参数\n长记忆按 700 字符切块、重叠 120 字符，chunk 粒度检索后回溯原记忆。\n- top_k 与门控\n检索最终返回 top 5 条记忆，三因子重排只在相关度前 10 名候选内生效。",
+      "original_chars": 708,
+      "included_chars": 720,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.97,
+      "factors": {
+        "relevance": 0.032522,
+        "relevance_norm": 1.0,
+        "recency": 1.0,
+        "importance": 0.7
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 7,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_life_03",
+      "memory_type": "conversation",
+      "title": "chunk 切块参数",
+      "path": "conversations/life_03.md",
+      "content": "# chunk 切块参数\n\nSummary: 长记忆按 700 字符切块、重叠 120 字符，chunk 粒度检索后回溯原记忆。\n\nRelevant chunk:\nchunk 切块参数\n\n长记忆按 700 字符切块、重叠 120 字符，chunk 粒度检索后回溯原记忆。\n\n长记忆按 700 字符切块、重叠 120 字符，chunk 粒度检索后回溯原记忆。",
+      "original_chars": 73,
+      "included_chars": 178,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.959928,
+      "factors": {
+        "relevance": 0.032522,
+        "relevance_norm": 1.0,
+        "recency": 0.999278,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_life_04",
+      "memory_type": "conversation",
+      "title": "top_k 与门控",
+      "path": "conversations/life_04.md",
+      "content": "# top_k 与门控\n\nSummary: 检索最终返回 top 5 条记忆，三因子重排只在相关度前 10 名候选内生效。\n\nRelevant chunk:\ntop_k 与门控\n\n检索最终返回 top 5 条记忆，三因子重排只在相关度前 10 名候选内生效。\n\n检索最终返回 top 5 条记忆，三因子重排只在相关度前 10 名候选内生效。",
+      "original_chars": 70,
+      "included_chars": 170,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.634757,
+      "factors": {
+        "relevance": 0.031258,
+        "relevance_norm": 0.593535,
+        "recency": 0.999294,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_life_07",
+      "memory_type": "conversation",
+      "title": "精度选型",
+      "path": "conversations/life_07.md",
+      "content": "# 精度选型\n\nSummary: bfloat16 全程无溢出警告，float16 在长文任务偶发溢出，配置锁定 bfloat16。\n\nRelevant chunk:\n精度选型\n\nbfloat16 全程无溢出警告，float16 在长文任务偶发溢出，配置锁定 bfloat16。\n\nbfloat16 全程无溢出警告，float16 在长文任务偶发溢出，配置锁定 bfloat16。",
+      "original_chars": 75,
+      "included_chars": 190,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.584773,
+      "factors": {
+        "relevance": 0.029911,
+        "relevance_norm": 0.531048,
+        "recency": 0.999342,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conv_life_08",
+      "memory_type": "conversation",
+      "title": "显存检查习惯",
+      "path": "conversations/life_08.md",
+      "content": "# 显存检查习惯\n\nSummary: 共享服务器启动任务前先 nvidia-smi 看显存余量，避免挤崩别人的训练。\n\nRelevant chunk:\n显存检查习惯\n\n共享服务器启动任务前先 nvidia-smi 看显存余量，避免挤崩别人的训练。\n\n共享服务器启动任务前先 nvidia-smi 看显存余量，避免挤崩别人的训练。",
+      "original_chars": 67,
+      "included_chars": 164,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 5,
+      "score": 0.531528,
+      "factors": {
+        "relevance": 0.030579,
+        "relevance_norm": 0.46449,
+        "recency": 0.999358,
+        "importance": 0.6
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 6,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "disabled",
+    "rerank": "disabled",
+    "vector_backend": "hashing",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 14,
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/outputs/B5_lifecycle_rule/corpus_reflect/memory_vector_cache.json",
+      "size": 14,
+      "hits": 0,
+      "misses": 14,
+      "disabled": 0
+    },
+    "latency_ms": 7.38
+  },
+  "max_memory_chars": 20000,
+  "total_chars": 1422,
+  "truncated": false,
+  "errors": []
+}

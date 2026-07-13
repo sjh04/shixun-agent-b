@@ -8,8 +8,8 @@
     "conversation_id": null,
     "created_at": "2026-06-20T00:00:00+08:00",
     "updated_at": "2026-06-20T00:00:00+08:00",
-    "last_accessed_at": "2026-07-09T02:57:22+02:00",
-    "access_count": 22
+    "last_accessed_at": "2026-07-13T04:23:13+02:00",
+    "access_count": 28
   },
   "mem_conversation_conv_000": {
     "memory_id": "mem_conversation_conv_000",
@@ -20,18 +20,44 @@
     "conversation_id": "conv_000",
     "created_at": "2026-06-22T14:07:46+00:00",
     "updated_at": "2026-06-22T14:07:46+00:00",
-    "last_accessed_at": "2026-07-09T02:57:22+02:00",
-    "access_count": 20
+    "last_accessed_at": "2026-07-13T04:23:13+02:00",
+    "access_count": 26
   },
   "mem_conversation_conv_001": {
     "memory_id": "mem_conversation_conv_001",
     "memory_type": "conversation",
     "title": "Conversation conv_001",
-    "summary": "三条中文要点如下：\n1. Agent 系统通常由模型、工具、记忆和执行循环组成\n2. 工具调用让模型能够读取本地文件、执行计算，并把结果用于后续回答\n3. Memory 为 Agent 提供全局知识和历史对话上下文",
+    "summary": "1. Agent 系统通常由模型、工具、记忆和执行循环组成\n2. 工具调用让模型能够读取本地文件、执行计算，并把结果用于后续回答\n3. Memory 为 Agent 提供全局知识和历史对话上下文",
+    "summary_method": "none",
     "path": "conversations/conv_001.md",
     "conversation_id": "conv_001",
+    "importance": 6,
+    "importance_method": "heuristic",
+    "flagged": false,
+    "poison_gate": {
+      "flagged": false,
+      "action": "allow",
+      "reason": "no_conflict",
+      "method": "rule",
+      "matches": []
+    },
+    "change_report": {
+      "change_type": "duplicate",
+      "duplicate": true,
+      "conflict": false,
+      "conflict_reason": "no_rule_conflict",
+      "similarity": 0.953054,
+      "method": "rule",
+      "rule_change_type": "duplicate",
+      "judge_reason": null,
+      "notes": [
+        "duplicate content discarded"
+      ]
+    },
     "created_at": "2026-07-01T08:53:04+08:00",
-    "updated_at": "2026-07-06T09:11:04+08:00"
+    "updated_at": "2026-07-11T04:28:13+02:00",
+    "last_accessed_at": "2026-07-13T04:23:13+02:00",
+    "access_count": 6
   },
   "mem_conversation_conv_sample_001": {
     "memory_id": "mem_conversation_conv_sample_001",
@@ -66,7 +92,89 @@
     },
     "created_at": "2026-07-02T03:20:46+02:00",
     "updated_at": "2026-07-02T03:37:57+02:00",
-    "last_accessed_at": "2026-07-09T02:57:22+02:00",
+    "last_accessed_at": "2026-07-13T04:23:13+02:00",
+    "access_count": 7
+  },
+  "mem_conversation_demo_flow_file_reader": {
+    "memory_id": "mem_conversation_demo_flow_file_reader",
+    "memory_type": "conversation",
+    "title": "Conversation demo_flow_file_reader",
+    "summary": "三条中文要点如下：\n1. Agent 系统通常由模型、工具、记忆和执行循环组成\n2. 工具调用让模型能够读取本地文件、执行计算，并把结果用于后续回答\n3. Memory 为 Agent 提供全局知识和历史对话上下文",
+    "summary_method": "none",
+    "retrieval_summary": "ToolMessage; mem_conversation_conv_001; conv_001; mem_conversation_conv_sample_001; conv_sample_001; change_type; mem_conversation_conv_000; conv_000; mem_course_001; agent_intro; call_001; file_reader; docs/agent_intro.txt; final_answer.md",
+    "retrieval_terms": {
+      "tags": [
+        "ToolMessage",
+        "mem_conversation_conv_001",
+        "conv_001",
+        "mem_conversation_conv_sample_001",
+        "conv_sample_001",
+        "change_type",
+        "mem_conversation_conv_000",
+        "conv_000",
+        "mem_course_001",
+        "agent_intro",
+        "call_001",
+        "file_reader",
+        "docs/agent_intro.txt",
+        "final_answer.md"
+      ],
+      "entities": [
+        "ToolMessage",
+        "mem_conversation_conv_001",
+        "conv_001",
+        "mem_conversation_conv_sample_001",
+        "conv_sample_001",
+        "change_type",
+        "mem_conversation_conv_000",
+        "conv_000",
+        "mem_course_001",
+        "agent_intro",
+        "call_001",
+        "file_reader",
+        "skill_name",
+        "max_chars",
+        "nMemory",
+        "num_chars",
+        "latency_ms",
+        "demo_flow_file_reader",
+        "basic_tools",
+        "final_answer",
+        "not_requested"
+      ],
+      "files": [
+        "docs/agent_intro.txt",
+        "final_answer.md"
+      ],
+      "errors": [],
+      "commands": [],
+      "tool_names": [
+        "file_reader"
+      ]
+    },
+    "path": "conversations/demo_flow_file_reader.md",
+    "conversation_id": "demo_flow_file_reader",
+    "importance": 6,
+    "importance_method": "heuristic",
+    "flagged": false,
+    "poison_gate": {
+      "flagged": false,
+      "action": "allow",
+      "reason": "no_conflict",
+      "method": "rule",
+      "matches": []
+    },
+    "change_report": {
+      "change_type": "new",
+      "duplicate": false,
+      "conflict": false,
+      "similarity": null,
+      "method": "rule",
+      "notes": []
+    },
+    "created_at": "2026-07-13T04:23:05+02:00",
+    "updated_at": "2026-07-13T04:23:05+02:00",
+    "last_accessed_at": "2026-07-13T04:23:13+02:00",
     "access_count": 1
   }
 }

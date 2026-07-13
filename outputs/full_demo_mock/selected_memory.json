@@ -1,0 +1,123 @@
+{
+  "status": "success",
+  "query": "帮我阅读 docs/agent_intro.txt，总结三条中文要点。",
+  "selected_memory_docs": [
+    {
+      "memory_id": "mem_conversation_conv_001",
+      "memory_type": "conversation",
+      "title": "Conversation conv_001",
+      "path": "conversations/conv_001.md",
+      "content": "# Conversation conv_001\n\nSummary: 三条中文要点如下：\n1. Agent 系统通常由模型、工具、记忆和执行循环组成\n2. 工具调用让模型能够读取本地文件、执行计算，并把结果用于后续回答\n3. Memory 为 Agent 提供全局知识和历史对话上下文\n\nRelevant chunk:\nConversation conv_001\n\n三条中文要点如下：\n1. Agent 系统通常由模型、工具、记忆和执行循环组成\n2. 工具调用让模型能够读取本地文件、执行计算，并把结果用于后续回答\n3. Memory 为 Agent 提供全局知识和历史对话上下文\n\n三条中文要点如下：\n1. Agent 系统通常由模型、工具、记忆和执行循环组成\n2. 工具调用让模型能够读取本地文件、执行计算，并把结果用于后续回答\n3. Memory 为 Agent 提供全局知识和历史对话上下文",
+      "original_chars": 5821,
+      "included_chars": 398,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 1,
+      "score": 0.942222,
+      "factors": {
+        "relevance": 0.032787,
+        "relevance_norm": 1.0,
+        "recency": 0.922219,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conversation_conv_sample_001",
+      "memory_type": "conversation",
+      "title": "Conversation conv_sample_001",
+      "path": "conversations/conv_sample_001.md",
+      "content": "# Conversation conv_sample_001\n\nSummary: Agent 会结合模型、工具和记忆完成任务。\n\nRelevant chunk:\nConversation conv_sample_001\n\nAgent 会结合模型、工具和记忆完成任务。\n\nAgent 会结合模型、工具和记忆完成任务。\n\n```json\n{\n  \"change_type\": \"new\",\n  \"duplicate\": false,\n  \"conflict\": false,\n  \"similarity\": null,\n  \"notes\": []\n}\n```",
+      "original_chars": 773,
+      "included_chars": 277,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 2,
+      "score": 0.489976,
+      "factors": {
+        "relevance": 0.032258,
+        "relevance_norm": 0.426446,
+        "recency": 0.988193,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_conversation_conv_000",
+      "memory_type": "conversation",
+      "title": "Conversation conv_000",
+      "path": "conversations/conv_000.md",
+      "content": "# Conversation conv_000\n\nSummary: Agent（智能体）是指能够自主感知环境、规划行动并执行任务的智能系统。它通常具备感知、决策和执行三个核心能力，能够根据目标动态调整行为，无需人类持续干预即可完成任务。在人工智能领域，Agent 可以是简单的规则系统，也可以是复杂的深度学习模型，广泛应用于自动化、机器人、客户服务等场景。\n\nRelevant chunk:\nConversation conv_000\n\nAgent（智能体）是指能够自主感知环境、规划行动并执行任务的智能系统。它通常具备感知、决策和执行三个核心能力，能够根据目标动态调整行为，无需人类持续干预即可完成任务。在人工智能领域，Agent 可以是简单的规则系统，也可以是复杂的深度学习模型，广泛应用于自动化、机器人、客户服务等场景。\n\nAgent（智能体）是指能够自主感知环境、规划行动并执行任务的智能系统。它通常具备感知、决策和执行三个核心能力，能够根据目标动态调整行为，无需人类持续干预即可完成任务。在人工智能领域，Agent 可以是简单的规则系统，也可以是复杂的深度学习模型，广泛应用于自动化、机器人、客户服务等场景。",
+      "original_chars": 1902,
+      "included_chars": 509,
+      "truncated": true,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 3,
+      "score": 0.148819,
+      "factors": {
+        "relevance": 0.015873,
+        "relevance_norm": 0.0,
+        "recency": 0.988193,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    },
+    {
+      "memory_id": "mem_course_001",
+      "memory_type": "global",
+      "title": "Agent 基础概念",
+      "path": "global/mem_course_001.md",
+      "content": "# Agent 基础概念\n\nSummary: Agent 系统由模型、工具、记忆和执行循环组成。\n\nRelevant chunk:\nAgent 基础概念\n\nAgent 系统由模型、工具、记忆和执行循环组成。",
+      "original_chars": 75,
+      "included_chars": 103,
+      "truncated": false,
+      "compressed": false,
+      "compression_method": "none",
+      "rank": 4,
+      "score": 0.148819,
+      "factors": {
+        "relevance": 0.015873,
+        "relevance_norm": 0.0,
+        "recency": 0.988193,
+        "importance": 0.5
+      },
+      "retrieval_mode": "hybrid",
+      "chunk_index": 0,
+      "importance": 5,
+      "flagged": false
+    }
+  ],
+  "retrieval": {
+    "mode": "hybrid",
+    "hyde": "fallback",
+    "rerank": "fallback",
+    "vector_backend": "hashing",
+    "use_chunk": true,
+    "use_three_factor": true,
+    "chunk_count": 4,
+    "embedding_cache": {
+      "path": "/mnt/aisdata/sjh04/实训2/agent/memory/memory_vector_cache.json",
+      "size": 4,
+      "hits": 3,
+      "misses": 1,
+      "disabled": 0
+    },
+    "latency_ms": 65.304
+  },
+  "max_memory_chars": 2000,
+  "total_chars": 1287,
+  "truncated": true,
+  "errors": []
+}

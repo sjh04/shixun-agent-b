@@ -1,0 +1,55 @@
+{
+  "status": "success",
+  "memory_id": "mem_conversation_leader_demo_01_full_chain",
+  "memory_type": "conversation",
+  "conversation_id": "leader_demo_01_full_chain",
+  "title": "Conversation leader_demo_01_full_chain",
+  "summary": "1. 读取本地文档：通过 file_reader 工具读取 leader_demo/docs/project_requirements.md 等真实文件，确保回答基于文件实际内容而非编造。\\n2. 执行完整链路：演示 B1-B5 系统链路，包括记忆检索、压缩、投毒拦截、生命周期管理等核心能力。\\n3. 验证 Agent 能力：通过端到端任务（如记忆依赖问答）证明系统能正确读取、理解并基于真实文件内容回答问题。",
+  "summary_method": "none",
+  "importance": 5,
+  "importance_method": "heuristic",
+  "retrieval_cache": {
+    "status": "success",
+    "chunk_cache": {
+      "hits": 0,
+      "misses": 1
+    },
+    "vector_backend": "hashing",
+    "embedding_cache": {
+      "embedding_cache_hits": 1,
+      "embedding_cache_misses": 4,
+      "embedding_cache_disabled": 0
+    }
+  },
+  "path": "conversations/leader_demo_01_full_chain.md",
+  "index_path": "memory_index.json",
+  "created_at": "2026-07-13T05:25:55+02:00",
+  "updated_at": "2026-07-13T06:40:14+02:00",
+  "change_report": {
+    "change_type": "duplicate",
+    "duplicate": true,
+    "conflict": false,
+    "conflict_reason": "no_rule_conflict",
+    "similarity": 1.0,
+    "method": "rule",
+    "rule_change_type": "duplicate",
+    "judge_reason": null,
+    "notes": [
+      "duplicate content discarded"
+    ]
+  },
+  "poison_gate": {
+    "flagged": false,
+    "action": "allow",
+    "reason": "no_conflict",
+    "method": "rule",
+    "matches": []
+  },
+  "reflection": null,
+  "evicted": [],
+  "source_paths": {
+    "messages": "/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/01_full_chain_real/messages.json",
+    "trace": "/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/01_full_chain_real/trace.json",
+    "answer": "/mnt/aisdata/sjh04/实训2/agent/outputs/leader_demo/01_full_chain_real/final_answer.md"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "conversation_id": "leader_demo_batch_file_reader_chain",
+  "user_input": "读取 leader_demo/docs/project_requirements.md，用两句话概括验收主线。",
+  "system_prompt_path": "/mnt/aisdata/sjh04/实训2/agent/prompts/local_tool_agent.txt",
+  "toolset": "basic_tools",
+  "max_turns": 3,
+  "use_global_memory": true,
+  "selected_memory_ids": [
+    "mem_leader_acceptance_policy",
+    "mem_leader_demo_constraints"
+  ],
+  "save_memory": "none",
+  "execution_mode": "integrated"
+}
