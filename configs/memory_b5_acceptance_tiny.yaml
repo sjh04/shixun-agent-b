@@ -1,0 +1,65 @@
+memory:
+  root_dir: ../data/b5_acceptance_demo/memory
+  global_memory_dir: global
+  conversation_memory_dir: conversations
+  index_path: memory_index.json
+  max_memory_chars: 420
+
+  retrieval:
+    mode: hybrid
+    top_k: 3
+    candidate_limit: 20
+    chunk_chars: 650
+    chunk_overlap: 100
+    rrf_k: 60
+    recency_half_life_days: 30
+    include_all_conversations: true
+    include_global_when_query: true
+    use_chunk: true
+    use_three_factor: true
+    three_factor_weights:
+      relevance: 0.8
+      recency: 0.1
+      importance: 0.1
+    three_factor_top_m: 10
+    use_hyde: true
+    use_rerank: true
+    vector_backend: qwen_or_hashing
+    hashing_dim: 768
+    cache_embeddings: true
+    retrieval_cache_path: memory_retrieval_cache.sqlite3
+
+  compression:
+    enabled: true
+    summary_chars: 220
+    summary_sentences: 3
+    min_chars_for_summary: 120
+
+  integration:
+    enabled: true
+    duplicate_similarity: 0.92
+    conflict_similarity: 0.05
+    use_llm_judge: true
+
+  poison_gate:
+    enabled: true
+    action: flag
+    trusted_memory_types: [global]
+    conflict_threshold: 0.05
+    use_llm_judge: true
+
+  lifecycle:
+    max_memories: 20
+    protect_global: true
+    importance_default: 5
+    update_access_on_load: false
+    reflect_enabled: false
+    reflect_every_n: 10
+    reflect_min_cluster_size: 3
+    reflect_similarity_threshold: 0.05
+
+  llm:
+    enabled: true
+    model_config: ../configs/model.yaml
+    mode: prompt_json
+    max_new_tokens: 512

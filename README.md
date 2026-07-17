@@ -1,603 +1,439 @@
-# 本地 Agent 框架（实训 B 方向）
+# 团队项目 README
 
-本项目使用 Python 3.10 实现一个本地文件驱动的 Agent 框架。B1–B5 均保留独立命令行入口，使用服务器本地 Qwen3.5-4B。
+> 实训 B 方向 · 本地文件驱动的 Agent 智能体框架
+>
+> 本 README 按团队项目模板组织，覆盖：项目解决什么问题、系统如何运行、依赖哪些模型与数据、如何复现完整演示与各模块演示、以及团队如何把 B1–B5 五个模块组合成一个完整系统。
 
-模块边界如下：
+---
 
-| 模块 | 入口文件 | 职责 |
-|---|---|---|
-| B1 | `code/b1_agent_runtime.py` | Agent 总控、消息管理、循环控制和产物汇总。 |
-| B2 | `code/b2_run_skill.py` | 独立运行五个基础 Skill。 |
-| B3 | `code/b3_tool_layer.py` | 生成 tools schema，校验并执行 tool calls。 |
-| B4 | `code/b4_local_agent_llm.py` | 使用 mock 或本地 LLM 生成标准 AIMessage，不执行工具。 |
-| B5 | `code/b5_memory.py` | 查找、截断、保存 memory 文档并维护索引。 |
-| 完整演示 | `code/run_full_demo.py` | 调用 B1 跑通完整 Agent，并生成汇总报告。 |
+## 1. 项目概述
 
-B4的mock模式不真实加载、运行模型，作为无 GPU、无模型或模块联调时的调试模式。`prompt_json`模式则加载本地模型真实运行。
+### 1.1 项目名称
 
-## 1. 环境准备
+`本地 Agent 框架（实训 B 方向）`
 
-B1–B5 使用本地 Qwen3.5-4B、通过 transformers 直接加载推理。所有模块统一使用项目根目录下的 `requirements.txt`。推荐每位同学新建自己的 conda 环境：
+### 1.2 项目目标
+
+面向"本地、离线、文件驱动"的 Agent 任务场景，基于服务器本地的 **Qwen3.5-4B** 大模型，构建一个可运行、可观测、可复现的 Agent 智能体框架。系统要解决的核心问题是：让一个纯语言模型具备 **记忆、工具调用、多轮循环控制和长期状态管理** 的能力，把"模型回答一句话"扩展为"模型自主决策 → 调用工具 → 读取记忆 → 汇总结果 → 保存记忆"的完整闭环。
+
+最终实现的核心能力：
+
+- 完整消息序列编排：`system → user → assistant(tool_calls) → tool → assistant(final)`；
+- 5 个基础 Skill（计算、读文件、本地检索、表格分析、格式转换）；
+- 工具说明（tools_schema）自动生成、参数校验、工具执行、重试 / 缓存 / 统计；
+- 本地 LLM 决策（真实 `prompt_json` 模式 + 无 GPU `mock` 调试模式）；
+- 主动记忆管理（关键词 / 向量 / 混合检索、压缩、整合、投毒拦截、生命周期淘汰与反思）；
+- 全链路结构化产物与运行日志，支持一键复现。
+
+### 1.3 当前完成情况
+
+| 类型 | 完成情况 |
+|---|---|
+| 基础要求 | **B1–B5 基础要求全部完成**：独立模块、统一接口、结构化输出、全链路联调，均满足 PPT 要求。 |
+| 进阶要求 | **B1 / B3 / B5 完成度高**：B1 多轮对话、断点续跑、批量任务、历史摘要压缩、Prompt 切换、plan / confirm 模式；B3 有限重试、结果缓存、调用统计；B5 检索增强、压缩、整合、投毒拦截、生命周期。**B2 / B4 部分完成**：B2 扩展 Skill（代码执行、复合 Skill）已实现但未接入默认工具集；B4 完成本地决策与两种运行模式，模型切换 / 原生工具绑定对比实验不足。 |
+| 支持的主要任务类型 | 数学计算、本地 txt/md 文档阅读与摘要、本地文件检索、CSV/TSV 表格分析、文本格式转换（markdown/json）、以及无工具的直接问答。 |
+| 当前限制 | B4 缺少不同模型 / 原生 tools 传参的系统化对比实验；B2 的 `code_executor`、`composite` 尚未接入默认 `basic_tools`；B3 尚未实现"从 Python 函数自动生成完整 schema"；Qwen 向量检索冷启动延迟较高（首查询 ~20s，缓存后 ~350ms）。 |
+
+---
+
+## 2. 整体流程与模块结构
+
+### 2.1 模块边界
+
+系统由 5 个模块（B1–B5）加 1 个一键演示入口组成。**B1 是唯一的运行时编排者**，B2–B5 均可独立命令行运行，也可被 B1 通过公开函数编排。模块之间只通过三种标准 JSON 契约传递数据：`SkillResult`、`AIMessage`、`ToolMessage`（见附录 A）。
+
+| 模块 / 阶段 | 入口文件 / 入口函数 | 主要职责 | 输入 | 输出 |
+|---|---|---|---|---|
+| **B1 Agent Runtime** | `code/b1_agent_runtime.py` | Agent 总控：消息管理、循环控制（`max_turns`）、编排 B3/B4/B5、产物汇总 | 用户问题 + `configs/*.yaml` | `messages.json` / `trace.json` / `final_answer.md` |
+| **B2 Skill 层** | `code/b2_run_skill.py`（实现在 `skills/`） | 独立执行 5 个基础 Skill，封装错误码 | Skill 的 JSON 输入 | `SkillResult`（JSON） |
+| **B3 Tool 层** | `code/b3_tool_layer.py` | 生成 `tools_schema`，校验并执行 `tool_calls`（内部调用 B2 Skill） | `configs/tools.yaml` + `tool_calls` | `tools_schema.json` / `tool_messages.json` |
+| **B4 LLM 决策** | `code/b4_local_agent_llm.py` | 用本地 Qwen 生成标准 `AIMessage`（只决策，不执行工具） | `messages` + `tools_schema` | `AIMessage`（工具调用或最终回答） |
+| **B5 Memory** | `code/b5_memory.py` | 记忆检索 / 压缩 / 整合 / 投毒拦截 / 保存 / 索引维护 | `configs/memory.yaml` + `query` | `selected_memory.json` / `saved_memory.json` |
+| **完整演示** | `code/run_full_demo.py` | 以 B1 为入口跑通全链路并生成汇总报告 | 同 B1 | 全部 integrated 产物 + `demo_report.md` |
+
+### 2.2 系统架构图 / 流程图
+
+整体数据流（B1 编排，B3 内部调用 B2）：
+
+```text
+                            ┌──────────────────────────────┐
+        用户问题 query ────▶ │        B1 Agent Runtime       │
+                            │  （消息管理 + 循环控制 max_turns）│
+                            └──────┬─────────────┬──────────┘
+                                   │             │
+                    ①取记忆         │             │  ②取工具说明 tools_schema
+                                   ▼             ▼
+                        ┌───────────────┐   ┌───────────────┐
+                        │   B5 Memory   │   │  B3 Tool 层   │
+                        │ 检索/压缩/整合 │   │ schema/校验/执行│
+                        └───────┬───────┘   └───────┬───────┘
+                                │                   │ 调用
+              memory context    │                   ▼
+                                │           ┌───────────────┐
+                                │           │   B2 Skill    │
+                                │           │ 5 个基础工具   │
+                                │           └───────┬───────┘
+                                │                   │ SkillResult
+                                ▼                   ▼
+        messages ─────▶ ┌──────────────────────────────────┐
+        (system/user/   │           B4 LLM 决策             │
+         ai/tool)       │   本地 Qwen3.5-4B → AIMessage     │
+                        └──────────────────────────────────┘
+                                   │
+             AIMessage 有 tool_calls？──是──▶ 回到 B3 执行工具（循环）
+                                   │否
+                                   ▼
+                    final_answer.md  +  ③B5 保存本轮对话记忆
+```
+
+
+### 2.3 一次完整任务的流程
+
+以默认演示任务 `data/runtime_input.json`（"读取 `docs/agent_intro.txt` 并用三条中文要点总结"）为例：
+
+1. **原始输入**：用户问题 + `configs/`（model / tools / memory）+ `prompts/local_tool_agent.txt` 系统提示模板。
+2. **记忆注入**：B1 调用 B5，按检索管线从 `memory/` 取出相关记忆，拼进初始 `messages`。
+3. **首次决策**：B1 调用 B3 生成 `tools_schema`，连同 `messages` 交给 B4；本地 Qwen 输出一个带 `tool_calls` 的 `AIMessage`（决定调用 `file_reader`）。
+4. **工具执行**：B1 把 `tool_calls` 交给 B3，B3 校验参数后调用 B2 的 `file_reader` Skill，读取 `data/docs/agent_intro.txt`，返回 `ToolMessage`。
+5. **二次决策**：B1 把 `ToolMessage` 追加进 `messages` 再交给 B4，Qwen 基于工具结果生成最终回答（`tool_calls=[]`、`content` 非空）。
+6. **收尾与保存**：B1 写出 `final_answer.md`，并调用 B5 把本轮 `messages/trace/final_answer` 保存为对话记忆，更新 `memory/memory_index.json`。
+7. **日志与产物**：全过程写出 `messages.json`、`trace.json`、各类 `*_log.jsonl`、`llm_calls/` 原始输出等，`run_full_demo.py` 额外汇总 `demo_report.md`。
+
+---
+
+## 3. 模型、数据集与外部资源
+
+### 3.1 模型说明
+
+| 项目 | 内容 |
+|---|---|
+| 使用模型 | **Qwen3.5-4B**（本地权重，通过 `transformers` 直接加载，bfloat16） |
+| 模型来源 | 服务器本地已有权重 / 官方模型页面下载 |
+| 项目内相对路径 | `models/Qwen3.5-4B/`，由 `configs/model.yaml` 的 `model_name_or_path` / `tokenizer_name_or_path` 指定（默认相对路径 `../models/Qwen3.5-4B`，相对 `configs/` 解析）；`models/` 已 `.gitignore`，**不随源码包分发** |
+| 是否需要 GPU | 真实 `prompt_json` 模式**需要 GPU**；`mock` 调试模式**不需要** |
+| 是否需要联网运行 | **不需要**（完全本地离线运行） |
+
+放置模型（下载到指定目录，或对已有权重建软链）：
 
 ```bash
-conda create -n your_env python=3.10 -y
-conda activate your_env
-export PYTHONNOUSERSITE=1
-pip install -r requirements.txt
+# 方式一：把权重目录放到 models/Qwen3.5-4B/
+#   models/Qwen3.5-4B/{config.json, *.safetensors, tokenizer.*, ...}
+
+# 方式二：对服务器上已有权重建软链
+ln -s /path/to/your/Qwen3.5-4B  models/Qwen3.5-4B
+
+# 方式三：改用绝对路径 —— 编辑 configs/model.yaml 的 model_name_or_path / tokenizer_name_or_path
 ```
-其中"export PYTHONNOUSERSITE=1"的作用是：让Python启动时禁止加载用户级site-packages目录，保证只用当前环境自己的包
 
-模型使用 Qwen3.5-4B。统一配置文件为 `configs/model.yaml`，其中 `model_name_or_path` / `tokenizer_name_or_path` 默认是相对路径 `../models/Qwen3.5-4B`（相对 `configs/` 解析，即仓库内的 `models/` 目录，已 `.gitignore`）。把权重放到 `models/Qwen3.5-4B/` 下即可（下载到此处，或 `ln -s 你的模型目录 models/Qwen3.5-4B` 建软链）；也可改成模型所在的绝对路径。
+### 3.2 数据集 / 示例数据说明
 
-演示命令均从 `agent/code` 目录执行：
+本项目数据均为**项目自带**或**由脚本可复现构造**，无需外部下载。源码包按要求不含 `data/`、`models/`、`memory/`、`outputs/`，运行前请从团队仓库获取完整 `data/` 与 `memory/`，或用下方脚本重新生成评测语料。
+
+| 数据或文件 | 用途 | 来源 | 项目内相对路径 |
+|---|---|---|---|
+| Skill 输入样例 | B2 各 Skill 的正常 / 异常输入 | 项目自带 | `data/tool_inputs/` |
+| 消息样例 | B3/B4 的 tool_calls 与 messages 样例 | 项目自带 | `data/messages/` |
+| B1 fixtures | B1 个人演示的预设 memory/AI/Tool 响应 | 项目自带 | `data/b1_fixtures/` |
+| runtime 任务输入 | 全系统 integrated 任务输入 | 项目自带 | `data/runtime_input*.json` |
+| 记忆保存样例 | B5 保存对话 / 全局记忆的输入 | 项目自带 | `data/memory_inputs/` |
+| B5 评测语料与标注 | RQ1–RQ6 的标注 query 与语料 | 脚本可复现构造 | `data/memory_eval/` |
+| 演示文档 | file_reader / 检索实际读取的文档 | 项目自带 | `data/docs/` |
+| 记忆库 | 全局 / 对话记忆文档与索引 | 项目自带 + 运行时更新 | `memory/`（`global/`、`conversations/`、`memory_index.json`） |
+
+复现 B5 评测语料（可选，评测前执行）：
 
 ```bash
 cd agent/code
+python evals/build_b5_eval_corpus.py   # 生成 data/memory_eval/corpus/ 与 corpus_queries.json
 ```
 
-## 2. 公共数据格式
+---
 
-### 2.1 SkillResult
+## 4. 环境安装
 
-B2 和 B3 使用以下 JSON 对象记录一次 Skill 执行：
+### 4.1 运行环境
 
-```json
-{
-  "skill_name": "calculator",
-  "status": "success",
-  "input": {"expression": "23 * 17 + 9"},
-  "output": {"result": 400},
-  "error": null,
-  "latency_ms": 0.5
-}
+| 项目 | 要求 |
+|---|---|
+| Python 版本 | Python 3.10 |
+| 操作系统 / 服务器环境 | Linux 服务器（已在 CUDA 11.8 环境验证） |
+| GPU 要求 | 真实模式需 GPU（加载 Qwen3.5-4B，bfloat16）；无 GPU 可用 `mock` 模式跑通全链路调试 |
+| 主要依赖 | `torch==2.7.1+cu118`、`transformers==5.12.1`、`accelerate`、`PyYAML`、`sentencepiece`、`safetensors`、`numpy`（完整见 `requirements.txt`） |
+
+### 4.2 安装步骤
+
+推荐每位同学新建独立 conda 环境：
+
+```bash
+# 1. 克隆 / 获取项目后进入 agent 目录
+cd agent
+
+# 2. 创建并激活环境
+conda create -n agent python=3.10 -y
+conda activate agent
+export PYTHONNOUSERSITE=1   # 禁止加载用户级 site-packages，保证只用当前环境的包
+
+# 3. 安装依赖（torch 使用 CUDA 11.8 wheel）
+pip install -r requirements.txt
+
+# 4. 放置模型（见 3.1 节），随后所有演示命令都从 code 目录执行
+cd code
 ```
 
-失败时 `status` 为 `error`、`output` 为 `null`，`error` 包含异常类型和错误信息。
+常见环境问题：
 
-### 2.2 AIMessage
+- **模型路径不存在**：`configs/model.yaml` 默认指向 `../models/Qwen3.5-4B`。请确认权重已放好或已建软链，或改为绝对路径；无 GPU / 无模型时先用 `--llm_mode mock` / `--mode mock` 验证链路。
+- **依赖版本不兼容**：`torch` 需带 `+cu118` 后缀，务必保留 `--extra-index-url`；`export PYTHONNOUSERSITE=1` 可避免串用用户级旧包。
+- **GPU 显存不足**：确认使用 bfloat16、`device_map: auto`；必要时降低 `max_new_tokens`，或改用 `mock` 模式做流程演示。
 
-工具调用型 AIMessage：
+---
 
-```json
-{
-  "role": "assistant",
-  "content": "",
-  "tool_calls": [
-    {
-      "id": "call_001",
-      "name": "file_reader",
-      "args": {"path": "docs/agent_intro.txt", "max_chars": 2000}
-    }
-  ]
-}
+## 5. 输入文件与配置文件说明
+
+### 5.1 主要配置文件
+
+| 配置文件 | 作用 | 需要修改的字段 |
+|---|---|---|
+| `configs/model.yaml` | 本地模型配置（Qwen3.5-4B、transformers、bf16、`prompt_json`） | `model_name_or_path` / `tokenizer_name_or_path`（模型路径）、`max_new_tokens`、`default_mode` |
+| `configs/tools.yaml` | 定义 toolset、每个工具的模块/函数、参数、必填项、`data_root`、重试/缓存开关 | `toolset` 选择、`settings.max_retries`、`cache_enabled`、工具级 `retryable` / `cacheable` |
+| `configs/memory.yaml` | 记忆根目录、检索管线（none/keyword/vector/hybrid）、压缩、整合、生命周期、`max_memory_chars` | 检索模式与各增强开关、`max_memory_chars`、`lifecycle.*` |
+| `configs/memory_small_limit.yaml` | 复用当前 `memory/`，仅调小 `max_memory_chars` 用于截断演示 | `max_memory_chars` |
+| `configs/memory_*acceptance*.yaml` / `memory_leader_demo.yaml` / `memory_eval_corpus.yaml` | 验收 / 评测专用记忆配置变体 | 按演示场景选择 |
+
+### 5.2 主要输入文件
+
+| 输入文件 | 用途 | 适用场景 |
+|---|---|---|
+| `data/runtime_input.json` | file_reader 主线任务（读取文档 + 三条中文要点） | 完整系统 / 一键 Demo |
+| `data/runtime_input_0.json` | 无工具倾向任务，验证模型直接回答 | 完整系统 |
+| `data/runtime_input_2.json` ~ `_5.json` | 分别对应 calculator / local_file_search / table_analyzer / format_converter 任务 | 完整系统（分工具） |
+| `data/b1_fixtures/b1_fixture_input.json` | B1 个人演示入口（预设 memory/AI/Tool 响应，不调 B2–B5） | 模块演示（B1 隔离） |
+| `data/tool_inputs/tool_input_*.json` | 5 个 Skill 的正常输入；`*_error.json` 为异常样例 | 模块演示（B2）/ 异常样例 |
+| `data/messages/ai_message_with_tool_calls.json` 等 | B3 工具执行样例（正常 / 未知工具 / 缺参 / 重试 / 缓存） | 模块演示（B3）/ 异常样例 |
+| `data/messages/messages_no_tool.json` / `messages_with_tool.json` / `messages_with_error_tool.json` | B4 两阶段决策与失败工具处理输入 | 模块演示（B4） |
+| `data/memory_inputs/memory_save_*.json` | B5 保存对话 / 全局记忆输入 | 模块演示（B5） |
+| `data/memory_eval/*.json` | RQ1–RQ6 标注语料与查询 | 评测 |
+
+---
+
+## 6. 完整流程 Demo 运行
+
+> 所有命令均从 `agent/code` 目录执行。既提供**一键完整 Demo**（第 6.2 节 A），也保留 **B1–B5 各模块的独立演示**（第 6.2 节 B），两者并重。
+
+### 6.1 Demo 样例说明
+
+| Demo | 输入文件 / 输入内容 | 演示目的 |
+|---|---|---|
+| **一键完整 Demo** | `data/runtime_input.json` | 以 B1 为入口，真实调用 B3/B4/B5 跑通 `system→user→ai(tool)→tool→ai(final)` 全链路并生成汇总报告 |
+| B1 个人演示（fixture） | `data/b1_fixtures/b1_fixture_input.json` | 用预设响应隔离验证 B1 的消息管理与循环控制，不依赖其他模块 |
+| B2 Skill 演示 | `data/tool_inputs/tool_input_*.json` | 独立验证 5 个基础 Skill 的输入/输出/错误封装 |
+| B3 Tool 演示 | `data/messages/*.json` | 验证 schema 生成、参数校验、工具执行、重试 / 缓存 / 统计 |
+| B4 LLM 演示 | `data/messages/messages_*.json` | 验证本地 Qwen 生成工具调用型 / 最终回答型 AIMessage |
+| B5 Memory 演示 | 命令行 `--select_memory_ids` / `--save_input_path` | 验证记忆检索、截断、保存与索引更新 |
+
+### 6.2 运行命令
+
+**A. 一键完整 Demo（推荐，真实模型）**
+
+```bash
+cd agent/code
+python run_full_demo.py \
+  --input ../data/runtime_input.json \
+  --tools_config ../configs/tools.yaml \
+  --memory_config ../configs/memory.yaml \
+  --model_config ../configs/model.yaml \
+  --llm_mode prompt_json \
+  --outdir ../outputs/full_demo
 ```
 
-最终回答型 AIMessage 的 `content` 非空，`tool_calls` 为空数组。
+> 无 GPU / 无模型时，把 `--llm_mode prompt_json` 改为 `--llm_mode mock` 即可跑通全链路（不加载模型、不占显存）。
+> 该命令会按 `runtime_input.json` 的 `save_memory=conversation` 更新 `memory/conversations/conv_001.md` 与 `memory/memory_index.json`，重复演示前请确认可覆盖。
 
-### 2.3 ToolMessage
+**B. B1–B5 各模块独立演示**
 
-```json
-{
-  "role": "tool",
-  "tool_call_id": "call_001",
-  "name": "file_reader",
-  "content": "{\"skill_name\":\"file_reader\",...}",
-  "status": "success"
-}
+```bash
+# ── B1 个人演示（fixture，不调用 B2–B5）
+python b1_agent_runtime.py --input ../data/b1_fixtures/b1_fixture_input.json --outdir ../outputs/B1_fixture
+
+# ── B1 全系统 integrated（以 B1 为入口真实调用 B3/B4/B5；此处 LLM 用 mock）
+python b1_agent_runtime.py --input ../data/runtime_input.json \
+  --tools_config ../configs/tools.yaml --memory_config ../configs/memory.yaml \
+  --model_config ../configs/model.yaml --llm_mode mock --outdir ../outputs/B1_runtime
+
+# ── B2 五个基础 Skill（逐个）
+python b2_run_skill.py --skill calculator        --input ../data/tool_inputs/tool_input_calculator.json     --outdir ../outputs/B2_skills
+python b2_run_skill.py --skill file_reader       --input ../data/tool_inputs/tool_input_file_reader.json     --outdir ../outputs/B2_skills
+python b2_run_skill.py --skill local_file_search --input ../data/tool_inputs/tool_input_file_search.json     --outdir ../outputs/B2_skills
+python b2_run_skill.py --skill table_analyzer    --input ../data/tool_inputs/tool_input_table_analyzer.json  --outdir ../outputs/B2_skills
+python b2_run_skill.py --skill format_converter  --input ../data/tool_inputs/tool_input_format_converter.json --outdir ../outputs/B2_skills
+
+# ── B3 生成 schema / 执行 tool_calls / 进阶（重试·缓存·统计）
+python b3_tool_layer.py --tools_config ../configs/tools.yaml --toolset basic_tools --export_schema --outdir ../outputs/B3_tools
+python b3_tool_layer.py --tools_config ../configs/tools.yaml --toolset basic_tools --tool_calls ../data/messages/ai_message_with_tool_calls.json --execute --outdir ../outputs/B3_tools
+python b3_tool_layer.py --tools_config ../configs/tools.yaml --toolset demo_tools  --tool_calls ../data/messages/b3_tool_call_retry_recoverable.json --execute --outdir ../outputs/B3_tools/retry
+python b3_tool_layer.py --tools_config ../configs/tools.yaml --toolset basic_tools --tool_calls ../data/messages/b3_tool_call_cache_repeat.json --execute --outdir ../outputs/B3_tools/cache
+
+# ── B4 本地 LLM 决策（真实 prompt_json：第一阶段生成 tool_call、第二阶段生成 final_answer）
+python b4_local_agent_llm.py --model_config ../configs/model.yaml --messages ../data/messages/messages_no_tool.json  --tools_schema ../data/messages/tools_schema_basic.json --mode prompt_json --outdir ../outputs/B4_llm/no_tool_real
+python b4_local_agent_llm.py --model_config ../configs/model.yaml --messages ../data/messages/messages_with_tool.json --tools_schema ../data/messages/tools_schema_basic.json --mode prompt_json --outdir ../outputs/B4_llm/with_tool_real
+
+# ── B5 记忆查找 / 保存
+python b5_memory.py --config ../configs/memory.yaml --select_memory_ids mem_conversation_conv_000 --use_global_memory true --query "Agent 系统如何调用工具？" --outdir ../outputs/B5_memory
+python b5_memory.py --config ../configs/memory.yaml --save_type conversation --save_input_path ../data/memory_inputs/memory_save_input.json --outdir ../outputs/B5_memory
 ```
 
-`content` 是序列化后的 SkillResult JSON 字符串；`tool_call_id` 用于关联前面的 AIMessage tool call。
+> B5 六个研究问题（RQ1–RQ6）的完整评测命令见 **附录 C**。
 
-## 3. B2：Skill 独立演示
-
-入口：`code/b2_run_skill.py`
-
-### 3.1 通用命令行输入
+### 6.3 关键参数说明
 
 | 参数 | 说明 |
 |---|---|
-| `--skill` | Skill 名称：`calculator`、`file_reader`、`local_file_search`、`table_analyzer` 或 `format_converter`。 |
-| `--input` | 对应 Skill 的 JSON 输入文件。顶层必须是 JSON 对象。 |
-| `--outdir` | B2 输出目录。 |
-| `--data_root` | 可选的数据根目录；未提供时使用项目的 `data/`。 |
+| `--input` | 任务输入 JSON（B1 / full_demo），决定用户问题、执行模式与 `save_memory` 策略 |
+| `--tools_config` / `--memory_config` / `--model_config` | 分别指向 `tools.yaml` / `memory.yaml` / `model.yaml` |
+| `--llm_mode`（B1/full_demo）、`--mode`（B4） | `prompt_json`=加载本地模型真实运行；`mock`=不加载模型的调试模式 |
+| `--outdir` | 输出目录，全部结构化产物与日志写入此处 |
+| `--skill` / `--input`（B2） | 选择 Skill 及其 JSON 输入 |
+| `--toolset` / `--export_schema` / `--execute`（B3） | 选择工具集、导出 schema、执行 tool_calls |
+| `--select_memory_ids` / `--use_global_memory` / `--query` / `--save_type` / `--save_input_path`（B5） | 控制记忆查找与保存 |
+| `--resume`（B1） | 从 checkpoint 断点续跑（进阶） |
 
-### 3.2 每个 Skill 的输入文件
+### 6.4 运行成功的判断方式
 
-| Skill | 正常输入文件 | 关键输入字段 | 异常输入样例 |
+- 终端显示运行完成且**无 traceback**，CLI 退出码为 `0`（退出码含义见附录 B）。
+- 输出目录生成主要结果文件：`messages.json`、`trace.json`、`final_answer.md`，一键 Demo 还会生成 `demo_report.md`。
+- `messages.json` 的角色顺序符合规范链路：`system → user → assistant(tool_calls) → tool → assistant(final)`。
+- `final_answer.md` 含预期的最终回答（如主线任务的三条中文要点）；`trace.json` 中 `status` 正常、工具轮次与 LLM 次数符合预期。
+
+---
+
+## 7. 输出文件与结果说明
+
+### 7.1 主要输出文件
+
+一键完整 Demo（`outputs/full_demo/`）运行后的关键产物：
+
+| 输出文件 | 生成模块 / 阶段 | 格式 | 说明 |
 |---|---|---|---|
-| calculator | `data/tool_inputs/tool_input_calculator.json` | `expression`：数学表达式字符串。 | `tool_input_calculator_error.json` |
-| file_reader | `data/tool_inputs/tool_input_file_reader.json` | `path`：相对 `data/` 的 txt/md 路径；`max_chars`：最大返回字符数。 | `tool_input_file_reader_error.json` |
-| local_file_search | `data/tool_inputs/tool_input_file_search.json` | `query`、`root_dir`、`file_types`、`top_k`。 | `tool_input_file_search_error.json` |
-| table_analyzer | `data/tool_inputs/tool_input_table_analyzer.json` | `path`：CSV/TSV 路径；`max_rows_preview`；`describe`。 | `tool_input_table_analyzer_error.json` |
-| format_converter | `data/tool_inputs/tool_input_format_converter.json` | `text`；`target_format`：`markdown` 或 `json`；可选 `output_filename`。 | `tool_input_format_converter_error.json` |
+| `messages.json` | B1 | JSON 数组 | 完整 Agent 消息序列（顶层固定为数组） |
+| `trace.json` | B1 | JSON 对象 | 运行状态、工具轮次、LLM 次数、每轮消息、memory 保存状态与错误 |
+| `final_answer.md` | B1 | Markdown | 最终给用户的回答 |
+| `selected_memory.json` | B5（B1 调用） | JSON 对象 | 注入前选择的记忆及截断结果 |
+| `saved_memory.json` | B5（B1 调用） | JSON 对象 | 本轮对话记忆的保存结果与目标路径 |
+| `tools_schema.json` / `tool_messages.json` | B3（B1 调用） | JSON 数组 | 本轮工具 schema 与产生的 ToolMessage |
+| `tool_call_log.jsonl` / `runtime_log.jsonl` / `memory_log.jsonl` | B3 / B1 / B5 | JSONL | 工具执行、运行时、记忆操作的累计日志 |
+| `llm_calls/llm_call_00N_*.json` | B4（B1 调用） | JSON 对象 | 每次 LLM 调用的原始输出与规范化 AIMessage |
+| `demo_report.md` | `run_full_demo.py` | Markdown | 汇总对话、数据流、工具/LLM 次数、最终回答与文件清单 |
+| `memory/conversations/conv_001.md`、`memory/memory_index.json` | B5 | Markdown / JSON | 保存本轮对话记忆并更新索引（写入项目正式记忆目录） |
 
-文件类 Skill 的相对路径以 `data/` 为根。例如 `docs/agent_intro.txt` 实际对应 `data/docs/agent_intro.txt`。
+各模块独立演示的产物目录（`outputs/B1_fixture/`、`B2_skills/`、`B3_tools/`、`B4_llm/`、`B5_memory/`）及每个文件的详细含义见**附录 D**。
 
-### 3.3 演示命令
+### 7.2 运行截图或结果图例
 
-```bash
-python b2_run_skill.py --skill calculator --input ../data/tool_inputs/tool_input_calculator.json --outdir ../outputs/B2_skills
-python b2_run_skill.py --skill file_reader --input ../data/tool_inputs/tool_input_file_reader.json --outdir ../outputs/B2_skills
-python b2_run_skill.py --skill local_file_search --input ../data/tool_inputs/tool_input_file_search.json --outdir ../outputs/B2_skills
-python b2_run_skill.py --skill table_analyzer --input ../data/tool_inputs/tool_input_table_analyzer.json --outdir ../outputs/B2_skills
-python b2_run_skill.py --skill format_converter --input ../data/tool_inputs/tool_input_format_converter.json --outdir ../outputs/B2_skills
-```
+B5 记忆模块六个研究问题（RQ1–RQ6）的实测结果（详见 `RESULTS_B5.md`）：
 
-### 3.4 B2 输出
+| RQ | 能力 | 关键指标 | 结果 |
+|---|---|---|---|
+| RQ1 检索 | 检索管线消融 | Hit@3 | **0.20 → 1.00**；MRR 0.877 → 0.975 |
+| RQ2 压缩 | 同预算下游答对率 | 答对率 | **0.60 vs 硬截断 0.267（2.25×）** |
+| RQ3 整合 | 三分类准确率 | 准确率 | **Qwen judge 100%**（规则 38.9%） |
+| RQ4 投毒拦截 | Poison Gate | TPR / FPR | **90% / 10%**（规则 0% / 40%） |
+| RQ5 生命周期 | 淘汰顺序 vs oracle | Kendall τ | **1.000**，30→20 零违例 |
+| RQ6 端到端 | 依赖记忆任务成功率 | 成功率 | **0/10 → 10/10（+100pp）** |
 
-| 输出文件 | 格式 | 说明 |
+---
+
+## 8. 协作实现说明
+
+从工程协作角度，团队通过"**统一契约 + 隔离演示 + 配置驱动**"把五个模块拼成一个完整系统：
+
+- **约定统一的模块 I/O 契约**：全系统只用三种 JSON 对象跨模块传递数据 —— `SkillResult`（B2↔B3）、`AIMessage`（B4→B1）、`ToolMessage`（B3→B1），字段与形态在附录 A 固定，任何模块只要产出/消费这三种结构即可对接。
+- **用配置文件和样例数据降低联调成本**：`tools.yaml` / `memory.yaml` / `model.yaml` 把模块行为参数化；`data/` 下为每个模块准备了正常与异常输入样例，各模块可独立命令行验证后再联调。
+- **用 mock / fixture 解耦对硬件与彼此的依赖**：B4 的 `mock` 模式让无 GPU / 无模型的同学也能跑通链路；B1 的 `fixture` 模式用预设响应隔离验证编排逻辑，不依赖 B2–B5 的真实实现，使各模块可并行开发。
+- **处理数据格式不一致**：B3 依据 Skill 函数签名自动注入 `data_root` / `output_dir`，屏蔽文件类 Skill 的路径差异；B5 在保存侧抽取 trace/messages 信号写入检索 metadata，弥合"正文检索"与"结构化查询"的差异。
+- **可复现与可观测**：每个模块运行都追加结构化 `*_log.jsonl`；B5 每次 load/save 还快照配置开关与依赖版本，评测语料由脚本固化生成，保证结果可复现。
+- **需多模块配合才能完成的能力**：完整的 `LLM→Tool→LLM` 闭环（B1+B3+B4）、带记忆注入与保存的全链路（+B5）、以及一键 Demo 汇总报告，均为多模块协同产物。
+
+---
+
+## 9. 已知问题与改进方向
+
+| 问题 | 当前原因 | 可能改进 |
 |---|---|---|
-| `outputs/B2_skills/calculator_result.json` | JSON 对象（SkillResult） | calculator 最近一次运行的输入、结果或错误、耗时。 |
-| `outputs/B2_skills/file_reader_result.json` | JSON 对象（SkillResult） | file_reader 最近一次运行结果；业务输出包含内容、字符数、来源和截断标志。 |
-| `outputs/B2_skills/local_file_search_result.json` | JSON 对象（SkillResult） | 文件搜索结果；每项包含路径、匹配分数和命中片段。 |
-| `outputs/B2_skills/table_analyzer_result.json` | JSON 对象（SkillResult） | 表格行列数、列名、预览和数值列统计。 |
-| `outputs/B2_skills/format_converter_result.json` | JSON 对象（SkillResult） | 转换后的 Markdown 或 JSON 文本，以及生成文件路径。 |
-| `outputs/B2_skills/skill_run_log.jsonl` | JSONL | B2 运行历史；每行记录时间、Skill、状态、结果路径和耗时。 |
+| B4 缺少模型 / 工具绑定对比实验 | 目前只接入本地 Qwen3.5-4B，且工具绑定统一走 prompt 注入 | 增加多本地模型可切换配置，补充"原生 tools 传参 vs prompt 注入"、工具调用成功率与 token 用量的批量对比 |
+| B2 扩展 Skill 未接入默认工具集 | `code_executor`、`composite` 属进阶扩展，未加入 `basic_tools` | 在 `tools.yaml` 中正式接入并补充沙箱/超时的对外文档与样例 |
+| B3 schema 未做到完全自动生成 | 目前基于 `tools.yaml` 生成 schema | 实现从 Python 函数签名/docstring 自动生成完整 `tools_schema`，并做"schema 描述质量对工具调用准确率影响"的对比实验 |
+| Qwen 向量检索冷启动延迟高 | 首次查询需加载 embedding（~20s），FULL 管线 ~7.7s/查询 | 已加 SQLite/chunk/向量缓存（缓存后 ~350ms）；可进一步做 save-time 预热与按场景在 `memory.yaml` 选择精度/延迟档位 |
+| 摘要/反思含人工评分环节 | token 自动口径系统性低估同义换写；反思洞见需人工打分 | 引入语义级保留率评估；补充人工抽检校准流程 |
 
-同一个 Skill 再次运行时会覆盖对应的 `*_result.json`；日志采用追加写入。异常样例被正常捕获并写入 error SkillResult，CLI 仍返回 0。
+---
 
-## 4. B3：Tools Schema 与工具执行
+## 附录
 
-入口：`code/b3_tool_layer.py`
+### 附录 A：公共数据格式（模块间契约）
 
-### 4.1 输入文件
+**SkillResult**（B2 一次 Skill 执行；失败时 `status=error`、`output=null`、`error` 含异常类型与信息）：
 
-| 输入文件 | 说明 |
-|---|---|
-| `configs/tools.yaml` | 定义 toolsets、每个工具的 Python 模块/函数、描述、输入参数、必填参数、返回说明和 `data_root`。 |
-| `data/messages/ai_message_with_tool_calls.json` | 工具执示演示的输入，正常file_reader调用的样例,包含标准 AIMessage 及其 `tool_calls`。 |
-| `data/messages/b3_tool_call_format_converter_valid.json` | 正常 format_converter 调用样例，验证 B3 注入 `output_dir` 并生成文件。 |
-| `data/messages/b3_tool_call_unknown_tool.json` | 未知工具错误样例。 |
-| `data/messages/b3_tool_call_missing_required.json` | 缺少必填参数错误样例。 |
-
-B3 会根据 Skill 函数签名自动注入 data_root 和 output_dir；前者用于读取文件类Skill定位输入文件夹data/，后者用于format_converter输出生成文件。
-
-### 4.2 演示命令
-
-生成tools_schema:
-```bash
-python b3_tool_layer.py --tools_config ../configs/tools.yaml --toolset basic_tools --export_schema --outdir ../outputs/B3_tools
-```
-执行tool_calls:
-```bash
-python b3_tool_layer.py --tools_config ../configs/tools.yaml --toolset basic_tools --tool_calls ../data/messages/ai_message_with_tool_calls.json --execute --outdir ../outputs/B3_tools
+```json
+{ "skill_name": "calculator", "status": "success",
+  "input": {"expression": "23 * 17 + 9"}, "output": {"result": 400},
+  "error": null, "latency_ms": 0.5 }
 ```
 
-基础样例:
-```bash
-python b3_tool_layer.py --tools_config ../configs/tools.yaml --toolset basic_tools --tool_calls ../data/messages/b3_tool_call_format_converter_valid.json --execute --outdir ../outputs/B3_tools/format_converter_valid
-python b3_tool_layer.py --tools_config ../configs/tools.yaml --toolset basic_tools --tool_calls ../data/messages/b3_tool_call_unknown_tool.json --execute --outdir ../outputs/B3_tools/unknown_tool
-python b3_tool_layer.py --tools_config ../configs/tools.yaml --toolset basic_tools --tool_calls ../data/messages/b3_tool_call_missing_required.json --execute --outdir ../outputs/B3_tools/missing_required
+**AIMessage**（B4 输出）—— 工具调用型 `content=""` 且 `tool_calls` 非空；最终回答型 `content` 非空且 `tool_calls=[]`：
+
+```json
+{ "role": "assistant", "content": "",
+  "tool_calls": [{"id": "call_001", "name": "file_reader",
+                  "args": {"path": "docs/agent_intro.txt", "max_chars": 2000}}] }
 ```
 
-错误样例不会让 CLI 崩溃；错误会写入 `tool_messages.json` 和 `tool_call_log.jsonl` 中的 `status=error` SkillResult。
+**ToolMessage**（B3 输出）—— `content` 是序列化后的 SkillResult 字符串，`tool_call_id` 关联对应 AIMessage：
 
-### 4.3 B3 输出
-
-| 输出文件 | 格式 | 说明 |
-|---|---|---|
-| `outputs/B3_tools/tools_schema.json` | JSON 数组 | 当前 OpenAI 风格的函数工具说明schema；`x-returns` 描述工具返回值。 |
-| `outputs/B3_tools/tool_schema_report.json` | JSON 对象 | schema 导出报告，包含 toolset、工具数量和工具名称列表。 |
-| `outputs/B3_tools/tool_messages.json` | JSON 数组 | 本次执行生成的 ToolMessage 列表。 |
-| `outputs/B3_tools/tool_call_log.jsonl` | JSONL | 每个 tool call 的完整执行记录，含未转义 SkillResult、状态、参数、耗时，以及进阶字段 `attempts`（尝试次数）与 `cache_hit`（是否命中缓存）。 |
-| `outputs/B3_tools/tool_call_stats.json` | JSON 对象 | 进阶 4：按工具聚合的调用统计（次数、成功/失败数、失败率、平均/最大耗时、缓存命中数）。 |
-
-schema/report/tool messages/stats 会被最近一次运行覆盖；tool-call 日志追加写入。
-
-### 4.4 进阶改动（重试 / 缓存 / 统计）
-
-本次在 `code/b3_tool_layer.py` 与 `configs/tools.yaml` 上完成官方进阶第 2/3/4 条，详细图文讲解见 `docs/B3_讲解.html`。
-
-| 进阶 | 机制 | 配置 / 字段 |
-|---|---|---|
-| 2 有限重试 | 仅对可恢复错误（`TimeoutError`/`ConnectionError`/`InterruptedError`/`RecoverableToolError`）重试，参数错误不重试 | `settings.max_retries`（默认 2）；工具级 `retryable: true` |
-| 3 结果缓存 | 相同 `name+args` 复用成功结果（进程内），写文件工具跳过 | `settings.cache_enabled`；工具级 `cacheable: false` |
-| 4 调用统计 | 按工具聚合次数/失败率/平均耗时，输出 `tool_call_stats.json` | 复用日志 `latency_ms`/`status` |
-
-重试演示使用独立工具集 `demo_tools`（工具 `flaky_probe`，非业务 Skill）：
-
-```
-# 进阶 2 重试（前 2 次失败，第 3 次成功）
-python b3_tool_layer.py --tools_config ../configs/tools.yaml --toolset demo_tools --tool_calls ../data/messages/b3_tool_call_retry_recoverable.json --execute --outdir ../outputs/B3_tools/retry
-# 进阶 3+4 缓存与统计（calculator 重复相同表达式）
-python b3_tool_layer.py --tools_config ../configs/tools.yaml --toolset basic_tools --tool_calls ../data/messages/b3_tool_call_cache_repeat.json --execute --outdir ../outputs/B3_tools/cache
+```json
+{ "role": "tool", "tool_call_id": "call_001", "name": "file_reader",
+  "content": "{\"skill_name\":\"file_reader\",...}", "status": "success" }
 ```
 
-## 5. B5：Memory 查找与保存
-
-入口：`code/b5_memory.py`
-
-### 5.1 输入文件
-
-| 输入文件 | 说明 |
-|---|---|
-| `configs/memory.yaml` | 记忆根目录、全局/对话目录、索引路径和最大注入字符数。 |
-| `memory/memory_index.json` | `memory_id → 元数据` 的索引，记录类型、标题、摘要、路径和时间。 |
-| `memory/global/*.md` | 全局记忆文档。 |
-| `memory/conversations/*.md` | 对话记忆文档。 |
-| `data/memory_inputs/memory_save_input.json` | 保存对话类型记忆的样例，包含 conversation ID、保存类型及三个来源文件路径。 |
-| `data/memory_inputs/memory_save_global_input.json` | 保存全局类型记忆的样例，会写入项目正式记忆目录 `memory/global/` 和 `memory/memory_index.json`。 |
-| `data/memory_inputs/sample_messages.json` | 演示保存记忆时使用的消息数组。 |
-| `data/memory_inputs/sample_trace.json` | 演示保存记忆时使用的 trace 对象。 |
-| `data/memory_inputs/sample_final_answer.md` | 演示保存记忆时使用的最终回答。 |
-| `configs/memory_small_limit.yaml` | 复用当前 `memory/`，仅降低 `max_memory_chars` 用于截断演示。 |
-
-演示B5的查找模式时，直接通过命令行参数传入。`memory_save_input.json` 中的三个来源路径相对于该 JSON 文件所在目录解析，不依赖 B1 输出。
-
-### 5.2 演示命令
-
-查找记忆:
-```bash
-python b5_memory.py --config ../configs/memory.yaml --select_memory_ids mem_conversation_conv_000 --use_global_memory true --query "Agent 系统如何调用工具？" --outdir ../outputs/B5_memory
-python b5_memory.py --config ../configs/memory.yaml --select_memory_ids mem_missing_001 --use_global_memory false --query "验证缺失 memory id 的错误记录。" --outdir ../outputs/B5_memory/missing_id
-python b5_memory.py --config ../configs/memory_small_limit.yaml --select_memory_ids mem_course_001 --use_global_memory false --query "验证 max_memory_chars 截断。" --outdir ../outputs/B5_memory/truncate
-```
-
-保存对话记忆
-```bash
-python b5_memory.py --config ../configs/memory.yaml --save_type conversation --save_input_path ../data/memory_inputs/memory_save_input.json --outdir ../outputs/B5_memory
-python b5_memory.py --config ../configs/memory.yaml --save_type global --save_input_path ../data/memory_inputs/memory_save_global_input.json --outdir ../outputs/B5_memory/save_global
-```
-
-B5 保存命令会更新项目正式记忆目录：生成或覆盖 `memory/conversations/*.md` / `memory/global/*.md`，并新增或更新 `memory/memory_index.json`。`memory_save_global_input.json` 使用唯一 `conversation_id=demo_global_memory_001`，避免覆盖已有示例。
-
-### 5.3 B5 输出
-
-| 输出文件 | 格式 | 说明 |
-|---|---|---|
-| `outputs/B5_memory/selected_memory.json` | JSON 对象 | 本次选中的记忆内容、字符统计、截断标志和缺失 ID 错误。 |
-| `outputs/B5_memory/memory_log.jsonl` | JSONL | 记忆查找与保存历史。 |
-| `outputs/B5_memory/saved_memory.json` | JSON 对象 | 已保存记忆的 ID、类型、标题、摘要、文档路径、来源路径和时间。 |
-| `memory/conversations/conv_sample_001.md` | Markdown | 独立保存命令生成的对话记忆文档，内含最终回答、messages 和 trace。 |
-| `memory/global/demo_global_memory_001.md` | Markdown | 全局保存样例生成的全局记忆文档。 |
-| `memory/memory_index.json` | JSON 对象 | 保存后新增或更新对应记忆元数据。 |
-
-`selected_memory.json` 和 `saved_memory.json` 会覆盖；`memory_log.jsonl` 追加；索引和 Markdown 记忆文档会新增或更新。
-
-### 5.4 B5 主动记忆增强与评测
-
-当前 B5 在保持 `load_memory` / `save_memory` 函数签名兼容的基础上，新增了主动记忆管理能力，均由 `configs/memory.yaml` 控制：
-
-- 检索层：`none|keyword|vector|hybrid`，支持 chunk（`use_chunk`）、BM25、hashing/Qwen 向量、RRF、三因子重排（`use_three_factor` + `three_factor_weights` + `three_factor_top_m`）、HyDE 与 rerank 兜底；chunk 和 embedding 会按内容 hash 缓存在 `memory_retrieval_cache.sqlite3`。三因子采用归一化加权和（相关度分量用各路检索原始分数的 min-max 归一化），时近性/重要性只在相关度前 `three_factor_top_m` 名候选内参与重排。
-- 压缩层：超预算记忆优先摘要压缩，模型不可用时退化为抽取式摘要。
-- 整合层：重复 / 补充 / 冲突更新生成 `change_report`，保存时输出 `importance` 与 `poison_gate` 状态。
-- 生命周期层：维护 `last_accessed_at` / `access_count`（评测时可用 `lifecycle.update_access_on_load: false` 关闭回写，保证对照可复现），支持容量淘汰，并按 embedding 聚类触发周期性 reflection 全局记忆。
-- 评测层：`code/evals/evaluate_b5_memory.py` 对标注 query 计算 Hit@1/3/5、MRR、nDCG@5 与平均检索延迟。
-- 可复现：每次 `load/save` 都会把全部配置开关与依赖版本快照追加到 `memory_log.jsonl`。
-
-检索评测示例：
-
-```bash
-python evals/evaluate_b5_memory.py --config ../configs/memory.yaml --queries ../data/memory_eval/b5_eval_queries.json --outdir ../outputs/B5_eval
-```
-
-### 5.5 B5 检索消融实验（RQ1）
-
-标注语料由 `code/evals/build_b5_eval_corpus.py` 生成：24 条多主题记忆（含 2 篇埋点长文档、1 组新旧结论冲突对）+ 20 条带 `relevant_ids` 与 `probe` 设计意图标注的查询，落盘在 `data/memory_eval/corpus/` 与 `data/memory_eval/corpus_queries.json`。
-
-`code/evals/run_b5_ablation.py` 按 proposal 的消融矩阵逐行运行（B0 → KW → VEC → RRF → RRF_CHUNK → HYDE → THREE_F → FULL，每行只增一个组件）：
-
-```bash
-python evals/build_b5_eval_corpus.py
-python evals/run_b5_ablation.py --llm off --outdir ../outputs/B5_ablation_hashing   # 无 GPU 兜底路径
-python evals/run_b5_ablation.py --llm on  --outdir ../outputs/B5_ablation_qwen      # Qwen embedding + HyDE + rerank
-```
-
-每行实际生效的配置写入 `<outdir>/configs/`，逐 query 结果在 `<outdir>/<row>/`，汇总表（总表 + 分探针类型表）在 `<outdir>/ablation_summary.{json,md}`。注意 `--llm off` 时 HYDE 行与 FULL 行会自动回退（与前一行结果相同），Qwen 独有增益要看 `--llm on` 的结果。`--summarize_only` 可在不重跑检索的情况下由已有逐行结果重新生成汇总表。
-
-### 5.6 B5 整合层与 Poison Gate 评测（RQ3 / RQ4）
-
-整合层的重复/补充/冲突判定与 Poison Gate 核验均为**双路架构**：文档级规则（相似度阈值 + 否定词启发）作离线兜底，`llm.enabled` 时叠加 Qwen judge / NLI（失败自动回退规则）。标注样例在 `data/memory_eval/integration_cases.json`（三分类 18 条）与 `data/memory_eval/poison_cases.json`（投毒/正常各 10 条）：
-
-```bash
-python evals/run_b5_integration_eval.py --judge off --outdir ../outputs/B5_integration_rule   # 纯规则基线
-python evals/run_b5_integration_eval.py --judge on  --outdir ../outputs/B5_integration_qwen   # Qwen judge / NLI
-```
-
-输出 `integration_eval.{json,md}`：RQ3 三分类准确率 + 混淆矩阵 + 冲突检出率，RQ4 拦截率 TPR + 误杀率 FPR。
-
-### 5.7 B5 压缩层评测（RQ2）
-
-`data/memory_eval/compression_cases.json` 提供 5 条带关键点清单与对照 QA 的超长样本（2 条复用检索语料长文档）。对每条样本用 硬截断 / 抽取式 / Qwen 生成式 三种方法压到同一预算（全局预算与原文 1/3 的较小者），报关键点保留率（宽松/严格双口径）、压缩比与下游答对率（仅 `--llm on`）：
-
-```bash
-python evals/run_b5_compression_eval.py --llm off --outdir ../outputs/B5_compression_rule
-python evals/run_b5_compression_eval.py --llm on  --outdir ../outputs/B5_compression_qwen
-```
-
-### 5.8 B5 生命周期评测（RQ5）
-
-`evals/run_b5_lifecycle_eval.py` 自带合成数据：淘汰部分构造 30 条元数据（含 pinned/global）压到容量 20，报 `_evict_if_needed` 与独立复算 oracle 的 Kendall τ、保护违例与容量稳定性；反思部分构造 3 簇同主题对话（每簇 4 条）按簇触发 `_reflect_if_needed`，用洞见级查询测反思产物的检索命中率，洞见全文落盘供人工评分。反思聚类阈值按向量后端取值（qwen 0.35 / hashing 0.05，短文本 bigram 余弦系统性偏低）：
-
-```bash
-python evals/run_b5_lifecycle_eval.py --llm off --outdir ../outputs/B5_lifecycle_rule
-python evals/run_b5_lifecycle_eval.py --llm on  --outdir ../outputs/B5_lifecycle_qwen
-```
-
-### 5.9 B5 端到端记忆效用（RQ6）
-
-`data/memory_eval/e2e_tasks.json` 提供 10 个"只有靠记忆才能答对"的任务（答案依赖检索语料中的项目事实）。`evals/run_b5_e2e_eval.py` 在"无记忆 / 经 B5 完整检索管线注入记忆"两个条件下让 Qwen 回答，按答案关键词判分（需 GPU）：
-
-```bash
-python evals/run_b5_e2e_eval.py --outdir ../outputs/B5_e2e
-```
-
-输出有/无记忆的任务成功率、提升幅度与检索命中率。平均步数与重复提问率需完整 B1 多轮循环，在 `run_full_demo` 联调中另行演示。
-
-## 6. B4：真实调用模型 / Mock 调试决策
-
-入口：`code/b4_local_agent_llm.py`
-
-B4 只生成 AIMessage，不执行工具。
-
-### 6.1 输入文件
-
-| 输入文件 | 说明 |
-|---|---|
-| `configs/model.yaml` | 统一真实模型配置：本地 Qwen3.5-4B、Transformers、bf16、`prompt_json`。 |
-| `data/messages/messages_no_tool.json` | 第一阶段独立运行输入，只含 system/user，真实模型应生成 tool call。 |
-| `data/messages/messages_with_tool.json` | 第二阶段独立运行输入，已含 ToolMessage，真实模型应生成最终回答。 |
-| `data/messages/messages_with_error_tool.json` | 已含失败 ToolMessage，验证模型直接说明失败并保持 `tool_calls=[]`。 |
-| `data/messages/tools_schema_basic.json` | B4个人演示使用的预设tools_schema工具说明，不依赖B3的预先运行。 |
-
-### 6.2 演示命令
-
-真实加载调用模型:
-B4 第一阶段，生成 tool_call：
-```bash
-python b4_local_agent_llm.py --model_config ../configs/model.yaml --messages ../data/messages/messages_no_tool.json --tools_schema ../data/messages/tools_schema_basic.json --mode prompt_json --outdir ../outputs/B4_llm/no_tool_real
-```
-
-B4 第二阶段，生成 final_answer：
-```bash
-python b4_local_agent_llm.py --model_config ../configs/model.yaml --messages ../data/messages/messages_with_tool.json --tools_schema ../data/messages/tools_schema_basic.json --mode prompt_json --outdir ../outputs/B4_llm/with_tool_real
-```
-
-B4处理工具调用失败的ToolMessage结果
-```bash
-python b4_local_agent_llm.py --model_config ../configs/model.yaml --messages ../data/messages/messages_with_error_tool.json --tools_schema ../data/messages/tools_schema_basic.json --mode prompt_json --outdir ../outputs/B4_llm/error_tool_real
-```
-
-mock调试模式:
-```bash
-python b4_local_agent_llm.py --model_config ../configs/model.yaml --messages ../data/messages/messages_no_tool.json --tools_schema ../data/messages/tools_schema_basic.json --mode mock --outdir ../outputs/B4_llm
-python b4_local_agent_llm.py --model_config ../configs/model.yaml --messages ../data/messages/messages_with_tool.json --tools_schema ../data/messages/tools_schema_basic.json --mode mock --outdir ../outputs/B4_llm
-```
-
-mock 不加载模型、不占用显存，适合无 GPU、无本地模型或其他模块同学联调，不作为正式基础演示截图。
-
-### 6.3 B4 输出
-
-| 输出文件 | 格式 | 说明 |
-|---|---|---|
-| `outputs/B4_llm/<case>/raw_model_output.json` | JSON 对象 | 原始生成文本、解析候选、模式、backend、状态、错误和生成时间。若`status`为 `error`，说明模型输出未能解析成合法 AIMessagemock。mock模式也会生成该记录。 |
-| `outputs/B4_llm/<case>/ai_message.json` | JSON 对象（AIMessage） | 规范化后的工具调用或最终回答。 |
-| `outputs/B4_llm/<case>/llm_run_log.jsonl` | JSONL | B4 独立运行历史及产物路径。 |
-
-mock调试的演示命令共用 ../outputs/B4_llm，因此第二条会覆盖第一条的 raw_model_output.json 和 ai_message.json，但日志会追加。
-
-## 7. B1：Agent Runtime
-
-入口：`code/b1_agent_runtime.py`
-
-B1 支持两种明确的执行模式：`fixture` 用于完全隔离的个人演示，直接消费预设 memory、tools schema、AIMessage 和 ToolMessage；`integrated` 用于全系统演示，只通过 B3、B4、B5 的公开函数进行编排。
-
-### 7.1 直接输入文件
-
-#### 个人演示 fixture 模式
-
-| 输入文件 | 说明 |
-|---|---|
-| `data/b1_fixtures/b1_fixture_input.json` | B1 个人演示入口，设置 `execution_mode=fixture` 并引用全部预设响应。 |
-| `data/b1_fixtures/preset_memory.json` | 模拟 B5 返回的 selected memory。 |
-| `data/b1_fixtures/preset_ai_messages.json` | 模拟 B4 依次返回的工具调用 AIMessage 和最终回答 AIMessage。 |
-| `data/b1_fixtures/preset_tool_messages.json` | 按 `tool_call_id` 模拟 B3 返回的 ToolMessage。 |
-| `data/messages/tools_schema_basic.json` | 模拟 B3 返回的固定 tools schema。 |
-
-#### 全系统演示 integrated 模式
-
-| 输入文件 | 说明 |
-|---|---|
-| `data/runtime_input.json` | file_reader 主线任务，读取 `docs/agent_intro.txt` 并总结三条中文要点。 |
-| `data/runtime_input_0.json` | 无工具倾向任务，验证模型直接回答。 |
-| `data/runtime_input_2.json` | calculator 任务。 |
-| `data/runtime_input_3.json` | local_file_search 任务。 |
-| `data/runtime_input_4.json` | table_analyzer 任务。 |
-| `data/runtime_input_5.json` | format_converter 任务。 |
-| `configs/tools.yaml` | 传给 B3，确定可用工具及数据根目录。 |
-| `configs/memory.yaml` | 传给 B5，确定 memory 路径和长度上限。 |
-| `configs/model.yaml` | 统一真实模型配置。 |
-
-### 7.2 间接读取文件
-
-| 文件 | 读取原因 |
-|---|---|
-| `prompts/local_tool_agent.txt` | fixture 和 integrated 输入指定的 SystemMessage 模板。 |
-| `memory/memory_index.json`、`memory/global/*.md` | 仅 integrated 模式读取；B5 查找并返回 memory 上下文。 |
-| `data/docs/agent_intro.txt` | integrated file_reader 流程实际读取；fixture 模式使用预设 ToolMessage。 |
-
-### 7.3 演示命令
-
-个人演示 fixture 模式：
-
-```bash
-python b1_agent_runtime.py --input ../data/b1_fixtures/b1_fixture_input.json --outdir ../outputs/B1_fixture
-```
-
-该命令不会调用 B2–B5。
-
-全系统 integrated 调试模式：
-
-```bash
-python b1_agent_runtime.py --input ../data/runtime_input.json --tools_config ../configs/tools.yaml --memory_config ../configs/memory.yaml --model_config ../configs/model.yaml --llm_mode mock --outdir ../outputs/B1_runtime
-```
-
-该命令以 B1 为入口真实调用 B3、B4、B5，但 LLM 使用mock；正式全系统演示推荐使用下一节的真实模型 full demo，或将'--llm_mode mock'改为'--llm_mode prompt_json'。
-
-### 7.4 B1 输出
-
-#### 个人演示 fixture 模式
-
-| 输出文件 | 格式 | 说明 |
-|---|---|---|
-| `outputs/B1_fixture/messages.json` | JSON 数组 | B1 根据预设响应维护出的完整消息序列，顶层固定为数组。 |
-| `outputs/B1_fixture/trace.json` | JSON 对象 | B1 的分支判断、消息追加、工具轮次和最终状态。 |
-| `outputs/B1_fixture/final_answer.md` | Markdown | 从预设最终 AIMessage 提取的最终回答。 |
-
-fixture模式只生成以上三个文件，不生成 runtime log、memory文档或其他模块的产物。
-
-#### 全系统演示 integrated 模式
-
-| 输出文件 | 格式 | 说明 |
-|---|---|---|
-| `outputs/B1_runtime/messages.json` | JSON 数组 | 完整消息序列，顶层固定为数组。 |
-| `outputs/B1_runtime/trace.json` | JSON 对象 | 运行状态、工具轮次、LLM 次数、每轮 AI/ToolMessage、memory 保存状态和错误。 |
-| `outputs/B1_runtime/final_answer.md` | Markdown | 最终给用户的回答。 |
-| `outputs/B1_runtime/selected_memory.json` | JSON 对象 | B1 调用 B5 后保存的 memory 选择结果。 |
-| `outputs/B1_runtime/tools_schema.json` | JSON 数组 | B1 调用 B3 后保存的当前工具 schema。 |
-| `outputs/B1_runtime/tool_schema_report.json` | JSON 对象 | 当前 toolset 的 schema 摘要。 |
-| `outputs/B1_runtime/tool_messages.json` | JSON 数组 | 本次 Agent 运行累计产生的 ToolMessage。 |
-| `outputs/B1_runtime/tool_call_log.jsonl` | JSONL | B3 工具执行明细。 |
-| `outputs/B1_runtime/saved_memory.json` | JSON 对象 | B5 保存本轮对话后的结果。 |
-| `outputs/B1_runtime/memory_log.jsonl` | JSONL | B1 运行期间的 memory 查找和保存记录。 |
-| `outputs/B1_runtime/runtime_log.jsonl` | JSONL | B1 每次完整任务的状态、模式、轮次、调用数和总耗时。 |
-| `outputs/B1_runtime/llm_calls/llm_call_NNN_raw_model_output.json` | JSON 对象 | 第 N 次 B4 调用的原始输出记录。 |
-| `outputs/B1_runtime/llm_calls/llm_call_NNN_ai_message.json` | JSON 对象 | 第 N 次 B4 调用生成的标准 AIMessage。 |
-| `outputs/B1_runtime/llm_calls/llm_run_log.jsonl` | JSONL | 本次 B1 运行内所有 B4 调用的日志。 |
-| `memory/conversations/conv_001.md` | Markdown | B1 按 `save_memory=conversation` 保存的对话 memory。 |
-| `memory/memory_index.json` | JSON 对象 | B1 保存 memory 后更新的索引。 |
-
-## 8. 完整一键演示
-
-入口：`code/run_full_demo.py`
-
-### 8.1 输入文件
-
-输入与 B1 相同：
-
-- `data/runtime_input.json`
-- `configs/tools.yaml`
-- `configs/memory.yaml`
-- `configs/model.yaml`
-- 以上配置间接引用的 prompt、memory 和演示文档
-
-### 8.2 命令
-
-```bash
-python run_full_demo.py --input ../data/runtime_input.json --tools_config ../configs/tools.yaml --memory_config ../configs/memory.yaml --model_config ../configs/model.yaml --llm_mode prompt_json --outdir ../outputs/full_demo
-```
-
-该正式命令会按 `runtime_input.json` 中的 `save_memory=conversation` 更新 `memory/conversations/conv_001.md` 和 `memory/memory_index.json`。重复演示前请确认是否接受覆盖该 conversation memory。
-
-### 8.3 输出
-
-`run_full_demo.py` 使用 `outputs/full_demo` 作为 B1 integrated 模式的 outdir，因此会生成 integrated 模式的完整 artifacts，并额外生成：
-
-| 输出文件 | 格式 | 说明 |
-|---|---|---|
-| `outputs/full_demo/demo_report.md` | Markdown | 汇总 conversation、运行状态、消息流、工具轮次、LLM 次数、memory 数量、工具数量、最终回答和文件清单。 |
-
-典型成功演示的 `messages.json` 角色顺序为：
-
-```text
-system → user → assistant(tool_calls) → tool → assistant(final)
-```
-
-## 9. CLI 退出码
+### 附录 B：CLI 退出码
 
 | 退出码 | 含义 |
 |---|---|
-| 0 | 成功，或业务错误已被捕获并写入结构化产物。 |
-| 1 | 配置、输入文件、解析、模块加载、模型依赖或输出目录等致命错误。 |
-| 2 | argparse 参数使用错误。 |
+| 0 | 成功，或业务错误已被捕获并写入结构化产物（异常样例也返回 0） |
+| 1 | 配置 / 输入文件 / 解析 / 模块加载 / 模型依赖 / 输出目录等致命错误 |
+| 2 | argparse 参数使用错误 |
 
-## 10.附录  `outputs/` 文件说明
+### 附录 C：B5 记忆模块评测命令（RQ1–RQ6）
 
-本节描述输出目录中的文件。
+```bash
+cd agent/code
+python evals/build_b5_eval_corpus.py                                            # 构造标注语料
 
-### 10.1 `outputs/B1_fixture/`
+# RQ1 检索消融（--llm off 为无 GPU 兜底；--llm on 走 Qwen embedding + HyDE + rerank）
+python evals/run_b5_ablation.py       --llm off --outdir ../outputs/B5_ablation_hashing
+python evals/run_b5_ablation.py       --llm on  --outdir ../outputs/B5_ablation_qwen
+# RQ2 压缩
+python evals/run_b5_compression_eval.py --llm off --outdir ../outputs/B5_compression_rule
+python evals/run_b5_compression_eval.py --llm on  --outdir ../outputs/B5_compression_qwen
+# RQ3 整合三分类 / RQ4 Poison Gate（--judge off 纯规则；--judge on 走 Qwen judge/NLI）
+python evals/run_b5_integration_eval.py --judge off --outdir ../outputs/B5_integration_rule
+python evals/run_b5_integration_eval.py --judge on  --outdir ../outputs/B5_integration_qwen
+# RQ5 生命周期（淘汰 + 反思）
+python evals/run_b5_lifecycle_eval.py --llm off --outdir ../outputs/B5_lifecycle_rule
+python evals/run_b5_lifecycle_eval.py --llm on  --outdir ../outputs/B5_lifecycle_qwen
+# RQ6 端到端记忆效用（需 GPU）
+python evals/run_b5_e2e_eval.py --outdir ../outputs/B5_e2e
+# 检索指标（Hit@1/3/5、MRR、nDCG@5、平均延迟）
+python evals/evaluate_b5_memory.py --config ../configs/memory.yaml --queries ../data/memory_eval/b5_eval_queries.json --outdir ../outputs/B5_eval
+```
 
-| 输出文件 | 直接生成者 | 含义 | 格式 |
-|---|---|---|---|
-| `messages.json` | `b1_agent_runtime.py` fixture 模式 | 使用预设模块响应构造的完整 Agent 消息序列。 | JSON 数组 |
-| `trace.json` | `b1_agent_runtime.py` fixture 模式 | B1 个人演示的轮次、分支、AIMessage 和 ToolMessage 轨迹。 | JSON 对象 |
-| `final_answer.md` | `b1_agent_runtime.py` fixture 模式 | B1 从预设最终 AIMessage 中得到的回答。 | Markdown |
+### 附录 D：各模块独立演示输出
 
-### 10.2 `outputs/B2_skills/`
+| 目录 | 关键文件 | 说明 |
+|---|---|---|
+| `outputs/B1_fixture/` | `messages.json` / `trace.json` / `final_answer.md` | B1 个人演示（仅这三个文件，不生成其他模块产物） |
+| `outputs/B2_skills/` | `<skill>_result.json` / `skill_run_log.jsonl` | 每个 Skill 最近一次 SkillResult（同名覆盖）+ 追加运行日志 |
+| `outputs/B3_tools/` | `tools_schema.json` / `tool_schema_report.json` / `tool_messages.json` / `tool_call_log.jsonl` / `tool_call_stats.json` | schema、ToolMessage、执行明细、进阶调用统计（含 `attempts` / `cache_hit`） |
+| `outputs/B4_llm/<case>/` | `raw_model_output.json` / `ai_message.json` / `llm_run_log.jsonl` | 原始生成、规范化 AIMessage、运行日志 |
+| `outputs/B5_memory/` | `selected_memory.json` / `saved_memory.json` / `memory_log.jsonl` | 记忆查找 / 保存结果（覆盖）+ 追加日志 |
 
-| 输出文件 | 生成代码 | 含义 | 格式 |
-|---|---|---|---|
-| `calculator_result.json` | `b2_run_skill.py` | calculator 最近一次 SkillResult。 | JSON 对象 |
-| `file_reader_result.json` | `b2_run_skill.py` | file_reader 最近一次 SkillResult。 | JSON 对象 |
-| `local_file_search_result.json` | `b2_run_skill.py` | local_file_search 最近一次 SkillResult。 | JSON 对象 |
-| `table_analyzer_result.json` | `b2_run_skill.py` | table_analyzer 最近一次 SkillResult。 | JSON 对象 |
-| `format_converter_result.json` | `b2_run_skill.py` | format_converter 最近一次 SkillResult，包含 `formatted_text` 和 `generated_file_path`。 | JSON 对象 |
-| `skill_run_log.jsonl` | `b2_run_skill.py` | 五类 Skill 的累计运行日志。 | JSONL |
-
-### 10.3 `outputs/B3_tools/`
-
-| 输出文件 | 生成代码 | 含义 | 格式 |
-|---|---|---|---|
-| `tools_schema.json` | `b3_tool_layer.py --export_schema` | `basic_tools` 的模型工具说明。 | JSON 数组 |
-| `tool_schema_report.json` | `b3_tool_layer.py --export_schema` | 工具 schema 数量与名称摘要。 | JSON 对象 |
-| `tool_messages.json` | `b3_tool_layer.py --execute` | 本次 tool calls 对应的 ToolMessage。 | JSON 数组 |
-| `tool_call_log.jsonl` | `b3_tool_layer.py --execute` | tool calls 的累计执行明细。 | JSONL |
-
-### 10.4 `outputs/B4_llm/`
-
-| 输出文件 | 生成代码 | 含义 | 格式 |
-|---|---|---|---|
-| `<case>/raw_model_output.json` | `b4_local_agent_llm.py` | B4 独立运行案例的原始输出和解析状态。 | JSON 对象 |
-| `<case>/ai_message.json` | `b4_local_agent_llm.py` | B4 独立运行案例的规范化 AIMessage。 | JSON 对象 |
-| `<case>/llm_run_log.jsonl` | `b4_local_agent_llm.py` | B4 独立运行案例的运行日志。 | JSONL |
-
-### 10.5 `outputs/B5_memory/`
-
-| 输出文件 | 生成代码 | 含义 | 格式 |
-|---|---|---|---|
-| `selected_memory.json` | `b5_memory.py` 查找模式 | 最近一次 memory 选择及截断结果。 | JSON 对象 |
-| `saved_memory.json` | `b5_memory.py` 保存模式 | 最近一次 memory 保存结果和目标路径。 | JSON 对象 |
-| `memory_log.jsonl` | `b5_memory.py` | memory 查找/保存累计日志。 | JSONL |
-
-### 10.6 `outputs/B1_runtime/`
-
-| 输出文件 | 直接生成者 | 含义 | 格式 |
-|---|---|---|---|
-| `messages.json` | `b1_agent_runtime.py` | 完整 Agent 消息序列。 | JSON 数组 |
-| `trace.json` | `b1_agent_runtime.py` | 完整运行轨迹、轮次、状态和错误。 | JSON 对象 |
-| `final_answer.md` | `b1_agent_runtime.py` | 最终回答。 | Markdown |
-| `runtime_log.jsonl` | `b1_agent_runtime.py` | B1 累计任务日志。 | JSONL |
-| `selected_memory.json` | `b5_memory.load_memory`，由 B1 指定 outdir | 注入消息前选择的 memory。 | JSON 对象 |
-| `memory_log.jsonl` | `b5_memory.py`，由 B1 调用 | 本轮 memory 查找及保存日志。 | JSONL |
-| `saved_memory.json` | `b5_memory.save_memory`，由 B1 调用 | 本轮对话 memory 保存结果。 | JSON 对象 |
-| `tools_schema.json` | `b3_tool_layer.get_tools_schema`，由 B1 调用 | 本轮可用工具 schema。 | JSON 数组 |
-| `tool_schema_report.json` | `b3_tool_layer.py`，由 B1 调用 | 本轮工具集摘要。 | JSON 对象 |
-| `tool_messages.json` | B3 生成、B1 汇总 | 本轮所有 ToolMessage。 | JSON 数组 |
-| `tool_call_log.jsonl` | `b3_tool_layer.execute_tool_calls`，由 B1 调用 | 本轮工具执行明细。 | JSONL |
-| `llm_calls/llm_call_001_raw_model_output.json` | `b4_local_agent_llm.generate_ai_message` | 第一次 LLM 决策的原始输出。 | JSON 对象 |
-| `llm_calls/llm_call_001_ai_message.json` | `b4_local_agent_llm.generate_ai_message` | 第一次标准 AIMessage，包含 tool call。 | JSON 对象 |
-| `llm_calls/llm_call_002_raw_model_output.json` | `b4_local_agent_llm.generate_ai_message` | 第二次 LLM 决策的原始输出。 | JSON 对象 |
-| `llm_calls/llm_call_002_ai_message.json` | `b4_local_agent_llm.generate_ai_message` | 第二次标准 AIMessage，包含 final content。 | JSON 对象 |
-| `llm_calls/llm_run_log.jsonl` | `b4_local_agent_llm.py`，由 B1 调用 | 本轮两次 LLM 调用日志。 | JSONL |
-
-### 10.7 `outputs/full_demo/`
-
-| 输出文件 | 直接生成者 | 含义 | 格式 |
-|---|---|---|---|
-| `messages.json` | `b1_agent_runtime.py`，由 `run_full_demo.py` 调用 | 完整演示消息序列。 | JSON 数组 |
-| `trace.json` | `b1_agent_runtime.py` | 完整演示运行轨迹。 | JSON 对象 |
-| `final_answer.md` | `b1_agent_runtime.py` | 完整演示最终回答。 | Markdown |
-| `runtime_log.jsonl` | `b1_agent_runtime.py` | 完整演示运行日志。 | JSONL |
-| `selected_memory.json` | `b5_memory.load_memory` | 完整演示选择的 memory。 | JSON 对象 |
-| `memory_log.jsonl` | `b5_memory.py` | 完整演示的 memory 查找/保存日志。 | JSONL |
-| `saved_memory.json` | `b5_memory.save_memory` | 完整演示保存的对话 memory 信息。 | JSON 对象 |
-| `tools_schema.json` | `b3_tool_layer.get_tools_schema` | 完整演示使用的工具 schema。 | JSON 数组 |
-| `tool_schema_report.json` | `b3_tool_layer.py` | 完整演示工具集摘要。 | JSON 对象 |
-| `tool_messages.json` | B3 生成、B1 汇总 | 完整演示产生的 ToolMessage。 | JSON 数组 |
-| `tool_call_log.jsonl` | `b3_tool_layer.execute_tool_calls` | 完整演示工具执行明细。 | JSONL |
-| `llm_calls/llm_call_001_raw_model_output.json` | `b4_local_agent_llm.py` | 第一次 LLM 原始输出。 | JSON 对象 |
-| `llm_calls/llm_call_001_ai_message.json` | `b4_local_agent_llm.py` | 第一次 AIMessage，包含 tool call。 | JSON 对象 |
-| `llm_calls/llm_call_002_raw_model_output.json` | `b4_local_agent_llm.py` | 第二次 LLM 原始输出。 | JSON 对象 |
-| `llm_calls/llm_call_002_ai_message.json` | `b4_local_agent_llm.py` | 第二次 AIMessage，包含最终回答。 | JSON 对象 |
-| `llm_calls/llm_run_log.jsonl` | `b4_local_agent_llm.py` | 完整演示 LLM 调用日志。 | JSONL |
-| `demo_report.md` | `run_full_demo.py` | 对完整演示状态、数据流、最终回答和文件清单的汇总。 | Markdown |
+> 说明：`b1_agent_runtime.py` 的 `fixture` 模式用于完全隔离的个人演示（直接消费预设 memory / tools_schema / AIMessage / ToolMessage）；`integrated` 模式仅通过 B3/B4/B5 的公开函数编排全链路。B4 的 `mock` 模式不真实加载模型，供无 GPU / 无模型 / 模块联调时调试，不作为正式基础演示截图。
